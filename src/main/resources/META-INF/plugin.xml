@@ -1,7 +1,7 @@
 <idea-plugin>
-    <id>com.nbadal</id>
-    <name>ktlint</name>
-    <vendor>nbadal</vendor>
+    <id>com.nbadal.ktlint</id>
+    <name>ktlint (unofficial)</name>
+    <vendor url="https://nbad.al">Nick Badal</vendor>
 
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
