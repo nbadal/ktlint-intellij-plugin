@@ -1,6 +1,6 @@
 <idea-plugin>
-    <id>com.github.nbadal.ktlintintellijplugin</id>
-    <name>ktlint-intellij-plugin</name>
+    <id>com.nbadal</id>
+    <name>ktlint</name>
     <vendor>nbadal</vendor>
 
     <!-- Product and plugin compatibility requirements -->
@@ -8,12 +8,12 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.nbadal.ktlintintellijplugin.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.nbadal.ktlintintellijplugin.services.MyProjectService"/>
+        <applicationService serviceImplementation="com.nbadal.ktlint.services.MyApplicationService"/>
+        <projectService serviceImplementation="com.nbadal.ktlint.services.MyProjectService"/>
     </extensions>
 
     <projectListeners>
-        <listener class="com.github.nbadal.ktlintintellijplugin.listeners.MyProjectManagerListener"
+        <listener class="com.nbadal.ktlint.listeners.MyProjectManagerListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </projectListeners>
 </idea-plugin>

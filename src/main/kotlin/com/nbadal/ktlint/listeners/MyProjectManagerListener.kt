@@ -1,8 +1,8 @@
-package com.github.nbadal.ktlintintellijplugin.listeners
+package com.nbadal.ktlint.listeners
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener
-import com.github.nbadal.ktlintintellijplugin.services.MyProjectService
+import com.nbadal.ktlint.services.MyProjectService
 
 internal class MyProjectManagerListener : ProjectManagerListener {
 

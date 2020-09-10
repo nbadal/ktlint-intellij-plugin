@@ -1,4 +1,4 @@
-package com.github.nbadal.ktlintintellijplugin
+package com.nbadal.ktlint
 
 import com.intellij.AbstractBundle
 import org.jetbrains.annotations.NonNls
