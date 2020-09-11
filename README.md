@@ -8,6 +8,8 @@
 Automatically runs [ktlint](https://ktlint.github.io/) on Kotlin files, and annotates any errors found.
 <!-- Plugin description end -->
 
+Adding more features over time: [TODO.md](TODO.md)
+
 ## Installation
 
 - Using IDE built-in plugin system:
