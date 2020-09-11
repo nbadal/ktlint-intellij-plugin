@@ -3,17 +3,12 @@
     <name>ktlint (unofficial)</name>
     <vendor url="https://nbad.al">Nick Badal</vendor>
 
-    <!-- Product and plugin compatibility requirements -->
-    <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.nbadal.ktlint.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.nbadal.ktlint.services.MyProjectService"/>
+        <externalAnnotator language="kotlin" implementationClass="com.nbadal.ktlint.KtlintAnnotator"/>
+        <projectService serviceImplementation="com.nbadal.ktlint.KtlintConfigStorage"/>
+        <projectConfigurable groupId="tools" displayName="ktlint" id="preferences.ktlint"
+                             instance="com.nbadal.ktlint.KtlintConfig"/>
     </extensions>
-
-    <projectListeners>
-        <listener class="com.nbadal.ktlint.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </projectListeners>
 </idea-plugin>

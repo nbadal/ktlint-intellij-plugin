@@ -39,6 +39,9 @@ repositories {
 }
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.12.0")
+    implementation("com.pinterest.ktlint:ktlint-core:0.38.1")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.38.1")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-experimental:0.38.1")
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -52,8 +55,8 @@ intellij {
 
 //  Plugin Dependencies:
 //  https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html
-//
-//  setPlugins("java")
+
+    setPlugins("Kotlin")
 }
 
 // Configure detekt plugin.
