@@ -1,3 +1,5 @@
+<img src='/src/main/resources/META-INF/pluginIcon.svg?raw=true' alt="plugin icon" width='128' />  
+
 # ktlint-intellij-plugin
 
 ![Build](https://github.com/nbadal/ktlint-intellij-plugin/workflows/Build/badge.svg)
