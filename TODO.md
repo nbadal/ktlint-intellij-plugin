@@ -10,6 +10,7 @@
 - [ ] Add settings buttons to apply global/project ktlint configs
 - [ ] Add settings buttons for pre-push and pre-commit hooks if VCS is present
 - [ ] Support partial-line error annotations. (probably requires a ktlint-core change)
+- [ ] Add plugin [error reporting](https://www.plugin-dev.com/intellij/general/error-reporting/)
 
 ### Done ✓
 - [x] MVP (automatic inspections)
