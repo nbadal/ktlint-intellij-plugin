@@ -8,39 +8,48 @@ import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 
 internal fun doLint(
     file: PsiFile,
-    android: Boolean = false,
-    experimental: Boolean = false,
-    disabledRules: List<String>? = null,
-    editorConfigPath: String? = null,
-): List<LintError> {
+    config: KtlintConfigStorage,
+    format: Boolean
+): LintResult {
+    val disabledRules: List<String>? = null
+    val editorConfigPath: String? = null
+
     val userData = listOfNotNull(
-        "android" to android.toString(),
+        "android" to config.androidMode.toString(),
         disabledRules?.let { "disabled_rules" to it.joinToString(",") },
     ).toMap()
 
-    val errors = mutableListOf<LintError>()
+    val correctedErrors = mutableListOf<LintError>()
+    val uncorrectedErrors = mutableListOf<LintError>()
 
-    val onError: (LintError, Boolean) -> Unit = { lintError, _ -> errors.add(lintError) }
-    val ruleSets = findRulesets(experimental)
-
-    KtLint.lint(
-        KtLint.Params(
-            fileName = file.virtualFile.name,
-            text = file.text,
-            ruleSets = ruleSets,
-            userData = userData,
-            script = !file.virtualFile.name.endsWith(".kt", ignoreCase = true),
-            editorConfigPath = editorConfigPath,
-            debug = false,
-            cb = onError,
-        )
+    val params = KtLint.Params(
+        fileName = file.virtualFile.name,
+        text = file.text,
+        ruleSets = findRulesets(config.useExperimental),
+        userData = userData,
+        script = !file.virtualFile.name.endsWith(".kt", ignoreCase = true),
+        editorConfigPath = editorConfigPath,
+        debug = false,
+        cb = { lintError, corrected -> if (corrected) correctedErrors.add(lintError) else uncorrectedErrors.add(lintError) },
     )
 
-    return errors
+    if (format) {
+        val results = KtLint.format(params)
+        file.viewProvider.document?.setText(results)
+    } else {
+        KtLint.lint(params)
+    }
+
+    return LintResult(correctedErrors, uncorrectedErrors)
 }
 
 private fun findRulesets(experimental: Boolean) = listOfNotNull(
     // these should be loaded via ServiceLoader from the classpath + provided jar paths
     StandardRuleSetProvider().get(),
     if (experimental) ExperimentalRuleSetProvider().get() else null,
+)
+
+data class LintResult(
+    val correctedErrors: List<LintError>,
+    val uncorrectedErrors: List<LintError>,
 )
