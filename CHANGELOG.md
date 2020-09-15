@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.1.0]
+### Added
 - Added action to format file from quick-fix menu of ktlint error annotations
 - Added action to disable ktlint from annotations
 
