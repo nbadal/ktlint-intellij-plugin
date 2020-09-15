@@ -30,7 +30,13 @@ internal fun doLint(
         script = !file.virtualFile.name.endsWith(".kt", ignoreCase = true),
         editorConfigPath = editorConfigPath,
         debug = false,
-        cb = { lintError, corrected -> if (corrected) correctedErrors.add(lintError) else uncorrectedErrors.add(lintError) },
+        cb = { lintError, corrected ->
+            if (corrected) {
+                correctedErrors.add(lintError)
+            } else {
+                uncorrectedErrors.add(lintError)
+            }
+        },
     )
 
     if (format) {
