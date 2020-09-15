@@ -5,6 +5,7 @@
 ## [Unreleased]
 ### Added
 - Added action to format file from quick-fix menu of ktlint error annotations
+- Added action to disable ktlint from annotations
 
 ### Changed
 
