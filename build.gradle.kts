@@ -41,9 +41,9 @@ repositories {
 }
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.13.1")
-    implementation("com.pinterest.ktlint:ktlint-core:0.38.1")
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.38.1")
-    implementation("com.pinterest.ktlint:ktlint-ruleset-experimental:0.38.1")
+    implementation("com.pinterest.ktlint:ktlint-core:0.39.0")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.39.0")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-experimental:0.39.0")
 }
 
 // Configure gradle-intellij-plugin plugin.

@@ -7,6 +7,7 @@
 - Plugin setting for disabled rules
 
 ### Changed
+- Update ktlint to 0.39.0
 
 ### Deprecated
 
