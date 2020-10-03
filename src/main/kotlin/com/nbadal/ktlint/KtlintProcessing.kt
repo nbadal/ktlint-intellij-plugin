@@ -11,13 +11,12 @@ internal fun doLint(
     config: KtlintConfigStorage,
     format: Boolean
 ): LintResult {
-    val disabledRules: List<String>? = null
     val editorConfigPath: String? = null
 
-    val userData = listOfNotNull(
+    val userData = mapOf(
         "android" to config.androidMode.toString(),
-        disabledRules?.let { "disabled_rules" to it.joinToString(",") },
-    ).toMap()
+        "disabled_rules" to config.disabledRules,
+    )
 
     val correctedErrors = mutableListOf<LintError>()
     val uncorrectedErrors = mutableListOf<LintError>()

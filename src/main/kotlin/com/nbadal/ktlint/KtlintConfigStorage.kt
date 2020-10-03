@@ -25,6 +25,9 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     @Tag
     var treatAsErrors = true
 
+    @Tag
+    var disabledRules = ""
+
     override fun getState(): KtlintConfigStorage = this
 
     override fun loadState(state: KtlintConfigStorage) {
@@ -32,6 +35,7 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
         this.androidMode = state.androidMode
         this.useExperimental = state.useExperimental
         this.treatAsErrors = state.treatAsErrors
+        this.disabledRules = state.disabledRules
     }
 
     companion object {

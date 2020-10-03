@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 ### Added
+- Plugin setting for disabled rules
 
 ### Changed
 
