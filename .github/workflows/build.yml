@@ -152,7 +152,7 @@ jobs:
       # Run IntelliJ Plugin Verifier action using GitHub Action
       - name: Verify Plugin
         id: verify
-        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v0.0.2
+        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.0.3
         with:
           plugin-location: plugin-artifact/*.zip
           ide-versions: |
