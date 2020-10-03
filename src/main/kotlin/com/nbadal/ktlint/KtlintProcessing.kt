@@ -13,10 +13,10 @@ internal fun doLint(
 ): LintResult {
     val editorConfigPath: String? = null
 
-    val userData = mapOf(
+    val userData = listOfNotNull(
         "android" to config.androidMode.toString(),
-        "disabled_rules" to config.disabledRules,
-    )
+        config.disabledRules.let { if (it.isNotEmpty()) ("disabled_rules" to it) else null },
+    ).toMap()
 
     val correctedErrors = mutableListOf<LintError>()
     val uncorrectedErrors = mutableListOf<LintError>()
