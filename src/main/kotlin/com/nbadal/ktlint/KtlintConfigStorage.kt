@@ -26,7 +26,7 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     var treatAsErrors = true
 
     @Tag
-    var disabledRules = ""
+    var disabledRules: List<String> = emptyList()
 
     override fun getState(): KtlintConfigStorage = this
 

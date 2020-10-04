@@ -31,13 +31,16 @@ class KtlintConfigForm(private val config: KtlintConfigStorage) {
         config.useExperimental = enableExperimental.isSelected
         config.treatAsErrors = treatAsErrors.isSelected
         config.disabledRules = disabledRules.text
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
     }
 
     fun reset() {
         enableKtlint.isSelected = config.enableKtlint
         enableExperimental.isSelected = config.useExperimental
         treatAsErrors.isSelected = config.treatAsErrors
-        disabledRules.text = config.disabledRules
+        disabledRules.text = config.disabledRules.joinToString(", ")
     }
 
     val isModified

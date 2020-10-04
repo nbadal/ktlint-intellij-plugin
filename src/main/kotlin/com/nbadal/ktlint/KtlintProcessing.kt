@@ -16,13 +16,9 @@ internal fun doLint(
 
     val userData = listOfNotNull(
         "android" to config.androidMode.toString(),
-        // Trim and remove empty items, or ignore empty list so we don't override .editorconfig
+        // Skip entry if empty, so we don't overwrite the .editorconfig
         config.disabledRules
-            .split(",")
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-            .joinToString(",")
-            .let { if (it.isNotEmpty()) ("disabled_rules" to it) else null },
+            .let { if (it.isNotEmpty()) ("disabled_rules" to it.joinToString(",")) else null },
     ).toMap()
 
     var fileName = file.virtualFile.name
