@@ -1,3 +1,4 @@
+import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
@@ -17,6 +18,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     private lateinit var enableExperimental: JCheckBox
     private lateinit var treatAsErrors: JCheckBox
     private lateinit var disabledRules: JTextField
+    private lateinit var externalJarPaths: TextFieldWithBrowseButton
     private lateinit var editorConfigPath: TextFieldWithBrowseButton
 
     fun createComponent(): JComponent {
@@ -28,8 +30,16 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
             androidMode.isEnabled = enabled
             treatAsErrors.isEnabled = enabled
             disabledRules.isEnabled = enabled
+            externalJarPaths.isEnabled = enabled
             editorConfigPath.isEnabled = enabled
         }
+
+        externalJarPaths.addBrowseFolderListener(
+            null,
+            null,
+            project,
+            FileChooserDescriptor(true, false, true, true, false, true)
+        )
 
         editorConfigPath.addBrowseFolderListener(
             null,
@@ -50,6 +60,10 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
             .split(",")
             .map { it.trim() }
             .filter { it.isNotBlank() }
+        config.externalJarPaths = externalJarPaths.text
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
         config.editorConfigPath = editorConfigPath.text
             .trim()
             .let { if (it.isNotBlank()) it else null }
@@ -61,6 +75,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
         enableExperimental.isSelected = config.useExperimental
         treatAsErrors.isSelected = config.treatAsErrors
         disabledRules.text = config.disabledRules.joinToString(", ")
+        externalJarPaths.text = config.externalJarPaths.joinToString(", ")
         editorConfigPath.text = config.editorConfigPath ?: ""
     }
 
@@ -71,6 +86,8 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
                 Comparing.equal(config.useExperimental, enableExperimental.isSelected) &&
                 Comparing.equal(config.treatAsErrors, treatAsErrors.isSelected) &&
                 Comparing.equal(config.disabledRules, disabledRules.text) &&
+                Comparing.equal(config.externalJarPaths, externalJarPaths.text) &&
                 Comparing.equal(config.editorConfigPath, editorConfigPath.text)
             )
 }
+//   /Users/nbadal/tmp/kotlin-test-ktlint/rules/test-ruleset.jar

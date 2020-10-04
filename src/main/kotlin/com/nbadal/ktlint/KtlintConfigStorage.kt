@@ -31,6 +31,9 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     @Tag
     var editorConfigPath: String? = null
 
+    @Tag
+    var externalJarPaths: List<String> = emptyList()
+
     override fun getState(): KtlintConfigStorage = this
 
     override fun loadState(state: KtlintConfigStorage) {
@@ -40,10 +43,10 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
         this.treatAsErrors = state.treatAsErrors
         this.disabledRules = state.disabledRules
         this.editorConfigPath = state.editorConfigPath
+        this.externalJarPaths = state.externalJarPaths
     }
 
     companion object {
-        fun instance(project: Project): KtlintConfigStorage =
-            ServiceManager.getService(project, KtlintConfigStorage::class.java)
+        fun instance(project: Project) = ServiceManager.getService(project, KtlintConfigStorage::class.java)!!
     }
 }

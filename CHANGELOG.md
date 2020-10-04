@@ -8,6 +8,7 @@
 - Add support for .editorconfig
 - Add setting for .editorconfig path override
 - Add setting for Android mode
+- Add setting for an external rule set JAR
 
 ### Changed
 - Update ktlint to 0.39.0

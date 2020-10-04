@@ -33,12 +33,10 @@ internal fun doLint(
     val correctedErrors = mutableListOf<LintError>()
     val uncorrectedErrors = mutableListOf<LintError>()
 
-    val rulesets = findRulesets(emptyList(), config.useExperimental)
-
     val params = KtLint.Params(
         fileName = fileName,
         text = file.text,
-        ruleSets = rulesets,
+        ruleSets = findRulesets(config.externalJarPaths, config.useExperimental),
         userData = userData,
         script = !file.virtualFile.name.endsWith(".kt", ignoreCase = true),
         editorConfigPath = config.editorConfigPath,
