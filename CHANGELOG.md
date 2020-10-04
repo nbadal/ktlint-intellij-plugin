@@ -6,6 +6,7 @@
 ### Added
 - Plugin setting for disabled rules
 - Add support for .editorconfig
+- Add setting for .editorconfig path override
 
 ### Changed
 - Update ktlint to 0.39.0

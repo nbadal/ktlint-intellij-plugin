@@ -28,6 +28,9 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     @Tag
     var disabledRules: List<String> = emptyList()
 
+    @Tag
+    var editorConfigPath: String? = null
+
     override fun getState(): KtlintConfigStorage = this
 
     override fun loadState(state: KtlintConfigStorage) {
@@ -36,6 +39,7 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
         this.useExperimental = state.useExperimental
         this.treatAsErrors = state.treatAsErrors
         this.disabledRules = state.disabledRules
+        this.editorConfigPath = state.editorConfigPath
     }
 
     companion object {

@@ -12,8 +12,6 @@ internal fun doLint(
     config: KtlintConfigStorage,
     format: Boolean
 ): LintResult {
-    val editorConfigPath: String? = null
-
     val userData = listOfNotNull(
         "android" to config.androidMode.toString(),
         // Skip entry if empty, so we don't overwrite the .editorconfig
@@ -39,7 +37,7 @@ internal fun doLint(
         ruleSets = findRulesets(config.useExperimental),
         userData = userData,
         script = !file.virtualFile.name.endsWith(".kt", ignoreCase = true),
-        editorConfigPath = editorConfigPath,
+        editorConfigPath = config.editorConfigPath,
         debug = false,
         cb = { lintError, corrected ->
             if (corrected) {
