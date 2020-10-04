@@ -148,6 +148,7 @@ jobs:
         uses: actions/download-artifact@v2.0.5
         with:
           name: plugin-artifact
+          path: plugin-artifact
 
       # Run IntelliJ Plugin Verifier action using GitHub Action
       - name: Verify Plugin
@@ -209,6 +210,7 @@ jobs:
         uses: actions/download-artifact@v2.0.5
         with:
           name: plugin-artifact
+          path: plugin-artifact
 
       # Upload artifact as a release asset
       - name: Upload Release Asset
