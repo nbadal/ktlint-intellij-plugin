@@ -13,6 +13,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
 
     private lateinit var mainPanel: JPanel
     private lateinit var enableKtlint: JCheckBox
+    private lateinit var androidMode: JCheckBox
     private lateinit var enableExperimental: JCheckBox
     private lateinit var treatAsErrors: JCheckBox
     private lateinit var disabledRules: JTextField
@@ -24,6 +25,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
         enableKtlint.addChangeListener {
             val enabled = enableKtlint.isSelected
             enableExperimental.isEnabled = enabled
+            androidMode.isEnabled = enabled
             treatAsErrors.isEnabled = enabled
             disabledRules.isEnabled = enabled
             editorConfigPath.isEnabled = enabled
@@ -41,6 +43,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
 
     fun apply() {
         config.enableKtlint = enableKtlint.isSelected
+        config.androidMode = androidMode.isSelected
         config.useExperimental = enableExperimental.isSelected
         config.treatAsErrors = treatAsErrors.isSelected
         config.disabledRules = disabledRules.text
@@ -54,6 +57,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
 
     fun reset() {
         enableKtlint.isSelected = config.enableKtlint
+        androidMode.isSelected = config.androidMode
         enableExperimental.isSelected = config.useExperimental
         treatAsErrors.isSelected = config.treatAsErrors
         disabledRules.text = config.disabledRules.joinToString(", ")
@@ -63,6 +67,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     val isModified
         get() = !(
             Comparing.equal(config.enableKtlint, enableKtlint.isSelected) &&
+                Comparing.equal(config.androidMode, androidMode.isSelected) &&
                 Comparing.equal(config.useExperimental, enableExperimental.isSelected) &&
                 Comparing.equal(config.treatAsErrors, treatAsErrors.isSelected) &&
                 Comparing.equal(config.disabledRules, disabledRules.text) &&
