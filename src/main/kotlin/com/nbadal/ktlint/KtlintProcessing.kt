@@ -1,5 +1,6 @@
 package com.nbadal.ktlint
 
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.psi.PsiFile
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
@@ -15,14 +16,29 @@ internal fun doLint(
 
     val userData = listOfNotNull(
         "android" to config.androidMode.toString(),
-        config.disabledRules.let { if (it.isNotEmpty()) ("disabled_rules" to it) else null },
+        // Trim and remove empty items, or ignore empty list so we don't override .editorconfig
+        config.disabledRules
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .joinToString(",")
+            .let { if (it.isNotEmpty()) ("disabled_rules" to it) else null },
     ).toMap()
+
+    var fileName = file.virtualFile.name
+    // KtLint wants the full file path in order to search for .editorconfig files
+    // Attempt to get the real file path:
+    file.viewProvider.document?.let { doc ->
+        FileDocumentManager.getInstance().getFile(doc)?.let { file ->
+            fileName = file.path
+        }
+    }
 
     val correctedErrors = mutableListOf<LintError>()
     val uncorrectedErrors = mutableListOf<LintError>()
 
     val params = KtLint.Params(
-        fileName = file.virtualFile.name,
+        fileName = fileName,
         text = file.text,
         ruleSets = findRulesets(config.useExperimental),
         userData = userData,
@@ -37,6 +53,9 @@ internal fun doLint(
             }
         },
     )
+
+    // Clear editorconfig cache. (ideally, we could do this if .editorconfig files were changed)
+    KtLint.trimMemory()
 
     if (format) {
         val results = KtLint.format(params)
