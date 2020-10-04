@@ -4,8 +4,10 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.psi.PsiFile
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.ruleset.experimental.ExperimentalRuleSetProvider
-import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
+import com.pinterest.ktlint.core.RuleSetProvider
+import java.io.File
+import java.net.URLClassLoader
+import java.util.ServiceLoader
 
 internal fun doLint(
     file: PsiFile,
@@ -31,10 +33,12 @@ internal fun doLint(
     val correctedErrors = mutableListOf<LintError>()
     val uncorrectedErrors = mutableListOf<LintError>()
 
+    val rulesets = findRulesets(emptyList(), config.useExperimental)
+
     val params = KtLint.Params(
         fileName = fileName,
         text = file.text,
-        ruleSets = findRulesets(config.useExperimental),
+        ruleSets = rulesets,
         userData = userData,
         script = !file.virtualFile.name.endsWith(".kt", ignoreCase = true),
         editorConfigPath = config.editorConfigPath,
@@ -61,11 +65,28 @@ internal fun doLint(
     return LintResult(correctedErrors, uncorrectedErrors)
 }
 
-private fun findRulesets(experimental: Boolean) = listOfNotNull(
-    // these should be loaded via ServiceLoader from the classpath + provided jar paths
-    StandardRuleSetProvider().get(),
-    if (experimental) ExperimentalRuleSetProvider().get() else null,
-)
+private fun findRulesets(paths: List<String>, experimental: Boolean) = ServiceLoader
+    .load(
+        RuleSetProvider::class.java,
+        URLClassLoader(
+            externalRulesetArray(paths),
+            RuleSetProvider::class.java.classLoader
+        )
+    )
+    .associateBy {
+        val key = it.get().id
+        if (key == "standard") "\u0000$key" else key
+    }
+    .filterKeys { experimental || it != "experimental" }
+    .toSortedMap()
+    .map { it.value.get() }
+
+private fun externalRulesetArray(paths: List<String>) = paths
+    .map { it.replaceFirst(Regex("^~"), System.getProperty("user.home")) }
+    .map { File(it) }
+    .filter { it.exists() }
+    .map { it.toURI().toURL() }
+    .toTypedArray()
 
 data class LintResult(
     val correctedErrors: List<LintError>,

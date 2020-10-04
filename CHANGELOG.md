@@ -11,6 +11,7 @@
 ### Changed
 - Update ktlint to 0.39.0
 - Opt-out of kotlint stdlib inclusion
+- Load rule sets via classpath, instead of explicitly
 - Dependency updates
 
 ### Deprecated
