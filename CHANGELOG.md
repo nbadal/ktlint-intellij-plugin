@@ -9,6 +9,7 @@
 ### Changed
 - Update ktlint to 0.39.0
 - Opt-out of kotlint stdlib inclusion
+- Dependency updates
 
 ### Deprecated
 
