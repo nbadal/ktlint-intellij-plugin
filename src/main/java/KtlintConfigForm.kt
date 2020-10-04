@@ -29,8 +29,12 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
             editorConfigPath.isEnabled = enabled
         }
 
-        editorConfigPath.addBrowseFolderListener(null, null, project,
-                FileChooserDescriptorFactory.createSingleFolderDescriptor())
+        editorConfigPath.addBrowseFolderListener(
+            null,
+            null,
+            project,
+            FileChooserDescriptorFactory.createSingleFolderDescriptor()
+        )
 
         return mainPanel
     }
