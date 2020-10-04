@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.2.0]
+### Added
 - Plugin setting for disabled rules
 - Add support for .editorconfig
 - Add setting for .editorconfig path override
