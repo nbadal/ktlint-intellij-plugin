@@ -174,7 +174,7 @@ jobs:
   # If accepted and published, release workflow would be triggered
   releaseDraft:
     name: Release Draft
-    if: github.event_name == "push"
+    if: github.event_name == 'push'
     needs: [build, verify]
     runs-on: ubuntu-latest
     steps:
