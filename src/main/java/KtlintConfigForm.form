@@ -15,7 +15,7 @@
           </grid>
         </constraints>
         <properties>
-          <toolTipText value="Comma-separated list of rules to ignore globally"/>
+          <toolTipText resource-bundle="strings" key="disabledRulesToolTip"/>
         </properties>
       </component>
       <component id="27d8a" class="javax.swing.JLabel">
@@ -23,7 +23,8 @@
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Disabled Rules (--disabled_rules):"/>
+          <labelFor value="9ad09"/>
+          <text resource-bundle="strings" key="disabledRulesLabel"/>
         </properties>
       </component>
       <component id="b76c7" class="javax.swing.JCheckBox" binding="treatAsErrors">
@@ -31,8 +32,8 @@
           <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Treat ktlint errors as errors"/>
-          <toolTipText value="If unchecked, errors are treated as warnings instead"/>
+          <text resource-bundle="strings" key="treatAsErrorsText"/>
+          <toolTipText resource-bundle="strings" key="treatAsErrorsToolTip"/>
         </properties>
       </component>
       <component id="85c28" class="javax.swing.JCheckBox" binding="enableExperimental">
@@ -40,18 +41,18 @@
           <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Use experimental rules (--experimental)"/>
-          <toolTipText value="Enable or disable experimental ktlint rules"/>
+          <text resource-bundle="strings" key="experimentalText"/>
+          <toolTipText resource-bundle="strings" key="experimentalToolTip"/>
         </properties>
       </component>
       <component id="4b496" class="javax.swing.JCheckBox" binding="enableKtlint">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <selected value="true"/>
-          <text value="Enable ktlint"/>
-          <toolTipText value="Whether ktlint will run on file changes"/>
+          <text resource-bundle="strings" key="enableKtlintText"/>
+          <toolTipText resource-bundle="strings" key="enableKtlintToolTip"/>
         </properties>
       </component>
       <component id="36cbd" class="javax.swing.JLabel">
@@ -59,7 +60,7 @@
           <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value=".editorconfig Override Path (--editorconfig):"/>
+          <text resource-bundle="strings" key="editorconfigLabel"/>
         </properties>
       </component>
       <component id="f7c2c" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="editorConfigPath">
@@ -81,8 +82,8 @@
         </constraints>
         <properties>
           <selected value="true"/>
-          <text value="Android Mode (--android)"/>
-          <toolTipText value="Whether to apply Android styling rules"/>
+          <text resource-bundle="strings" key="androidText"/>
+          <toolTipText resource-bundle="strings" key="androidToolTip"/>
         </properties>
       </component>
       <component id="909eb" class="javax.swing.JLabel">
@@ -90,7 +91,7 @@
           <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="External ruleset JARs (--ruleset):"/>
+          <text resource-bundle="strings" key="rulesetLabel"/>
         </properties>
       </component>
       <component id="c98b6" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="externalJarPaths">
@@ -106,7 +107,7 @@
           <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Issues / Feedback / Source →"/>
+          <text resource-bundle="strings" key="githubButton"/>
         </properties>
       </component>
     </children>
