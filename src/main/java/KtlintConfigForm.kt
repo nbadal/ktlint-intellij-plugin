@@ -2,9 +2,9 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
-import com.intellij.openapi.util.Comparing
 import com.intellij.ui.IdeBorderFactory
 import com.nbadal.ktlint.KtlintConfigStorage
+import java.util.Objects
 import javax.swing.JCheckBox
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -81,12 +81,12 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
 
     val isModified
         get() = !(
-            Comparing.equal(config.enableKtlint, enableKtlint.isSelected) &&
-                Comparing.equal(config.androidMode, androidMode.isSelected) &&
-                Comparing.equal(config.useExperimental, enableExperimental.isSelected) &&
-                Comparing.equal(config.treatAsErrors, treatAsErrors.isSelected) &&
-                Comparing.equal(config.disabledRules, disabledRules.text) &&
-                Comparing.equal(config.externalJarPaths, externalJarPaths.text) &&
-                Comparing.equal(config.editorConfigPath, editorConfigPath.text)
+            Objects.equals(config.enableKtlint, enableKtlint.isSelected) &&
+                Objects.equals(config.androidMode, androidMode.isSelected) &&
+                Objects.equals(config.useExperimental, enableExperimental.isSelected) &&
+                Objects.equals(config.treatAsErrors, treatAsErrors.isSelected) &&
+                Objects.equals(config.disabledRules, disabledRules.text) &&
+                Objects.equals(config.externalJarPaths, externalJarPaths.text) &&
+                Objects.equals(config.editorConfigPath, editorConfigPath.text)
             )
 }
