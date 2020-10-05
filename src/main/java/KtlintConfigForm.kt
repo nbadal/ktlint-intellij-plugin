@@ -5,7 +5,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.ui.IdeBorderFactory
 import com.nbadal.ktlint.KtlintConfigStorage
+import java.awt.Desktop
+import java.net.URI
 import java.util.Objects
+import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -21,6 +24,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     private lateinit var disabledRules: JTextField
     private lateinit var externalJarPaths: TextFieldWithBrowseButton
     private lateinit var editorConfigPath: TextFieldWithBrowseButton
+    private lateinit var githubButton: JButton
 
     fun createComponent(): JComponent {
         mainPanel.border = IdeBorderFactory.createTitledBorder("Ktlint Settings")
@@ -48,6 +52,15 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
             project,
             FileChooserDescriptorFactory.createSingleFolderDescriptor()
         )
+
+        // If we're able to launch the browser, show the github button!
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            githubButton.addActionListener {
+                Desktop.getDesktop().browse(URI("https://github.com/nbadal/ktlint-intellij-plugin"))
+            }
+        } else {
+            githubButton.isVisible = false
+        }
 
         return mainPanel
     }
