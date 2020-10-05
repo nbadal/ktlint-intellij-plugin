@@ -90,4 +90,3 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
                 Comparing.equal(config.editorConfigPath, editorConfigPath.text)
             )
 }
-//   /Users/nbadal/tmp/kotlin-test-ktlint/rules/test-ruleset.jar
