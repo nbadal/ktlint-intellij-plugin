@@ -29,15 +29,9 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     fun createComponent(): JComponent {
         mainPanel.border = IdeBorderFactory.createTitledBorder("Ktlint Settings")
 
-        enableKtlint.addChangeListener {
-            val enabled = enableKtlint.isSelected
-            enableExperimental.isEnabled = enabled
-            androidMode.isEnabled = enabled
-            treatAsErrors.isEnabled = enabled
-            disabledRules.isEnabled = enabled
-            externalJarPaths.isEnabled = enabled
-            editorConfigPath.isEnabled = enabled
-        }
+        // Disable fields when plugin disabled
+        val fieldsToDisable = listOf(enableExperimental, androidMode, treatAsErrors, disabledRules, externalJarPaths, editorConfigPath)
+        enableKtlint.addChangeListener { fieldsToDisable.forEach { it.isEnabled = enableKtlint.isSelected } }
 
         externalJarPaths.addActionListener {
             val descriptor = FileChooserDescriptor(false, false, true, true, false, true)

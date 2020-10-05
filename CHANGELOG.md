@@ -8,6 +8,7 @@
 - Add github button to settings page
 
 ### Changed
+- Enable ktlint by default on install
 
 ### Deprecated
 

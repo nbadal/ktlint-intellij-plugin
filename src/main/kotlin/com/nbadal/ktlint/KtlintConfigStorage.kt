@@ -14,7 +14,7 @@ import com.intellij.util.xmlb.annotations.Tag
 class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
 
     @Tag
-    var enableKtlint = false
+    var enableKtlint = true
 
     @Tag
     var androidMode = false
