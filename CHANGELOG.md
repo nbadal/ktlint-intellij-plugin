@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 ### Added
+- Allow selection of multiple ruleset JARs
 
 ### Changed
 

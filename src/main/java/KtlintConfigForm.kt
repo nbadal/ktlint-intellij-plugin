@@ -1,3 +1,4 @@
+import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
@@ -34,12 +35,12 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
             editorConfigPath.isEnabled = enabled
         }
 
-        externalJarPaths.addBrowseFolderListener(
-            null,
-            null,
-            project,
-            FileChooserDescriptor(true, false, true, true, false, true)
-        )
+        externalJarPaths.addActionListener {
+            val descriptor = FileChooserDescriptor(false, false, true, true, false, true)
+            FileChooser.chooseFiles(descriptor, project, null) { files ->
+                externalJarPaths.text = files.joinToString(", ") { it.path }
+            }
+        }
 
         editorConfigPath.addBrowseFolderListener(
             null,
