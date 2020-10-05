@@ -2,9 +2,11 @@
 
 # ktlint-intellij-plugin
 
-![Build](https://github.com/nbadal/ktlint-intellij-plugin/workflows/Build/badge.svg)
+[![Build](https://github.com/nbadal/ktlint-intellij-plugin/workflows/Build/badge.svg)](https://github.com/nbadal/ktlint-intellij-plugin/actions?query=workflow%3ABuild)
 [![Version](https://img.shields.io/jetbrains/plugin/v/15057.svg)](https://plugins.jetbrains.com/plugin/15057)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/15057.svg)](https://plugins.jetbrains.com/plugin/15057)
+[![GitHub license](https://img.shields.io/github/license/nbadal/ktlint-intellij-plugin.svg)](https://github.com/nbadal/ktlint-intellij-plugin/blob/master/LICENSE.md)
+[![Crowdin](https://badges.crowdin.net/ktlint-intellij-plugin/localized.svg)](https://crowdin.com/project/ktlint-intellij-plugin)
 
 <!-- Plugin description -->
 Automatically runs [ktlint](https://ktlint.github.io/) on Kotlin files, and annotates any errors found.
