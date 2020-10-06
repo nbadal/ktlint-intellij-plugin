@@ -30,7 +30,14 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
         mainPanel.border = IdeBorderFactory.createTitledBorder("Ktlint Settings")
 
         // Disable fields when plugin disabled
-        val fieldsToDisable = listOf(enableExperimental, androidMode, treatAsErrors, disabledRules, externalJarPaths, editorConfigPath)
+        val fieldsToDisable = listOf(
+            enableExperimental,
+            androidMode,
+            treatAsErrors,
+            disabledRules,
+            externalJarPaths,
+            editorConfigPath
+        )
         enableKtlint.addChangeListener { fieldsToDisable.forEach { it.isEnabled = enableKtlint.isSelected } }
 
         externalJarPaths.addActionListener {
