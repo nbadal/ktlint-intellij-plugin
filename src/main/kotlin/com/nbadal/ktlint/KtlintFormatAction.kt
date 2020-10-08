@@ -1,11 +1,12 @@
 package com.nbadal.ktlint
 
+import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 
-class KtlintFormatAction : BaseIntentionAction() {
+class KtlintFormatAction : BaseIntentionAction(), HighPriorityAction {
     override fun getFamilyName() = "ktlint"
 
     override fun getText() = "Format file with ktlint"

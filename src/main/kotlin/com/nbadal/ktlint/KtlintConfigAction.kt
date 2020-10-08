@@ -1,13 +1,12 @@
 package com.nbadal.ktlint
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.codeInsight.intention.LowPriorityAction
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 
-class KtlintConfigAction : BaseIntentionAction(), LowPriorityAction {
+class KtlintConfigAction : BaseIntentionAction() {
     override fun getFamilyName() = "ktlint"
 
     override fun getText() = "Disable ktlint"
