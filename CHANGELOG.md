@@ -9,6 +9,7 @@
 
 ### Changed
 - Enable ktlint by default on install
+- Highlight the individual element specified by ktlint error, instead of the full line
 
 ### Deprecated
 
