@@ -6,6 +6,7 @@
 ### Added
 - Allow selection of multiple ruleset JARs
 - Add github button to settings page
+- Support error report submission
 
 ### Changed
 - Enable ktlint by default on install

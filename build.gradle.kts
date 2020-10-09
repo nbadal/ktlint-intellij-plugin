@@ -2,6 +2,8 @@ import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.changelog.closure
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     // Java support
@@ -16,6 +18,8 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.14.1"
     // ktlint linter - read more: https://github.com/JLLeitschuh/ktlint-gradle
     id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
+    // BuildConfig - read more: https://github.com/mfuerstenau/gradle-buildconfig-plugin
+    id("de.fuerstenau.buildconfig") version "1.1.8"
 }
 
 // Import variables from gradle.properties file
@@ -44,6 +48,9 @@ dependencies {
     implementation("com.pinterest.ktlint:ktlint-core:0.39.0")
     implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.39.0")
     implementation("com.pinterest.ktlint:ktlint-ruleset-experimental:0.39.0")
+    implementation("com.rollbar:rollbar-java:1.7.5") {
+        exclude(group = "org.slf4j") // Duplicated in IDE environment
+    }
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -72,6 +79,15 @@ detekt {
         xml.enabled = false
         txt.enabled = false
     }
+}
+
+// Configure BuildConfig generation
+buildConfig {
+    appName = "ktlint-intellij-plugin"
+    version = pluginVersion
+    packageName = "$pluginGroup.$pluginName_"
+
+    buildConfigField("String", "ROLLBAR_ACCESS_TOKEN", Secrets.rollbarAccessToken())
 }
 
 tasks {
@@ -123,4 +139,17 @@ tasks {
         token(System.getenv("PUBLISH_TOKEN"))
         channels(pluginVersion.split('-').getOrElse(1) { "default" }.split('.').first())
     }
+}
+
+object Secrets {
+    private val props: Properties
+
+    init {
+        val file = File("secrets.properties")
+        if (!file.exists()) throw Exception("secrets.properties not found.")
+        props = Properties()
+        props.load(FileInputStream(file))
+    }
+
+    fun rollbarAccessToken(): String = props.getProperty("ROLLBAR_ACCESS_TOKEN")
 }

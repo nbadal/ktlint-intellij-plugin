@@ -11,5 +11,6 @@
         <projectService serviceImplementation="com.nbadal.ktlint.KtlintConfigStorage"/>
         <projectConfigurable groupId="tools" displayName="ktlint" id="preferences.ktlint"
                              instance="com.nbadal.ktlint.KtlintConfig"/>
+        <errorHandler implementation="com.nbadal.ktlint.KtlintErrorHandler" />
     </extensions>
 </idea-plugin>
