@@ -87,7 +87,12 @@ buildConfig {
     version = pluginVersion
     packageName = "$pluginGroup.$pluginName_"
 
-    buildConfigField("String", "ROLLBAR_ACCESS_TOKEN", Secrets.rollbarAccessToken())
+    val propsFIle = File("secrets.properties")
+    if (!propsFIle.exists()) throw Exception("secrets.properties not found.")
+    val props = Properties()
+    props.load(FileInputStream(propsFIle))
+
+    buildConfigField("String", "ROLLBAR_ACCESS_TOKEN", props.getProperty("ROLLBAR_ACCESS_TOKEN"))
 }
 
 tasks {
@@ -139,17 +144,4 @@ tasks {
         token(System.getenv("PUBLISH_TOKEN"))
         channels(pluginVersion.split('-').getOrElse(1) { "default" }.split('.').first())
     }
-}
-
-object Secrets {
-    private val props: Properties
-
-    init {
-        val file = File("secrets.properties")
-        if (!file.exists()) throw Exception("secrets.properties not found.")
-        props = Properties()
-        props.load(FileInputStream(file))
-    }
-
-    fun rollbarAccessToken(): String = props.getProperty("ROLLBAR_ACCESS_TOKEN")
 }
