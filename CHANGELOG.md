@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.3.0]
+### Added
 - Allow selection of multiple ruleset JARs
 - Add github button to settings page
 - Support error report submission
