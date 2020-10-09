@@ -1,6 +1,8 @@
 package com.nbadal.ktlint
 
 import com.intellij.diagnostic.IdeaReportingEvent
+import com.intellij.idea.IdeaLogger
+import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.diagnostic.ErrorReportSubmitter
 import com.intellij.openapi.diagnostic.IdeaLoggingEvent
 import com.intellij.openapi.diagnostic.SubmittedReportInfo
@@ -26,12 +28,17 @@ class KtlintErrorHandler : ErrorReportSubmitter() {
 
         val rollbar = Rollbar.init(config)
         events.forEach { event ->
+            val extras = mapOf(
+                "last_action" to IdeaLogger.ourLastActionId,
+                "ide_build" to ApplicationInfo.getInstance().build.asString(),
+            )
+
             when (event) {
                 is IdeaReportingEvent -> {
-                    rollbar.error(event.data.throwable)
+                    rollbar.error(event.data.throwable, extras)
                 }
                 else -> {
-                    rollbar.error(event.throwable, event.message)
+                    rollbar.error(event.throwable, extras, event.message)
                 }
             }
         }
