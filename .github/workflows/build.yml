@@ -58,7 +58,7 @@ jobs:
         env:
           ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
         shell: bash
-        run: echo $ROLLBAR_ACCESS_TOKEN >> secrets.properties
+        run: echo "$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
 
       # Cache Gradle dependencies
       - name: Setup Gradle Dependencies Cache
@@ -109,7 +109,7 @@ jobs:
         env:
           ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
         shell: bash
-        run: echo $ROLLBAR_ACCESS_TOKEN >> secrets.properties
+        run: echo "$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
 
       # Cache Gradle Dependencies
       - name: Setup Gradle Dependencies Cache
