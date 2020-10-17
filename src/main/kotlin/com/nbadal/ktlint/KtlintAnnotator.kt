@@ -29,7 +29,7 @@ class KtlintAnnotator : ExternalAnnotator<PsiFile, List<LintError>>() {
 
             holder.createAnnotation(severity, errorRange, message).apply {
                 registerFix(KtlintFormatAction())
-                registerFix(KtlintConfigAction())
+                registerFix(KtlintDisableAction())
             }
         }
     }

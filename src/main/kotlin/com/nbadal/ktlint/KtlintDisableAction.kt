@@ -6,7 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 
-class KtlintConfigAction : BaseIntentionAction() {
+class KtlintDisableAction : BaseIntentionAction() {
     override fun getFamilyName() = "ktlint"
 
     override fun getText() = "Disable ktlint"
