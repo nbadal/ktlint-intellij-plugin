@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 ### Added
+- Add ability to disable a rule globally from an error annotation 
 
 ### Changed
 
