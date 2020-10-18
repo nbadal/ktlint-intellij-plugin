@@ -30,7 +30,7 @@ jobs:
         env:
           ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
         shell: bash
-        run: echo "$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
+        run: echo "ROLLBAR_ACCESS_TOKEN=$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
 
       # Publish the plugin to the Marketplace
       - name: Publish Plugin
@@ -61,7 +61,7 @@ jobs:
         env:
           ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
         shell: bash
-        run: echo "$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
+        run: echo "ROLLBAR_ACCESS_TOKEN=$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
 
       # Update Unreleased section with the current version
       - name: Patch Changelog
