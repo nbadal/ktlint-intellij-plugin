@@ -5,6 +5,7 @@
 ## [Unreleased]
 ### Added
 - Add ability to disable a rule globally from an error annotation 
+- Add autocompletion to disabled rules field
 
 ### Changed
 

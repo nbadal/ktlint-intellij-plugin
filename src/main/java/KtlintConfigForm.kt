@@ -4,15 +4,18 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.ui.IdeBorderFactory
+import com.intellij.ui.TextFieldWithAutoCompletion
+import com.intellij.uiDesigner.core.GridConstraints
 import com.nbadal.ktlint.KtlintConfigStorage
+import com.nbadal.ktlint.getAllRules
 import java.awt.Desktop
+import java.awt.Dimension
 import java.net.URI
 import java.util.Objects
 import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JComponent
 import javax.swing.JPanel
-import javax.swing.JTextField
 
 class KtlintConfigForm(private val project: Project, private val config: KtlintConfigStorage) {
 
@@ -21,12 +24,32 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     private lateinit var androidMode: JCheckBox
     private lateinit var enableExperimental: JCheckBox
     private lateinit var treatAsErrors: JCheckBox
-    private lateinit var disabledRules: JTextField
+    private lateinit var disabledRulesContainer: JPanel
     private lateinit var externalJarPaths: TextFieldWithBrowseButton
     private lateinit var editorConfigPath: TextFieldWithBrowseButton
     private lateinit var githubButton: JButton
 
+    private lateinit var disabledRules: TextFieldWithAutoCompletion<String>
+
+    fun createUIComponents() {
+        // Stub.
+    }
+
     fun createComponent(): JComponent {
+        // Manually create and insert disabled rules field
+        disabledRules = TextFieldWithAutoCompletion.create(project, getAllRules(config), false, "")
+        disabledRulesContainer.add(
+            disabledRules,
+            @Suppress("MagicNumber")
+            GridConstraints(
+                0, 0, 1, 1,
+                GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_CAN_GROW or GridConstraints.SIZEPOLICY_WANT_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                Dimension(-1, -1), Dimension(150, -1), Dimension(-1, -1)
+            )
+        )
+
         mainPanel.border = IdeBorderFactory.createTitledBorder("Ktlint Settings")
 
         // Disable fields when plugin disabled

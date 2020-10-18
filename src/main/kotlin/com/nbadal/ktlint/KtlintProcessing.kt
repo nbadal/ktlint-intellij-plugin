@@ -4,6 +4,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.psi.PsiFile
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
 import java.io.File
 import java.net.URLClassLoader
@@ -62,6 +63,12 @@ internal fun doLint(
 
     return LintResult(correctedErrors, uncorrectedErrors)
 }
+
+fun RuleSet.ids() = rules.map { rule -> if (id == "standard") rule.id else "$id:${rule.id}" }
+
+fun getAllRules(config: KtlintConfigStorage) = findRulesets(config.externalJarPaths, config.useExperimental)
+    .fold(mutableListOf<String>()) { allRules, ruleSet -> allRules.apply { addAll(ruleSet.ids()) } }
+    .toList()
 
 private fun findRulesets(paths: List<String>, experimental: Boolean) = ServiceLoader
     .load(
