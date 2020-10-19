@@ -24,6 +24,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     private lateinit var androidMode: JCheckBox
     private lateinit var enableExperimental: JCheckBox
     private lateinit var treatAsErrors: JCheckBox
+    private lateinit var lintAfterReformat: JCheckBox
     private lateinit var disabledRulesContainer: JPanel
     private lateinit var externalJarPaths: TextFieldWithBrowseButton
     private lateinit var editorConfigPath: TextFieldWithBrowseButton
@@ -57,6 +58,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
             enableExperimental,
             androidMode,
             treatAsErrors,
+            lintAfterReformat,
             disabledRules,
             externalJarPaths,
             editorConfigPath
@@ -94,6 +96,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
         config.androidMode = androidMode.isSelected
         config.useExperimental = enableExperimental.isSelected
         config.treatAsErrors = treatAsErrors.isSelected
+        config.lintAfterReformat = lintAfterReformat.isSelected
         config.disabledRules = disabledRules.text
             .split(",")
             .map { it.trim() }
@@ -112,6 +115,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
         androidMode.isSelected = config.androidMode
         enableExperimental.isSelected = config.useExperimental
         treatAsErrors.isSelected = config.treatAsErrors
+        lintAfterReformat.isSelected = config.lintAfterReformat
         disabledRules.text = config.disabledRules.joinToString(", ")
         externalJarPaths.text = config.externalJarPaths.joinToString(", ")
         editorConfigPath.text = config.editorConfigPath ?: ""
@@ -123,6 +127,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
                 Objects.equals(config.androidMode, androidMode.isSelected) &&
                 Objects.equals(config.useExperimental, enableExperimental.isSelected) &&
                 Objects.equals(config.treatAsErrors, treatAsErrors.isSelected) &&
+                Objects.equals(config.lintAfterReformat, lintAfterReformat.isSelected) &&
                 Objects.equals(config.disabledRules, disabledRules.text) &&
                 Objects.equals(config.externalJarPaths, externalJarPaths.text) &&
                 Objects.equals(config.editorConfigPath, editorConfigPath.text)

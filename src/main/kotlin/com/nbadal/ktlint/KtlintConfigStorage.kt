@@ -26,6 +26,9 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     var treatAsErrors = true
 
     @Tag
+    var lintAfterReformat = true
+
+    @Tag
     var disabledRules: List<String> = emptyList()
 
     @Tag

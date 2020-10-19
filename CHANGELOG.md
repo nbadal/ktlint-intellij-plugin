@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 ### Added
+- Add post-format linter, with ability to disable via setting
 
 ### Changed
 
