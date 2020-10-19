@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.4.0]
+### Added
 - Add ability to disable a rule globally from an error annotation 
 - Add autocompletion to disabled rules field
 
