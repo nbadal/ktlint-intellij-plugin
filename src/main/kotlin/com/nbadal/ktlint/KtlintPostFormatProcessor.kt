@@ -20,14 +20,14 @@ class KtlintPostFormatProcessor : PostFormatProcessor {
         return rangeToReformat
     }
 
-    private fun shouldLint(source: PsiFile, config: KtlintConfigStorage): Boolean {
+    private fun shouldLint(source: PsiFile, config: KtlintConfigStorage) = when {
         // Skip if disabled
-        if (!config.enableKtlint || !config.lintAfterReformat) return false
+        (!config.enableKtlint || !config.lintAfterReformat) -> false
         // Skip if not in project
-        if (!ProjectFileIndex.getInstance(source.project).isInContent(source.virtualFile)) return false
+        (!ProjectFileIndex.getInstance(source.project).isInContent(source.virtualFile)) -> false
         // Skip if it isn't a kotlin file
-        if (source.fileType.name != "Kotlin") return false
+        (source.fileType.name != "Kotlin") -> false
 
-        return true
+        else -> true
     }
 }
