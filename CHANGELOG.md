@@ -7,6 +7,7 @@
 - Add post-format linter, with ability to disable via setting
 
 ### Changed
+- Format action no longer appears for non-autocorrectable rules, since it doesn't address them.
 
 ### Deprecated
 

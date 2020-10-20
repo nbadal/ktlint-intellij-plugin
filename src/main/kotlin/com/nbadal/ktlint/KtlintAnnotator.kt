@@ -28,7 +28,7 @@ class KtlintAnnotator : ExternalAnnotator<PsiFile, List<LintError>>() {
             val severity = if (config.treatAsErrors) HighlightSeverity.ERROR else HighlightSeverity.WARNING
 
             holder.createAnnotation(severity, errorRange, message).apply {
-                registerFix(KtlintFormatAction())
+                if (it.canBeAutoCorrected) registerFix(KtlintFormatAction())
                 registerFix(KtlintGlobalDisableRuleAction(it.ruleId))
                 registerFix(KtlintDisableAction())
             }
