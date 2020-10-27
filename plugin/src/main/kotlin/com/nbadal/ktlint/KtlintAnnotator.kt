@@ -30,6 +30,7 @@ class KtlintAnnotator : ExternalAnnotator<PsiFile, List<LintError>>() {
             holder.createAnnotation(severity, errorRange, message).apply {
                 if (it.canBeAutoCorrected) registerFix(KtlintFormatAction())
                 registerFix(KtlintGlobalDisableRuleAction(it.ruleId))
+                registerFix(KtlintLineDisableAction(it))
                 registerFix(KtlintDisableAction())
             }
         }

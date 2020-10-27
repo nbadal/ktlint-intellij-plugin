@@ -5,6 +5,7 @@
 ## [Unreleased]
 ### Added
 - Add post-format linter, with ability to disable via setting
+- Add action to errors to allow disabling per-line via comment
 
 ### Changed
 - Format action no longer appears for non-autocorrectable rules, since it doesn't address them.
