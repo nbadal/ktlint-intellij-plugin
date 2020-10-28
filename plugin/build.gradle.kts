@@ -70,7 +70,7 @@ buildConfig {
     packageName = "$pluginGroup.$pluginName_"
 
     val propsFile = File("secrets.properties")
-    if (!propsFile.exists()) throw Exception("secrets.properties not found.")
+    if (!propsFile.exists()) throw GradleException("secrets.properties not found.")
     val props = Properties()
     props.load(FileInputStream(propsFile))
 
