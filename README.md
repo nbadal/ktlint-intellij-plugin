@@ -1,4 +1,4 @@
-<img src='/src/main/resources/META-INF/pluginIcon.svg?raw=true' alt="plugin icon" width='128' />  
+<img src='/plugin/src/main/resources/META-INF/pluginIcon.svg?raw=true' alt="plugin icon" width='128' />  
 
 # ktlint-intellij-plugin
 
