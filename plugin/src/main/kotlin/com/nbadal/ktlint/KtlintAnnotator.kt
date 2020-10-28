@@ -5,6 +5,10 @@ import com.intellij.lang.annotation.ExternalAnnotator
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
+import com.nbadal.ktlint.actions.KtlintDisableAction
+import com.nbadal.ktlint.actions.KtlintFormatAction
+import com.nbadal.ktlint.actions.KtlintGlobalDisableRuleAction
+import com.nbadal.ktlint.actions.KtlintLineDisableAction
 import com.pinterest.ktlint.core.LintError
 
 class KtlintAnnotator : ExternalAnnotator<PsiFile, List<LintError>>() {

@@ -1,4 +1,4 @@
-package com.nbadal.ktlint
+package com.nbadal.ktlint.actions
 
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.editor.Editor
