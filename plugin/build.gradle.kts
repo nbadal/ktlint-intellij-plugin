@@ -14,10 +14,6 @@ plugins {
     id("org.jetbrains.intellij") version "0.5.0"
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
     id("org.jetbrains.changelog") version "0.6.2"
-    // detekt linter - read more: https://github.com/detekt/detekt
-    id("io.gitlab.arturbosch.detekt") version "1.14.1"
-    // ktlint linter - read more: https://github.com/JLLeitschuh/ktlint-gradle
-    id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
     // BuildConfig - read more: https://github.com/mfuerstenau/gradle-buildconfig-plugin
     id("de.fuerstenau.buildconfig") version "1.1.8"
 }
@@ -44,8 +40,6 @@ repositories {
     jcenter()
 }
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.14.1")
-
     // Shadlow lib (see: ../lib/README.md)
     compileOnly(project(":lib")) // Required for IDE
     runtimeOnly(project(":lib", "shadow"))
@@ -67,19 +61,6 @@ intellij {
 //  Plugin Dependencies:
 //  https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html
     setPlugins("Kotlin")
-}
-
-// Configure detekt plugin.
-// Read more: https://detekt.github.io/detekt/kotlindsl.html
-detekt {
-    config = files("./detekt-config.yml")
-    buildUponDefaultConfig = true
-
-    reports {
-        html.enabled = false
-        xml.enabled = false
-        txt.enabled = false
-    }
 }
 
 // Configure BuildConfig generation
