@@ -1,5 +1,6 @@
 package com.nbadal.ktlint
 
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.psi.PsiFile
 import com.pinterest.ktlint.core.KtLint
@@ -31,6 +32,10 @@ internal fun doLint(
         }
     }
 
+    if (fileName == "/fragment.kt") {
+        return emptyLintResult()
+    }
+
     val correctedErrors = mutableListOf<LintError>()
     val uncorrectedErrors = mutableListOf<LintError>()
 
@@ -56,7 +61,9 @@ internal fun doLint(
 
     if (format) {
         val results = KtLint.format(params)
-        file.viewProvider.document?.setText(results)
+        WriteCommandAction.runWriteCommandAction(file.project) {
+            file.viewProvider.document?.setText(results)
+        }
     } else {
         KtLint.lint(params)
     }
@@ -97,3 +104,5 @@ data class LintResult(
     val correctedErrors: List<LintError>,
     val uncorrectedErrors: List<LintError>,
 )
+
+fun emptyLintResult() = LintResult(emptyList(), emptyList())

@@ -15,6 +15,7 @@
 ### Removed
 
 ### Fixed
+- Issue where Kotlin fragments (inspector, templates, etc) were being linted
 
 ### Security
 ## [0.4.0]
