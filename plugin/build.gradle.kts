@@ -69,10 +69,10 @@ buildConfig {
     version = pluginVersion
     packageName = "$pluginGroup.$pluginName_"
 
-    val propsFIle = File("secrets.properties")
-    if (!propsFIle.exists()) throw Exception("secrets.properties not found.")
+    val propsFile = File("secrets.properties")
+    if (!propsFile.exists()) throw Exception("secrets.properties not found.")
     val props = Properties()
-    props.load(FileInputStream(propsFIle))
+    props.load(FileInputStream(propsFile))
 
     buildConfigField("String", "ROLLBAR_ACCESS_TOKEN", props.getProperty("ROLLBAR_ACCESS_TOKEN"))
 }
