@@ -42,7 +42,7 @@ repositories {
 dependencies {
     // Shadlow lib (see: ../lib/README.md)
     compileOnly(project(":lib")) // Required for IDE
-    runtimeOnly(project(":lib", "shadow"))
+    implementation(project(":lib", "shadow"))
 
     implementation("com.rollbar:rollbar-java:1.7.5") {
         exclude(group = "org.slf4j") // Duplicated in IDE environment
