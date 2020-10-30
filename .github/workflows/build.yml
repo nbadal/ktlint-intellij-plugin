@@ -78,6 +78,13 @@ jobs:
       - name: Run Linters and Test
         run: ./gradlew check
 
+      # Cache Plugin Verifier IDEs
+      - name: Setup Plugin Verifier IDEs Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.pluginVerifier/ides
+          key: ${{ runner.os }}-plugin-verifier-ides
+
       # Run verifyPlugin Gradle task
       - name: Verify Plugin
         run: ./gradlew verifyPlugin
