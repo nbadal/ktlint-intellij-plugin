@@ -153,7 +153,7 @@ jobs:
         uses: actions/upload-artifact@v2.2.0
         with:
           name: plugin-artifact
-          path: ./build/distributions/${{ needs.build.outputs.artifact }}
+          path: ./plugin/build/distributions/${{ needs.build.outputs.artifact }}
 
   # Verify built plugin using IntelliJ Plugin Verifier tool
   # Requires build job to be passed
