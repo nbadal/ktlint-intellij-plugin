@@ -44,7 +44,7 @@ internal fun doLint(
         text = file.text,
         ruleSets = findRulesets(config.externalJarPaths, config.useExperimental),
         userData = userData,
-        script = !file.virtualFile.name.endsWith(".kt", ignoreCase = true),
+        script = !fileName.endsWith(".kt", ignoreCase = true),
         editorConfigPath = config.editorConfigPath,
         debug = false,
         cb = { lintError, corrected ->
