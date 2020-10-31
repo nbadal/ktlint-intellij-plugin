@@ -30,8 +30,9 @@ class KtlintErrorHandler : ErrorReportSubmitter() {
         events.forEach { event ->
             val extras = mapOf(
                 "last_action" to IdeaLogger.ourLastActionId,
+                "additional_info" to additionalInfo,
                 "ide_build" to ApplicationInfo.getInstance().build.asString(),
-            )
+            ).filterValues { it != null }
 
             when (event) {
                 is IdeaReportingEvent -> {

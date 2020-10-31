@@ -9,6 +9,7 @@
 
 ### Changed
 - Format action no longer appears for non-autocorrectable rules, since it doesn't address them.
+- Include user-provided details in bug reports
 
 ### Deprecated
 
