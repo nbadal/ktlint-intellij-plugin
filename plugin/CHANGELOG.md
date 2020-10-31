@@ -17,21 +17,11 @@
 ### Fixed
 - Issue where Kotlin fragments (inspector, templates, etc) were being linted
 
-### Security
 ## [0.4.0]
 ### Added
 - Add ability to disable a rule globally from an error annotation 
 - Add autocompletion to disabled rules field
 
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 ## [0.3.0]
 ### Added
 - Allow selection of multiple ruleset JARs
@@ -42,13 +32,6 @@
 - Enable ktlint by default on install
 - Highlight the individual element specified by ktlint error, instead of the full line
 
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 ## [0.2.0]
 ### Added
 - Plugin setting for disabled rules
@@ -63,27 +46,10 @@
 - Load rule sets via classpath, instead of explicitly
 - Dependency updates
 
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 ## [0.1.0]
 ### Added
 - Added action to format file from quick-fix menu of ktlint error annotations
 - Added action to disable ktlint from annotations
-
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 
 ## [0.0.2]
 ### Added
