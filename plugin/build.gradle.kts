@@ -41,13 +41,18 @@ repositories {
     jcenter()
 }
 dependencies {
-    // Shadlow lib (see: ../lib/README.md)
+    // Shadow lib (see: ../lib/README.md)
     compileOnly(project(":lib")) // Required for IDE
     implementation(project(":lib", "shadow"))
 
     implementation("com.rollbar:rollbar-java:1.7.5") {
         exclude(group = "org.slf4j") // Duplicated in IDE environment
     }
+
+    // Tests:
+    testImplementation(project(":lib"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.4.2")
+    testImplementation("io.mockk:mockk:1.10.2")
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -92,6 +97,10 @@ tasks {
 
     withType<Detekt> {
         jvmTarget = "1.8"
+    }
+
+    named<Test>("test") {
+        useJUnitPlatform()
     }
 
     patchPluginXml {
