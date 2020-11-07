@@ -5,6 +5,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.psi.PsiFile
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
 import java.io.File
@@ -59,13 +60,18 @@ internal fun doLint(
     // Clear editorconfig cache. (ideally, we could do this if .editorconfig files were changed)
     KtLint.trimMemory()
 
-    if (format) {
-        val results = KtLint.format(params)
-        WriteCommandAction.runWriteCommandAction(file.project) {
-            file.viewProvider.document?.setText(results)
+    try {
+        if (format) {
+            val results = KtLint.format(params)
+            WriteCommandAction.runWriteCommandAction(file.project) {
+                file.viewProvider.document?.setText(results)
+            }
+        } else {
+            KtLint.lint(params)
         }
-    } else {
-        KtLint.lint(params)
+    } catch (pe: ParseException) {
+        // TODO: report to rollbar?
+        return emptyLintResult()
     }
 
     return LintResult(correctedErrors, uncorrectedErrors)
