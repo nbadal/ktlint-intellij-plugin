@@ -3,17 +3,9 @@
 # ktlint-intellij-plugin Changelog
 
 ## [Unreleased]
-### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
-
 ### Fixed
+- Fixed crash when ktlint reported a parsing exception.
 
-### Security
 ## [0.5.0]
 ### Added
 - Add post-format linter, with ability to disable via setting
