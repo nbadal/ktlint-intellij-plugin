@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.5.0]
+### Added
 - Add post-format linter, with ability to disable via setting
 - Add action to errors to allow disabling per-line via comment
 
