@@ -7,7 +7,6 @@
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/15057.svg)](https://plugins.jetbrains.com/plugin/15057)
 [![GitHub license](https://img.shields.io/github/license/nbadal/ktlint-intellij-plugin.svg)](https://github.com/nbadal/ktlint-intellij-plugin/blob/master/LICENSE.md)
-[![Crowdin](https://badges.crowdin.net/ktlint-intellij-plugin/localized.svg)](https://crowdin.com/project/ktlint-intellij-plugin)
 
 <!-- Plugin description -->
 Automatically runs [ktlint](https://ktlint.github.io/) on Kotlin files, and annotates any errors found.
