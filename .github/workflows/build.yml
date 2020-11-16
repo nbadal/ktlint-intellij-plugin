@@ -150,7 +150,7 @@ jobs:
 
       # Upload plugin artifact to make it available in the next jobs
       - name: Upload artifact
-        uses: actions/upload-artifact@v2.2.0
+        uses: actions/upload-artifact@v2.2.1
         with:
           name: plugin-artifact
           path: ./plugin/build/distributions/${{ needs.build.outputs.artifact }}
