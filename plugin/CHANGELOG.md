@@ -3,6 +3,12 @@
 # ktlint-intellij-plugin Changelog
 
 ## [Unreleased]
+### Added
+- Added support for 203.* IDEs
+
+### Changed
+- Updated internal plugin dependencies
+
 ### Fixed
 - Fixed crash when ktlint reported a parsing exception.
 
