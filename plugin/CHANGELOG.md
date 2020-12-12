@@ -6,6 +6,8 @@
 ### Added
 
 ### Changed
+- Updated ktlint to 0.40.0
+- Update kotlin to 1.4.21
 
 ### Deprecated
 
