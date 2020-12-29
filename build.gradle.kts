@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "1.4.21" apply false
 
     // detekt linter - read more: https://github.com/detekt/detekt
-    id("io.gitlab.arturbosch.detekt") version "1.14.2"
+    id("io.gitlab.arturbosch.detekt") version "1.15.0"
     // ktlint linter - read more: https://github.com/JLLeitschuh/ktlint-gradle
     id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
 }
