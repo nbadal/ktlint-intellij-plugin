@@ -3,17 +3,10 @@
 # ktlint-intellij-plugin Changelog
 
 ## [Unreleased]
-### Added
-
 ### Changed
 - Updated ktlint to 0.40.0
 - Update kotlin to 1.4.21
-
-### Deprecated
-
-### Removed
-
-### Fixed
+- Update internal plugins
 
 ### Security
 ## [0.6.0]
