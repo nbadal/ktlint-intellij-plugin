@@ -8,7 +8,6 @@
 - Update kotlin to 1.4.21
 - Update internal plugins
 
-### Security
 ## [0.6.0]
 ### Added
 - Added support for 203.* IDEs
