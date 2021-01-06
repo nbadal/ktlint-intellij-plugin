@@ -32,6 +32,9 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     var disabledRules: List<String> = emptyList()
 
     @Tag
+    var baselinePath: String? = null
+
+    @Tag
     var editorConfigPath: String? = null
 
     @Tag
@@ -45,6 +48,7 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
         this.useExperimental = state.useExperimental
         this.treatAsErrors = state.treatAsErrors
         this.disabledRules = state.disabledRules
+        this.baselinePath = state.baselinePath
         this.editorConfigPath = state.editorConfigPath
         this.externalJarPaths = state.externalJarPaths
     }

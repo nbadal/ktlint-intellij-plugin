@@ -4,16 +4,8 @@
 
 ## [Unreleased]
 ### Added
+- Support for baseline XML file
 
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 ## [0.6.1]
 ### Changed
 - Updated ktlint to 0.40.0

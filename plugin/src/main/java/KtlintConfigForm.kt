@@ -27,6 +27,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     private lateinit var lintAfterReformat: JCheckBox
     private lateinit var disabledRulesContainer: JPanel
     private lateinit var externalJarPaths: TextFieldWithBrowseButton
+    private lateinit var baselinePath: TextFieldWithBrowseButton
     private lateinit var editorConfigPath: TextFieldWithBrowseButton
     private lateinit var githubButton: JButton
 
@@ -61,7 +62,8 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
             lintAfterReformat,
             disabledRules,
             externalJarPaths,
-            editorConfigPath
+            baselinePath,
+            editorConfigPath,
         )
         enableKtlint.addChangeListener { fieldsToDisable.forEach { it.isEnabled = enableKtlint.isSelected } }
 
@@ -71,6 +73,13 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
                 externalJarPaths.text = files.joinToString(", ") { it.path }
             }
         }
+
+        baselinePath.addBrowseFolderListener(
+            null,
+            null,
+            project,
+            FileChooserDescriptorFactory.createSingleFileDescriptor("xml")
+        )
 
         editorConfigPath.addBrowseFolderListener(
             null,
@@ -106,6 +115,9 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
             .map { it.trim() }
             .filter { it.isNotBlank() }
         config.editorConfigPath = editorConfigPath.text
+            .trim()
+            .let { if (it.isNotBlank()) it else null }
+        config.baselinePath = baselinePath.text
             .trim()
             .let { if (it.isNotBlank()) it else null }
     }

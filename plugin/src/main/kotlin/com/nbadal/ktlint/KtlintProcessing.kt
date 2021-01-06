@@ -8,6 +8,8 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
+import com.pinterest.ktlint.internal.containsLintError
+import com.pinterest.ktlint.internal.loadBaseline
 import java.io.File
 import java.net.URLClassLoader
 import java.util.ServiceLoader
@@ -33,12 +35,18 @@ internal fun doLint(
         }
     }
 
+    // Make relative path, if possible.
+    file.project.basePath?.let { fileName = fileName.removePrefix(it).removePrefix("/") }
+
     if (fileName == "/fragment.kt") {
         return emptyLintResult()
     }
 
+    val baselineErrors = config.baselinePath?.let { loadBaseline(it).baselineRules?.get(fileName) } ?: emptyList()
+
     val correctedErrors = mutableListOf<LintError>()
     val uncorrectedErrors = mutableListOf<LintError>()
+    val ignoredErrors = mutableListOf<LintError>()
 
     val params = KtLint.Params(
         fileName = fileName,
@@ -51,8 +59,10 @@ internal fun doLint(
         cb = { lintError, corrected ->
             if (corrected) {
                 correctedErrors.add(lintError)
-            } else {
+            } else if (!baselineErrors.containsLintError(lintError)) {
                 uncorrectedErrors.add(lintError)
+            } else {
+                ignoredErrors.add(lintError)
             }
         },
     )
@@ -74,7 +84,7 @@ internal fun doLint(
         return emptyLintResult()
     }
 
-    return LintResult(correctedErrors, uncorrectedErrors)
+    return LintResult(correctedErrors, uncorrectedErrors, ignoredErrors)
 }
 
 fun RuleSet.ids() = rules.map { rule -> if (id == "standard") rule.id else "$id:${rule.id}" }
@@ -109,6 +119,7 @@ private fun externalRulesetArray(paths: List<String>) = paths
 data class LintResult(
     val correctedErrors: List<LintError>,
     val uncorrectedErrors: List<LintError>,
+    val ignoredErrors: List<LintError>,
 )
 
-fun emptyLintResult() = LintResult(emptyList(), emptyList())
+fun emptyLintResult() = LintResult(emptyList(), emptyList(), emptyList())
