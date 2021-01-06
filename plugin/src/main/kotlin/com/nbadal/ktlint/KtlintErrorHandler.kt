@@ -18,7 +18,7 @@ class KtlintErrorHandler : ErrorReportSubmitter() {
         events: Array<IdeaLoggingEvent>,
         additionalInfo: String?,
         parentComponent: Component,
-        consumer: Consumer<in SubmittedReportInfo>
+        consumer: Consumer<SubmittedReportInfo>
     ): Boolean {
         val config = withAccessToken(BuildConfig.ROLLBAR_ACCESS_TOKEN).apply {
             environment("production")
