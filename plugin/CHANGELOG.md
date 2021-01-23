@@ -3,18 +3,11 @@
 # ktlint-intellij-plugin Changelog
 
 ## [Unreleased]
-### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
-
 ### Fixed
 - Fixed logic for detecting null virtual file / file not in project condition
+- Use full path for files, only use project-relative path for baselines. 
+  (This should address a bug with .editorconfig not being found in root dir)
 
-### Security
 ## [0.7.0]
 ### Added
 - Support for baseline XML file

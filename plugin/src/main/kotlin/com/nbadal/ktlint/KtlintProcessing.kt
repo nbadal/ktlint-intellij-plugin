@@ -35,14 +35,14 @@ internal fun doLint(
         }
     }
 
-    // Make relative path, if possible.
-    file.project.basePath?.let { fileName = fileName.removePrefix(it).removePrefix("/") }
-
     if (fileName == "/fragment.kt") {
         return emptyLintResult()
     }
 
-    val baselineErrors = config.baselinePath?.let { loadBaseline(it).baselineRules?.get(fileName) } ?: emptyList()
+    // Get relative path, if possible.
+    var projectRelativePath = fileName
+    file.project.basePath?.let { projectRelativePath = fileName.removePrefix(it).removePrefix("/") }
+    val baselineErrors = config.baselinePath?.let { loadBaseline(it).baselineRules?.get(projectRelativePath) } ?: emptyList()
 
     val correctedErrors = mutableListOf<LintError>()
     val uncorrectedErrors = mutableListOf<LintError>()
