@@ -52,7 +52,7 @@ dependencies {
     // Tests:
     testImplementation(project(":lib"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
-    testImplementation("io.mockk:mockk:1.10.2")
+    testImplementation("io.mockk:mockk:1.10.5")
 }
 
 // Configure gradle-intellij-plugin plugin.
