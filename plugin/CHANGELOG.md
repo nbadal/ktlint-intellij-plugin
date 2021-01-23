@@ -12,6 +12,7 @@
 ### Removed
 
 ### Fixed
+- Fixed logic for detecting null virtual file / file not in project condition
 
 ### Security
 ## [0.7.0]

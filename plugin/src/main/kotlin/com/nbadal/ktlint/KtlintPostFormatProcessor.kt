@@ -24,7 +24,7 @@ class KtlintPostFormatProcessor : PostFormatProcessor {
         // Skip if disabled
         (!config.enableKtlint || !config.lintAfterReformat) -> false
         // Skip if not in project
-        (source.virtualFile != null || !ProjectFileIndex.getInstance(source.project).isInContent(source.virtualFile)) -> false
+        (source.virtualFile == null || !ProjectFileIndex.getInstance(source.project).isInContent(source.virtualFile)) -> false
         // Skip if it isn't a kotlin file
         (source.fileType.name != "Kotlin") -> false
 
