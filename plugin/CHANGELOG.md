@@ -14,7 +14,7 @@
 ### Fixed
 
 ### Security
-## [unspecified]
+## [0.7.1]
 ### Fixed
 - Fixed logic for detecting null virtual file / file not in project condition
 - Use full path for files, only use project-relative path for baselines. 
