@@ -12,6 +12,7 @@
 ### Removed
 
 ### Fixed
+- Issue where "Lint After Reformat" setting wasn't loaded from XML
 
 ### Security
 ## [0.7.1]

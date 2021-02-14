@@ -47,6 +47,7 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
         this.androidMode = state.androidMode
         this.useExperimental = state.useExperimental
         this.treatAsErrors = state.treatAsErrors
+        this.lintAfterReformat = state.lintAfterReformat
         this.disabledRules = state.disabledRules
         this.baselinePath = state.baselinePath
         this.editorConfigPath = state.editorConfigPath
