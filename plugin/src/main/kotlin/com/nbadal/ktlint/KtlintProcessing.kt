@@ -6,13 +6,8 @@ import com.intellij.psi.PsiFile
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.ParseException
-import com.pinterest.ktlint.core.RuleSet
-import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.internal.containsLintError
 import com.pinterest.ktlint.internal.loadBaseline
-import java.io.File
-import java.net.URLClassLoader
-import java.util.ServiceLoader
 
 internal fun doLint(
     file: PsiFile,
@@ -51,7 +46,7 @@ internal fun doLint(
     val params = KtLint.Params(
         fileName = fileName,
         text = file.text,
-        ruleSets = findRulesets(config.externalJarPaths, config.useExperimental),
+        ruleSets = KtlintRules.find(config.externalJarPaths, config.useExperimental),
         userData = userData,
         script = !fileName.endsWith(".kt", ignoreCase = true),
         editorConfigPath = config.editorConfigPath,
@@ -68,16 +63,16 @@ internal fun doLint(
     )
 
     // Clear editorconfig cache. (ideally, we could do this if .editorconfig files were changed)
-    KtLint.trimMemory()
+    KtLintWrapper.trimMemory()
 
     try {
         if (format) {
-            val results = KtLint.format(params)
+            val results = KtLintWrapper.format(params)
             WriteCommandAction.runWriteCommandAction(file.project) {
                 file.viewProvider.document?.setText(results)
             }
         } else {
-            KtLint.lint(params)
+            KtLintWrapper.lint(params)
         }
     } catch (pe: ParseException) {
         // TODO: report to rollbar?
@@ -86,35 +81,6 @@ internal fun doLint(
 
     return LintResult(correctedErrors, uncorrectedErrors, ignoredErrors)
 }
-
-fun RuleSet.ids() = rules.map { rule -> if (id == "standard") rule.id else "$id:${rule.id}" }
-
-fun getAllRules(config: KtlintConfigStorage) = findRulesets(config.externalJarPaths, config.useExperimental)
-    .fold(mutableListOf<String>()) { allRules, ruleSet -> allRules.apply { addAll(ruleSet.ids()) } }
-    .toList()
-
-private fun findRulesets(paths: List<String>, experimental: Boolean) = ServiceLoader
-    .load(
-        RuleSetProvider::class.java,
-        URLClassLoader(
-            externalRulesetArray(paths),
-            RuleSetProvider::class.java.classLoader
-        )
-    )
-    .associateBy {
-        val key = it.get().id
-        if (key == "standard") "\u0000$key" else key
-    }
-    .filterKeys { experimental || it != "experimental" }
-    .toSortedMap()
-    .map { it.value.get() }
-
-private fun externalRulesetArray(paths: List<String>) = paths
-    .map { it.replaceFirst(Regex("^~"), System.getProperty("user.home")) }
-    .map { File(it) }
-    .filter { it.exists() }
-    .map { it.toURI().toURL() }
-    .toTypedArray()
 
 data class LintResult(
     val correctedErrors: List<LintError>,

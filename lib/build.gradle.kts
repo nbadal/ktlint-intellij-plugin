@@ -35,6 +35,6 @@ tasks {
         configurations = listOf(api, impl)
         configurations.forEach { it.isCanBeResolved = true }
 
-        relocate("org.jetbrains", "shadow.org.jetbrains")
+        relocate("org.jetbrains.kotlin.psi", "shadow.org.jetbrains.kotlin.psi")
     }
 }
