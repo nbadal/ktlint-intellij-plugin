@@ -2,7 +2,6 @@ package com.nbadal.ktlint
 
 import com.intellij.psi.FileViewProvider
 import com.intellij.psi.PsiFile
-import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.ParseException
 import io.mockk.every
@@ -21,12 +20,16 @@ internal class KtlintProcessingTest {
 
     @BeforeEach
     internal fun setUp() {
-        mockkObject(KtLint)
+        mockkObject(KtLintWrapper)
+        every { KtLintWrapper.trimMemory() } answers { /* stub */ }
+
+        mockkObject(KtlintRules)
+        every { KtlintRules.find(any(), any()) } returns emptyList()
     }
 
     @Test
     internal fun `parse exception should skip linting`() {
-        every { KtLint.lint(any()) } throws ParseException(0, 0, "test")
+        every { KtLintWrapper.lint(any()) } throws ParseException(0, 0, "test")
 
         val result = doLint(mockFile(), config, false)
 

@@ -7,7 +7,7 @@ import com.intellij.ui.IdeBorderFactory
 import com.intellij.ui.TextFieldWithAutoCompletion
 import com.intellij.uiDesigner.core.GridConstraints
 import com.nbadal.ktlint.KtlintConfigStorage
-import com.nbadal.ktlint.getAllRules
+import com.nbadal.ktlint.KtlintRules
 import java.awt.Desktop
 import java.awt.Dimension
 import java.net.URI
@@ -39,7 +39,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
 
     fun createComponent(): JComponent {
         // Manually create and insert disabled rules field
-        disabledRules = TextFieldWithAutoCompletion.create(project, getAllRules(config), false, "")
+        disabledRules = TextFieldWithAutoCompletion.create(project, KtlintRules.getAll(config), false, "")
         disabledRulesContainer.add(
             disabledRules,
             @Suppress("MagicNumber")
