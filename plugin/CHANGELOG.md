@@ -3,18 +3,10 @@
 # ktlint-intellij-plugin Changelog
 
 ## [Unreleased]
-### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
-
 ### Fixed
 - Issue where "Lint After Reformat" setting wasn't loaded from XML
+- Shadowing issue that prevented ruleset jars from resolving properly
 
-### Security
 ## [0.7.1]
 ### Fixed
 - Fixed logic for detecting null virtual file / file not in project condition
