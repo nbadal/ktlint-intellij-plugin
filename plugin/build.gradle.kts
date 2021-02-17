@@ -83,6 +83,12 @@ buildConfig {
     buildConfigField("String", "ROLLBAR_ACCESS_TOKEN", props.getProperty("ROLLBAR_ACCESS_TOKEN"))
 }
 
+// Configure gradle-changelog-plugin plugin.
+// Read more: https://github.com/JetBrains/gradle-changelog-plugin
+changelog {
+    version = pluginVersion
+}
+
 tasks {
     // Set the compatibility versions to 1.8
     withType<JavaCompile> {
