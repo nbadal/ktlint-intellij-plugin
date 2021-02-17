@@ -3,6 +3,18 @@
 # ktlint-intellij-plugin Changelog
 
 ## [Unreleased]
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.7.2]
 ### Fixed
 - Issue where "Lint After Reformat" setting wasn't loaded from XML
 - Shadowing issue that prevented ruleset jars from resolving properly
