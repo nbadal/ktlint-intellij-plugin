@@ -11,7 +11,7 @@ plugins {
     // Kotlin support
     kotlin("jvm")
     // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "0.6.5"
+    id("org.jetbrains.intellij") version "0.7.1"
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
     id("org.jetbrains.changelog") version "1.1.2"
     // BuildConfig - read more: https://github.com/mfuerstenau/gradle-buildconfig-plugin
