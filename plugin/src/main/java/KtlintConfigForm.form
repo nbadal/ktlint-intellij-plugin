@@ -14,6 +14,7 @@
         </constraints>
         <properties>
           <text resource-bundle="strings" key="disabledRulesLabel"/>
+          <toolTipText resource-bundle="strings" key="disabledRulesToolTip"/>
         </properties>
       </component>
       <component id="b76c7" class="javax.swing.JCheckBox" binding="treatAsErrors">
@@ -116,7 +117,7 @@
         </constraints>
         <properties>
           <text resource-bundle="strings" key="lintAfterFormatText"/>
-          <toolTipText resource-bundle="strings" key="treatAsErrorsToolTip"/>
+          <toolTipText resource-bundle="strings" key="lintAfterFormatTooltip"/>
         </properties>
       </component>
       <component id="6990b" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="baselinePath">

@@ -12,6 +12,7 @@
 ### Removed
 
 ### Fixed
+- Missing and duplicate tooltips in settings dialog
 
 ### Security
 ## [0.7.2]

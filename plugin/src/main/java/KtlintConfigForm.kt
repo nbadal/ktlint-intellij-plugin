@@ -12,6 +12,7 @@ import java.awt.Desktop
 import java.awt.Dimension
 import java.net.URI
 import java.util.Objects
+import java.util.ResourceBundle
 import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JComponent
@@ -40,6 +41,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     fun createComponent(): JComponent {
         // Manually create and insert disabled rules field
         disabledRules = TextFieldWithAutoCompletion.create(project, KtlintRules.getAll(config), false, "")
+        disabledRules.toolTipText = ResourceBundle.getBundle("strings").getString("disabledRulesToolTip")
         disabledRulesContainer.add(
             disabledRules,
             @Suppress("MagicNumber")
