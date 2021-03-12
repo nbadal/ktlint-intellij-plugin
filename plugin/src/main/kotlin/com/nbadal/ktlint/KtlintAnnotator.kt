@@ -16,7 +16,7 @@ class KtlintAnnotator : ExternalAnnotator<PsiFile, List<LintError>>() {
 
     override fun doAnnotate(file: PsiFile): List<LintError>? {
         val config = KtlintConfigStorage.instance(file.project)
-        if (!config.enableKtlint) {
+        if (!config.enableKtlint || config.hideErrors) {
             return emptyList()
         }
 

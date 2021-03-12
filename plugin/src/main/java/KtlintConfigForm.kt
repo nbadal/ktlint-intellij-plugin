@@ -15,6 +15,7 @@ import java.util.Objects
 import java.util.ResourceBundle
 import javax.swing.JButton
 import javax.swing.JCheckBox
+import javax.swing.JComboBox
 import javax.swing.JComponent
 import javax.swing.JPanel
 
@@ -24,7 +25,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     private lateinit var enableKtlint: JCheckBox
     private lateinit var androidMode: JCheckBox
     private lateinit var enableExperimental: JCheckBox
-    private lateinit var treatAsErrors: JCheckBox
+    private lateinit var annotateAs: JComboBox<AnnotationMode>
     private lateinit var lintAfterReformat: JCheckBox
     private lateinit var disabledRulesContainer: JPanel
     private lateinit var externalJarPaths: TextFieldWithBrowseButton
@@ -33,6 +34,20 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     private lateinit var githubButton: JButton
 
     private lateinit var disabledRules: TextFieldWithAutoCompletion<String>
+
+    private enum class AnnotationMode(private val bundleKey: String) {
+        ERROR("annotateError"), WARNING("annotateWarning"), NONE("annotateNone");
+
+        override fun toString(): String = ResourceBundle.getBundle("strings").getString(bundleKey)
+
+        companion object {
+            fun fromConfig(config: KtlintConfigStorage) = when {
+                config.hideErrors -> NONE
+                config.treatAsErrors -> ERROR
+                else -> WARNING
+            }
+        }
+    }
 
     fun createUIComponents() {
         // Stub.
@@ -60,7 +75,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
         val fieldsToDisable = listOf(
             enableExperimental,
             androidMode,
-            treatAsErrors,
+            annotateAs,
             lintAfterReformat,
             disabledRules,
             externalJarPaths,
@@ -68,6 +83,8 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
             editorConfigPath,
         )
         enableKtlint.addChangeListener { fieldsToDisable.forEach { it.isEnabled = enableKtlint.isSelected } }
+
+        AnnotationMode.values().forEach(annotateAs::addItem)
 
         externalJarPaths.addActionListener {
             val descriptor = FileChooserDescriptor(false, false, true, true, false, true)
@@ -106,7 +123,8 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
         config.enableKtlint = enableKtlint.isSelected
         config.androidMode = androidMode.isSelected
         config.useExperimental = enableExperimental.isSelected
-        config.treatAsErrors = treatAsErrors.isSelected
+        config.treatAsErrors = AnnotationMode.ERROR == annotateAs.selectedItem
+        config.hideErrors = AnnotationMode.NONE == annotateAs.selectedItem
         config.lintAfterReformat = lintAfterReformat.isSelected
         config.disabledRules = disabledRules.text
             .split(",")
@@ -128,7 +146,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
         enableKtlint.isSelected = config.enableKtlint
         androidMode.isSelected = config.androidMode
         enableExperimental.isSelected = config.useExperimental
-        treatAsErrors.isSelected = config.treatAsErrors
+        annotateAs.selectedItem = AnnotationMode.fromConfig(config)
         lintAfterReformat.isSelected = config.lintAfterReformat
         disabledRules.text = config.disabledRules.joinToString(", ")
         externalJarPaths.text = config.externalJarPaths.joinToString(", ")
@@ -140,7 +158,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
             Objects.equals(config.enableKtlint, enableKtlint.isSelected) &&
                 Objects.equals(config.androidMode, androidMode.isSelected) &&
                 Objects.equals(config.useExperimental, enableExperimental.isSelected) &&
-                Objects.equals(config.treatAsErrors, treatAsErrors.isSelected) &&
+                Objects.equals(AnnotationMode.fromConfig(config), annotateAs.selectedItem) &&
                 Objects.equals(config.lintAfterReformat, lintAfterReformat.isSelected) &&
                 Objects.equals(config.disabledRules, disabledRules.text) &&
                 Objects.equals(config.externalJarPaths, externalJarPaths.text) &&

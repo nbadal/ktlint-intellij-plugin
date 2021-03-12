@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 ### Added
+- Annotation type now has a "None" option for annotation-less linting
 
 ### Changed
 

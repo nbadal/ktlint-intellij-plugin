@@ -26,6 +26,9 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     var treatAsErrors = true
 
     @Tag
+    var hideErrors = false
+
+    @Tag
     var lintAfterReformat = true
 
     @Tag
@@ -47,6 +50,7 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
         this.androidMode = state.androidMode
         this.useExperimental = state.useExperimental
         this.treatAsErrors = state.treatAsErrors
+        this.hideErrors = state.hideErrors
         this.lintAfterReformat = state.lintAfterReformat
         this.disabledRules = state.disabledRules
         this.baselinePath = state.baselinePath
