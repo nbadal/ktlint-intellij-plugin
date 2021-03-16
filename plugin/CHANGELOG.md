@@ -6,16 +6,9 @@
 ### Added
 - Annotation type now has a "None" option for annotation-less linting
 
-### Changed
-
-### Deprecated
-
-### Removed
-
 ### Fixed
 - Missing and duplicate tooltips in settings dialog
 
-### Security
 ## [0.7.2]
 ### Fixed
 - Issue where "Lint After Reformat" setting wasn't loaded from XML
