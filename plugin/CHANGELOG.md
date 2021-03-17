@@ -6,6 +6,7 @@
 ### Added
 
 ### Changed
+- Updated ktlint to 0.41.0
 
 ### Deprecated
 

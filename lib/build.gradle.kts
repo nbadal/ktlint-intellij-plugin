@@ -13,9 +13,9 @@ repositories {
 }
 
 dependencies {
-    api("com.pinterest.ktlint:ktlint-core:0.40.0")
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.40.0")
-    implementation("com.pinterest.ktlint:ktlint-ruleset-experimental:0.40.0")
+    api("com.pinterest.ktlint:ktlint-core:0.41.0")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.41.0")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-experimental:0.41.0")
 }
 
 tasks {
