@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.7.3]
+### Added
 - Annotation type now has a "None" option for annotation-less linting
 
 ### Fixed
