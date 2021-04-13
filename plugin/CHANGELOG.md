@@ -7,6 +7,7 @@
 
 ### Changed
 - Updated ktlint to 0.41.0
+- Increased platform support to include 2021.1
 
 ### Deprecated
 
