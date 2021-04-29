@@ -11,16 +11,18 @@ import com.nbadal.ktlint.intentions.GlobalDisableRuleIntention
 import com.nbadal.ktlint.intentions.LineDisableIntention
 import com.pinterest.ktlint.core.LintError
 
-class KtlintAnnotator : ExternalAnnotator<PsiFile, List<LintError>>() {
-    override fun collectInformation(file: PsiFile) = file
-
-    override fun doAnnotate(file: PsiFile): List<LintError> {
+class KtlintAnnotator : ExternalAnnotator<LintResult, List<LintError>>() {
+    override fun collectInformation(file: PsiFile): LintResult {
         val config = file.project.config()
         if (!config.enableKtlint || config.hideErrors) {
-            return emptyList()
+            return emptyLintResult()
         }
 
-        return doLint(file, config, false).uncorrectedErrors
+        return doLint(file, config, false)
+    }
+
+    override fun doAnnotate(collectedInfo: LintResult): List<LintError> {
+        return collectedInfo.uncorrectedErrors
     }
 
     override fun apply(file: PsiFile, errors: List<LintError>, holder: AnnotationHolder) {

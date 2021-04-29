@@ -9,6 +9,7 @@
 
 ### Fixed
 - "Undefined" action name in undo stack
+- Annotator now correctly runs inside a read action
 
 ## [0.7.4]
 ### Changed
