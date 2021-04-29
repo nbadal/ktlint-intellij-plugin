@@ -5,6 +5,7 @@
 ## [Unreleased]
 ### Added
 - Manual action for triggering a format via Refactor menu
+- Allow for formatting multiple files/folders at once via action
 
 ### Changed
 
