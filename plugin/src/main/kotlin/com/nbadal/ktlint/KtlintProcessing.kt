@@ -2,6 +2,7 @@ package com.nbadal.ktlint
 
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
@@ -71,7 +72,12 @@ internal fun doLint(
             WriteCommandAction.runWriteCommandAction(
                 file.project, "Format with ktlint", null,
                 {
-                    file.viewProvider.document?.setText(results)
+                    file.viewProvider.document?.apply {
+                        PsiDocumentManager
+                            .getInstance(file.project)
+                            .doPostponedOperationsAndUnblockDocument(this)
+                        setText(results)
+                    }
                 },
                 file
             )

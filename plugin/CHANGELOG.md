@@ -11,6 +11,7 @@
 - "Undefined" action name in undo stack
 - Annotator now correctly runs inside a read action
 - End-of-file line disable comment miscalculation crash
+- Crash when uncommitted PSI changes were blocking lint formatting 
 
 ## [0.7.4]
 ### Changed
