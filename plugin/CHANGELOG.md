@@ -7,16 +7,8 @@
 - Manual action for triggering a format via Refactor menu
 - Allow for formatting multiple files/folders at once via action
 
-### Changed
-
-### Deprecated
-
-### Removed
-
 ### Fixed
 - "Undefined" action name in undo stack
-
-### Security
 
 ## [0.7.4]
 ### Changed
