@@ -1,10 +1,8 @@
 package com.nbadal.ktlint
 
 import com.intellij.openapi.components.PersistentStateComponent
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
-import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.Tag
 
 @State(
@@ -56,9 +54,5 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
         this.baselinePath = state.baselinePath
         this.editorConfigPath = state.editorConfigPath
         this.externalJarPaths = state.externalJarPaths
-    }
-
-    companion object {
-        fun instance(project: Project) = ServiceManager.getService(project, KtlintConfigStorage::class.java)!!
     }
 }

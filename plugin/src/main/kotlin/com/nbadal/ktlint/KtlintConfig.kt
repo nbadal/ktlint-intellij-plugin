@@ -8,8 +8,7 @@ import javax.swing.JComponent
 
 class KtlintConfig(private val project: Project) : SearchableConfigurable {
 
-    private val configStorage = KtlintConfigStorage.instance(project)
-    private val form = KtlintConfigForm(project, configStorage)
+    private val form = KtlintConfigForm(project, project.config())
 
     override fun createComponent(): JComponent = form.createComponent()
 

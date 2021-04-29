@@ -14,8 +14,8 @@ import com.pinterest.ktlint.core.LintError
 class KtlintAnnotator : ExternalAnnotator<PsiFile, List<LintError>>() {
     override fun collectInformation(file: PsiFile) = file
 
-    override fun doAnnotate(file: PsiFile): List<LintError>? {
-        val config = KtlintConfigStorage.instance(file.project)
+    override fun doAnnotate(file: PsiFile): List<LintError> {
+        val config = file.project.config()
         if (!config.enableKtlint || config.hideErrors) {
             return emptyList()
         }
@@ -24,7 +24,7 @@ class KtlintAnnotator : ExternalAnnotator<PsiFile, List<LintError>>() {
     }
 
     override fun apply(file: PsiFile, errors: List<LintError>, holder: AnnotationHolder) {
-        val config = KtlintConfigStorage.instance(file.project)
+        val config = file.project.config()
 
         errors.forEach {
             val errorRange = errorTextRange(file, it)

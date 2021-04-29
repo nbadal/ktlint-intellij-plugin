@@ -5,7 +5,7 @@ import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import com.nbadal.ktlint.KtlintConfigStorage
+import com.nbadal.ktlint.config
 
 class KtlintGlobalDisableRuleAction(private val ruleId: String) : BaseIntentionAction() {
     override fun getFamilyName() = "ktlint"
@@ -15,7 +15,7 @@ class KtlintGlobalDisableRuleAction(private val ruleId: String) : BaseIntentionA
     override fun isAvailable(project: Project, editor: Editor?, file: PsiFile?) = true
 
     override fun invoke(project: Project, editor: Editor?, file: PsiFile?) {
-        val config = KtlintConfigStorage.instance(project)
+        val config = project.config()
 
         val disabled = config.disabledRules.toMutableList()
         disabled.add(ruleId)

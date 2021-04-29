@@ -11,7 +11,7 @@ class KtlintPostFormatProcessor : PostFormatProcessor {
     override fun processElement(source: PsiElement, settings: CodeStyleSettings) = source // Stub.
 
     override fun processText(source: PsiFile, rangeToReformat: TextRange, settings: CodeStyleSettings): TextRange {
-        val config = KtlintConfigStorage.instance(source.project)
+        val config = source.project.config()
 
         if (shouldLint(source, config)) {
             doLint(source, config, true)
