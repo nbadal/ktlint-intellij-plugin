@@ -5,10 +5,10 @@ import com.intellij.lang.annotation.ExternalAnnotator
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
-import com.nbadal.ktlint.actions.KtlintDisableAction
-import com.nbadal.ktlint.actions.KtlintFormatAction
-import com.nbadal.ktlint.actions.KtlintGlobalDisableRuleAction
-import com.nbadal.ktlint.actions.KtlintLineDisableAction
+import com.nbadal.ktlint.intentions.DisablePluginIntention
+import com.nbadal.ktlint.intentions.FormatIntention
+import com.nbadal.ktlint.intentions.GlobalDisableRuleIntention
+import com.nbadal.ktlint.intentions.LineDisableIntention
 import com.pinterest.ktlint.core.LintError
 
 class KtlintAnnotator : ExternalAnnotator<PsiFile, List<LintError>>() {
@@ -32,10 +32,10 @@ class KtlintAnnotator : ExternalAnnotator<PsiFile, List<LintError>>() {
             val severity = if (config.treatAsErrors) HighlightSeverity.ERROR else HighlightSeverity.WARNING
 
             holder.createAnnotation(severity, errorRange, message).apply {
-                if (it.canBeAutoCorrected) registerFix(KtlintFormatAction())
-                registerFix(KtlintGlobalDisableRuleAction(it.ruleId))
-                registerFix(KtlintLineDisableAction(it))
-                registerFix(KtlintDisableAction())
+                if (it.canBeAutoCorrected) registerFix(FormatIntention())
+                registerFix(GlobalDisableRuleIntention(it.ruleId))
+                registerFix(LineDisableIntention(it))
+                registerFix(DisablePluginIntention())
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.nbadal.ktlint.actions
+package com.nbadal.ktlint.intentions
 
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.lexer.KtTokens.EOL_COMMENT
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 
-class KtlintLineDisableAction(private val error: LintError) : BaseIntentionAction() {
+class LineDisableIntention(private val error: LintError) : BaseIntentionAction() {
     override fun getFamilyName() = "ktlint"
 
     override fun getText() = "Disable '${error.ruleId}' for line"
