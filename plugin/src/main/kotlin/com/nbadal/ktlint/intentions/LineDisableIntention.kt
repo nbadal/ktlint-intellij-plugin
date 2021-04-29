@@ -25,7 +25,8 @@ class LineDisableIntention(private val error: LintError) : BaseIntentionAction()
         val eolComment = file.errorEolComment()
         if (eolComment != null && eolComment.textWithError() == null) return false
 
-        return true
+        // Skip if we can't resolve an EOL whitespace to target
+        return file.errorEol() != null
     }
 
     override fun invoke(project: Project, editor: Editor?, file: PsiFile) {
@@ -57,8 +58,9 @@ class LineDisableIntention(private val error: LintError) : BaseIntentionAction()
 
     /** @return the element specified by the error */
     private fun PsiFile.errorElement(): PsiElement? =
-        viewProvider.document?.getLineStartOffset(error.line - 1)?.let { lineOffset ->
-            findElementAt(lineOffset + error.col - 1)
+        viewProvider.document?.let { doc ->
+            if (error.line >= doc.lineCount) return null
+            return findElementAt(doc.getLineStartOffset(error.line - 1) + error.col - 1)
         }
 
     /** @return the EOL whitespace after this error, if found */
