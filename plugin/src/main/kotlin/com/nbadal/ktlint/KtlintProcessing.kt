@@ -68,9 +68,13 @@ internal fun doLint(
     try {
         if (format) {
             val results = KtLintWrapper.format(params)
-            WriteCommandAction.runWriteCommandAction(file.project) {
-                file.viewProvider.document?.setText(results)
-            }
+            WriteCommandAction.runWriteCommandAction(
+                file.project, "Format with ktlint", null,
+                {
+                    file.viewProvider.document?.setText(results)
+                },
+                file
+            )
         } else {
             KtLintWrapper.lint(params)
         }

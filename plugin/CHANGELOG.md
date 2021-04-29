@@ -6,16 +6,21 @@
 ### Added
 
 ### Changed
-- Updated ktlint to 0.41.0
-- Increased platform support to include 2021.1
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+- "Undefined" action name in undo stack
 
 ### Security
+
+## [0.7.4]
+### Changed
+- Updated ktlint to 0.41.0
+- Increased platform support to include 2021.1
+
 ## [0.7.3]
 ### Added
 - Annotation type now has a "None" option for annotation-less linting
