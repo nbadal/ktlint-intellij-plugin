@@ -14,4 +14,11 @@
                              instance="com.nbadal.ktlint.KtlintConfig"/>
         <errorHandler implementation="com.nbadal.ktlint.KtlintErrorHandler" />
     </extensions>
+
+    <actions>
+        <action id="Ktlint.Format" class="com.nbadal.ktlint.actions.FormatAction"
+                text="Format With Ktlint" description="Apply ktlint formatting to file">
+            <add-to-group group-id="RefactoringMenu" />
+        </action>
+    </actions>
 </idea-plugin>

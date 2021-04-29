@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 ### Added
+- Manual action for triggering a format via Refactor menu
 
 ### Changed
 
