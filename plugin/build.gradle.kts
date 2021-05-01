@@ -38,8 +38,8 @@ version = pluginVersion
 // Configure project's dependencies
 repositories {
     mavenCentral()
-    jcenter()
 }
+
 dependencies {
     // Shadow lib (see: ../lib/README.md)
     compileOnly(project(":lib")) // Required for IDE
