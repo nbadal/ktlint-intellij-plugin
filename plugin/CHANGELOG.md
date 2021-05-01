@@ -3,17 +3,9 @@
 # ktlint-intellij-plugin Changelog
 
 ## [Unreleased]
-### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
-
 ### Fixed
+- Custom rulesets using/comparing PSI classes will now work as intended
 
-### Security
 ## [0.7.5]
 ### Added
 - Manual action for triggering a format via Refactor menu
