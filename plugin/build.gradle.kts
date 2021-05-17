@@ -51,7 +51,7 @@ dependencies {
 
     // Tests:
     testImplementation(project(":lib"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.7.2")
     testImplementation("io.mockk:mockk:1.11.0")
 }
 
