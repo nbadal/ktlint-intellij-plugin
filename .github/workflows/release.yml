@@ -15,7 +15,7 @@ jobs:
     steps:
       # Indicate start of publish to Rollbar
       - name: Notify start deploy to Rollbar
-        uses: rollbar/github-deploy-action@2.0.0
+        uses: rollbar/github-deploy-action@2.1.1
         id: rollbar_pre_deploy
         with:
           environment: 'production'
@@ -53,7 +53,7 @@ jobs:
 
       # Indicate success of publish to Rollbar
       - name: Notify finish deploy to Rollbar
-        uses: rollbar/github-deploy-action@2.0.0
+        uses: rollbar/github-deploy-action@2.1.1
         id: rollbar_post_deploy
         with:
           environment: 'production'
