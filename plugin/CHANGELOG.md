@@ -3,6 +3,18 @@
 # ktlint-intellij-plugin Changelog
 
 ## [Unreleased]
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.7.6]
 ### Fixed
 - Custom rulesets using/comparing PSI classes will now work as intended
 
