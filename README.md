@@ -2,7 +2,7 @@
 
 # ktlint-intellij-plugin
 
-[![Build](https://github.com/nbadal/ktlint-intellij-plugin/workflows/Build/badge.svg)](https://github.com/nbadal/ktlint-intellij-plugin/actions?query=workflow%3ABuild)
+[![Build](https://github.com/nbadal/ktlint-intellij-plugin/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/nbadal/ktlint-intellij-plugin/actions/workflows/build.yml)
 [![Version](https://img.shields.io/jetbrains/plugin/v/15057.svg)](https://plugins.jetbrains.com/plugin/15057)
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/15057.svg)](https://plugins.jetbrains.com/plugin/15057)
