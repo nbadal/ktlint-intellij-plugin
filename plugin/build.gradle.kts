@@ -13,8 +13,8 @@ plugins {
     id("org.jetbrains.intellij") version "1.0"
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
     id("org.jetbrains.changelog") version "1.1.2"
-    // BuildConfig - read more: https://github.com/mfuerstenau/gradle-buildconfig-plugin
-    id("de.fuerstenau.buildconfig") version "1.1.8"
+    // BuildConfig - read more: https://github.com/gmazzo/gradle-buildconfig-plugin
+    id("com.github.gmazzo.buildconfig") version "3.0.1"
 }
 
 // Import variables from gradle.properties file
@@ -70,16 +70,16 @@ intellij {
 
 // Configure BuildConfig generation
 buildConfig {
-    appName = "ktlint-intellij-plugin"
-    version = pluginVersion
-    packageName = "$pluginGroup.$pluginName_"
+    packageName("$pluginGroup.$pluginName_")
 
     val propsFile = File("secrets.properties")
     if (!propsFile.exists()) throw GradleException("secrets.properties not found.")
     val props = Properties()
     props.load(FileInputStream(propsFile))
 
-    buildConfigField("String", "ROLLBAR_ACCESS_TOKEN", props.getProperty("ROLLBAR_ACCESS_TOKEN"))
+    buildConfigField("String", "NAME", "\"ktlint-intellij-plugin\"")
+    buildConfigField("String", "VERSION", "\"$pluginVersion\"")
+    buildConfigField("String", "ROLLBAR_ACCESS_TOKEN", "\"${props.getProperty("ROLLBAR_ACCESS_TOKEN")}\"")
 }
 
 // Configure gradle-changelog-plugin plugin.
