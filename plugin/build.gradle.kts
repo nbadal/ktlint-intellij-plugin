@@ -85,7 +85,7 @@ buildConfig {
 // Configure gradle-changelog-plugin plugin.
 // Read more: https://github.com/JetBrains/gradle-changelog-plugin
 changelog {
-    version = pluginVersion
+    version.set(pluginVersion)
 }
 
 tasks {
