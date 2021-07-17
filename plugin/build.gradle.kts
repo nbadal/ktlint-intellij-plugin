@@ -14,7 +14,7 @@ plugins {
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
     id("org.jetbrains.changelog") version "1.1.2"
     // BuildConfig - read more: https://github.com/gmazzo/gradle-buildconfig-plugin
-    id("com.github.gmazzo.buildconfig") version "3.0.1"
+    id("com.github.gmazzo.buildconfig") version "3.0.2"
 }
 
 // Import variables from gradle.properties file
