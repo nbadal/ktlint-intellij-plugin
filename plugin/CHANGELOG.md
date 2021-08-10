@@ -3,17 +3,8 @@
 # ktlint-intellij-plugin Changelog
 
 ## [Unreleased]
-### Added
+- Upgrade to ktlint 0.42.1
 
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 ## [0.8.0]
 ### Changed
 - Support for 212.*
