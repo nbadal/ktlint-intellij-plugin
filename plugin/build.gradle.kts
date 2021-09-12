@@ -10,11 +10,11 @@ plugins {
     // Kotlin support
     kotlin("jvm")
     // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.1.4"
+    id("org.jetbrains.intellij") version "1.1.6"
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
     id("org.jetbrains.changelog") version "1.2.1"
     // BuildConfig - read more: https://github.com/gmazzo/gradle-buildconfig-plugin
-    id("com.github.gmazzo.buildconfig") version "3.0.2"
+    id("com.github.gmazzo.buildconfig") version "3.0.3"
 }
 
 // Import variables from gradle.properties file
