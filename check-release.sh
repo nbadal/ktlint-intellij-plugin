@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euf -o pipefail
 
-LATEST=$(curl -s 'https://data.services.jetbrains.com/products/releases?code=IIU&latest=true' | jq -r '.IIU[0].build' | cut -d . -f 1)
+LATEST=$(curl -s 'https://data.services.jetbrains.com/products/releases?code=IIU&release.type=eap%2Crc&latest=true' | jq -r '.IIU[0].build' | cut -d . -f 1)
 UNTIL="${LATEST}.*"
 
 CURRENT=$(grep pluginUntilBuild gradle.properties | cut -d '=' -f 2 | xargs)
