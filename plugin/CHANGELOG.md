@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 ### Added
+- Support for IDE version 213.*
 
 ### Changed
 
@@ -14,6 +15,7 @@
 ### Fixed
 
 ### Security
+
 ## [0.8.1 ]
 - Upgrade to ktlint 0.42.1
 
