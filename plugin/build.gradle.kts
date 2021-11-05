@@ -44,7 +44,7 @@ dependencies {
     compileOnly(project(":lib")) // Required for IDE
     implementation(project(":lib", "shadow"))
 
-    implementation("com.rollbar:rollbar-java:1.7.8") {
+    implementation("com.rollbar:rollbar-java:1.7.10") {
         exclude(group = "org.slf4j") // Duplicated in IDE environment
     }
 
