@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    api("com.pinterest.ktlint:ktlint-core:0.43.0")
+    api("com.pinterest.ktlint:ktlint-core:0.43.2")
     implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.43.0")
     implementation("com.pinterest.ktlint:ktlint-ruleset-experimental:0.43.0")
 }
