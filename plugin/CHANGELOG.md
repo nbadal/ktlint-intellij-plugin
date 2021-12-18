@@ -7,16 +7,9 @@
 - Support for IDE version 213.*
 
 ### Changed
+- Upgrade to ktlint 0.43.2
 
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
-
-## [0.8.1 ]
+## [0.8.1]
 - Upgrade to ktlint 0.42.1
 
 ## [0.8.0]
