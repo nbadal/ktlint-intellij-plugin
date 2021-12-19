@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [0.8.2]
+### Added
 - Support for IDE version 213.*
 
 ### Changed
@@ -20,7 +33,6 @@
 ### Fixed
 - Java 11 dependencies
 
-### Security
 ## [0.7.6]
 ### Fixed
 - Custom rulesets using/comparing PSI classes will now work as intended
@@ -34,7 +46,7 @@
 - "Undefined" action name in undo stack
 - Annotator now correctly runs inside a read action
 - End-of-file line disable comment miscalculation crash
-- Crash when uncommitted PSI changes were blocking lint formatting 
+- Crash when uncommitted PSI changes were blocking lint formatting
 
 ## [0.7.4]
 ### Changed
