@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 ### Added
+- Support for IDE version 221.*
 
 ### Changed
 
