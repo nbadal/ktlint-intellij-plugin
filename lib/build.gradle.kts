@@ -31,8 +31,7 @@ tasks {
         val api = project.configurations.api.get()
         val impl = project.configurations.implementation.get()
 
-        configurations = listOf(api, impl)
-        configurations.forEach { it.isCanBeResolved = true }
+        configurations = listOf(api, impl).map { it.apply { isCanBeResolved = true } }
 
         relocate("org.jetbrains.kotlin.psi.KtPsiFactory", "shadow.org.jetbrains.kotlin.psi.KtPsiFactory")
         relocate("org.jetbrains.kotlin.psi.psiUtil", "shadow.org.jetbrains.kotlin.psi.psiUtil")
