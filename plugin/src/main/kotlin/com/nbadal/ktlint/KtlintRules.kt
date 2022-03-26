@@ -7,11 +7,11 @@ import java.net.URLClassLoader
 import java.util.ServiceLoader
 
 object KtlintRules {
-    fun getAll(config: KtlintConfigStorage) = find(config.externalJarPaths, config.useExperimental)
+    fun getAll(config: KtlintConfigStorage, skipErrors: Boolean = false) = find(config.externalJarPaths, config.useExperimental, skipErrors)
         .fold(mutableListOf<String>()) { allRules, ruleSet -> allRules.apply { addAll(ruleSet.ids()) } }
         .toList()
 
-    fun find(paths: List<String>, experimental: Boolean) = ServiceLoader
+    fun find(paths: List<String>, experimental: Boolean, skipErrors: Boolean) = ServiceLoader
         .load(
             RuleSetProvider::class.java,
             URLClassLoader(
@@ -19,13 +19,21 @@ object KtlintRules {
                 RuleSetProvider::class.java.classLoader
             )
         )
+        .mapNotNull {
+            try {
+                it.get()
+            } catch (err: Throwable) {
+                if (!skipErrors) throw err
+                null
+            }
+        }
         .associateBy {
-            val key = it.get().id
+            val key = it.id
             if (key == "standard") "\u0000$key" else key
         }
         .filterKeys { experimental || it != "experimental" }
         .toSortedMap()
-        .map { it.value.get() }
+        .map { it.value }
 
     private fun RuleSet.ids() = rules.map { rule -> if (id == "standard") rule.id else "$id:${rule.id}" }
 

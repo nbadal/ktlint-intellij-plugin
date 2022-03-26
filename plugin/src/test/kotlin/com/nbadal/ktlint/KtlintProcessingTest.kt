@@ -24,7 +24,7 @@ internal class KtlintProcessingTest {
         every { KtLintWrapper.trimMemory() } answers { /* stub */ }
 
         mockkObject(KtlintRules)
-        every { KtlintRules.find(any(), any()) } returns emptyList()
+        every { KtlintRules.find(any(), any(), any()) } returns emptyList()
     }
 
     @Test

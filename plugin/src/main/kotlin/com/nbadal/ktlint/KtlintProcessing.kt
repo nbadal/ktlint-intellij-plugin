@@ -44,10 +44,17 @@ internal fun doLint(
     val uncorrectedErrors = mutableListOf<LintError>()
     val ignoredErrors = mutableListOf<LintError>()
 
+    val ruleSets = try {
+        KtlintRules.find(config.externalJarPaths, config.useExperimental, false)
+    } catch (err: Throwable) {
+        KtlintNotifier.notifyErrorWithSettings(file.project, "Error in ruleset", err.toString())
+        return emptyLintResult()
+    }
+
     val params = KtLint.Params(
         fileName = fileName,
         text = file.text,
-        ruleSets = KtlintRules.find(config.externalJarPaths, config.useExperimental),
+        ruleSets = ruleSets,
         userData = userData,
         script = !fileName.endsWith(".kt", ignoreCase = true),
         editorConfigPath = config.editorConfigPath,

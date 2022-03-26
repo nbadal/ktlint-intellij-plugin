@@ -6,6 +6,9 @@
 ### Changed
 - Upgrade to ktlint 0.45.1
 
+### Fixed
+- Show error when ruleset exception is thrown (#188)
+
 ## [0.8.3]
 ### Added
 - Support for IDE version 221.*
