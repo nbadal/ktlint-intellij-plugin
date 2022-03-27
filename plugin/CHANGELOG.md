@@ -3,6 +3,19 @@
 # ktlint-intellij-plugin Changelog
 
 ## [Unreleased]
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [0.9.0]
 ### Changed
 - Upgrade to ktlint 0.45.1
 
