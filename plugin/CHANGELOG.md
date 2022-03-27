@@ -8,6 +8,7 @@
 
 ### Fixed
 - Show error when ruleset exception is thrown (#188)
+- Fix experimental rules not being included (#120)
 
 ## [0.8.3]
 ### Added
