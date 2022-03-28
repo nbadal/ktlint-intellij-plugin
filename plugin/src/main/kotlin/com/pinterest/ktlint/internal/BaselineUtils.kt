@@ -1,14 +1,14 @@
 package com.pinterest.ktlint.internal
 
 import com.pinterest.ktlint.core.LintError
+import org.w3c.dom.Element
+import org.xml.sax.SAXException
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
-import org.w3c.dom.Element
-import org.xml.sax.SAXException
 
 /**
  * Loads the baseline file if one is provided.
