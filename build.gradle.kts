@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.6.20" apply false
+    kotlin("jvm") version "1.6.21" apply false
 
     // detekt linter - read more: https://github.com/detekt/detekt
     id("io.gitlab.arturbosch.detekt") version "1.20.0"
