@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [0.9.1]
+### Added
 - Support for IDE version 222.*
 
 ## [0.9.0]
