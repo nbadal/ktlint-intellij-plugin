@@ -16,6 +16,6 @@ fi
 echo "::set-output name=updated::true"
 echo "::set-output name=newUntil::$UNTIL"
 
-gsed -i -E "s|(pluginVerifierIdeVersions = )(.*)\$|\1\2, $LATEST_BUILD|g" gradle.properties
-gsed -i "s|pluginUntilBuild = $CURRENT|pluginUntilBuild = $UNTIL|g" gradle.properties
+sed -i -E "s|(pluginVerifierIdeVersions = )(.*)\$|\1\2, $LATEST_BUILD|g" gradle.properties
+sed -i "s|pluginUntilBuild = $CURRENT|pluginUntilBuild = $UNTIL|g" gradle.properties
 
