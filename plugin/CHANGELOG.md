@@ -4,16 +4,7 @@
 
 ## [Unreleased]
 ### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
+- Support for IDE version 222.*
 
 ## [0.9.0]
 ### Changed
