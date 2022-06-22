@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    api("com.pinterest.ktlint:ktlint-core:0.45.2") {
+    api("com.pinterest.ktlint:ktlint-core:0.46.1") {
         exclude("org.slf4j")
     }
     implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.45.2") {
