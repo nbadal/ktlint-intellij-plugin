@@ -18,7 +18,7 @@ dependencies {
     implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.45.2") {
         exclude("org.slf4j")
     }
-    implementation("com.pinterest.ktlint:ktlint-ruleset-experimental:0.45.2") {
+    implementation("com.pinterest.ktlint:ktlint-ruleset-experimental:0.46.1") {
         exclude("org.slf4j")
     }
 }
