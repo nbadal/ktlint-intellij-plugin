@@ -7,20 +7,26 @@ import com.intellij.psi.PsiFile
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.ParseException
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
+import com.pinterest.ktlint.core.api.EditorConfigOverride
+import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.internal.containsLintError
 import com.pinterest.ktlint.internal.loadBaseline
+import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
 internal fun doLint(
     file: PsiFile,
     config: KtlintConfigStorage,
     format: Boolean
 ): LintResult {
-    val userData = listOfNotNull(
-        "android" to config.androidMode.toString(),
-        // Skip entry if empty, so we don't overwrite the .editorconfig
-        config.disabledRules
-            .let { if (it.isNotEmpty()) ("disabled_rules" to it.joinToString(",")) else null },
-    ).toMap()
+    val editorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride
+        .applyIf(config.disabledRules.isNotEmpty()) {
+            plus(disabledRulesProperty to config.disabledRules.joinToString(","))
+        }
+        .applyIf(config.androidMode) {
+            plus(codeStyleSetProperty to "android")
+        }
 
     var fileName = file.virtualFile.name
     // KtLint wants the full file path in order to search for .editorconfig files
@@ -38,7 +44,8 @@ internal fun doLint(
     // Get relative path, if possible.
     var projectRelativePath = fileName
     file.project.basePath?.let { projectRelativePath = fileName.removePrefix(it).removePrefix("/") }
-    val baselineErrors = config.baselinePath?.let { loadBaseline(it).baselineRules?.get(projectRelativePath) } ?: emptyList()
+    val baselineErrors =
+        config.baselinePath?.let { loadBaseline(it).baselineRules?.get(projectRelativePath) } ?: emptyList()
 
     val correctedErrors = mutableListOf<LintError>()
     val uncorrectedErrors = mutableListOf<LintError>()
@@ -51,11 +58,11 @@ internal fun doLint(
         return emptyLintResult()
     }
 
-    val params = KtLint.Params(
+    val params = KtLint.ExperimentalParams(
         fileName = fileName,
         text = file.text,
         ruleSets = ruleSets,
-        userData = userData,
+        editorConfigOverride = editorConfigOverride,
         script = !fileName.endsWith(".kt", ignoreCase = true),
         editorConfigPath = config.editorConfigPath,
         debug = false,
