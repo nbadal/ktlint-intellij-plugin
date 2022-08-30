@@ -15,6 +15,10 @@
 
 ### Security
 
+## [0.11.0]
+### Changed
+- Upgrade to ktlint 0.47.0
+
 ## [0.10.0]
 ### Changed
 - Upgrade to ktlint 0.46.1
