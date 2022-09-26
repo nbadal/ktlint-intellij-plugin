@@ -17,7 +17,7 @@
 
 ## [0.11.0]
 ### Changed
-- Upgrade to ktlint 0.47.0
+- Upgrade to ktlint 0.47.1
 
 ## [0.10.0]
 ### Changed
