@@ -4,7 +4,7 @@
 
 ## [Unreleased]
 ### Changed
-- Updated to IntelliJ platform 203-223
+- Updated to IntelliJ platform 213-223
 
 ## [0.10.0]
 ### Changed
