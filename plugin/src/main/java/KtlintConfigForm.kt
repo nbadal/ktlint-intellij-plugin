@@ -23,11 +23,14 @@ import javax.swing.JPanel
 class KtlintConfigForm(private val project: Project, private val config: KtlintConfigStorage) {
 
     private lateinit var mainPanel: JPanel
-    private lateinit var enableKtlint: JCheckBox
+    lateinit var enableKtlint: JCheckBox
+        private set
     private lateinit var androidMode: JCheckBox
     private lateinit var enableExperimental: JCheckBox
     private lateinit var annotateAs: JComboBox<AnnotationMode>
     private lateinit var lintAfterReformat: JCheckBox
+    lateinit var formatOnSave: JCheckBox
+        private set
     private lateinit var disabledRulesContainer: JPanel
     private lateinit var externalJarPaths: TextFieldWithBrowseButton
     private lateinit var baselinePath: TextFieldWithBrowseButton
@@ -87,6 +90,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
             androidMode,
             annotateAs,
             lintAfterReformat,
+            formatOnSave,
             disabledRules,
             externalJarPaths,
             baselinePath,
@@ -136,6 +140,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
         config.treatAsErrors = AnnotationMode.ERROR == annotateAs.selectedItem
         config.hideErrors = AnnotationMode.NONE == annotateAs.selectedItem
         config.lintAfterReformat = lintAfterReformat.isSelected
+        config.formatOnSave = formatOnSave.isSelected
         config.disabledRules = disabledRules.text
             .split(",")
             .map { it.trim() }
@@ -158,6 +163,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
         enableExperimental.isSelected = config.useExperimental
         annotateAs.selectedItem = AnnotationMode.fromConfig(config)
         lintAfterReformat.isSelected = config.lintAfterReformat
+        formatOnSave.isSelected = config.formatOnSave
         disabledRules.text = config.disabledRules.joinToString(", ")
         externalJarPaths.text = config.externalJarPaths.joinToString(", ")
         editorConfigPath.text = config.editorConfigPath ?: ""
@@ -170,6 +176,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
                 Objects.equals(config.useExperimental, enableExperimental.isSelected) &&
                 Objects.equals(AnnotationMode.fromConfig(config), annotateAs.selectedItem) &&
                 Objects.equals(config.lintAfterReformat, lintAfterReformat.isSelected) &&
+                Objects.equals(config.formatOnSave, formatOnSave.isSelected) &&
                 Objects.equals(config.disabledRules, disabledRules.text) &&
                 Objects.equals(config.externalJarPaths, externalJarPaths.text) &&
                 Objects.equals(config.editorConfigPath, editorConfigPath.text)

@@ -30,6 +30,9 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     var lintAfterReformat = true
 
     @Tag
+    var formatOnSave = false
+
+    @Tag
     var disabledRules: List<String> = emptyList()
 
     @Tag
@@ -50,6 +53,7 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
         this.treatAsErrors = state.treatAsErrors
         this.hideErrors = state.hideErrors
         this.lintAfterReformat = state.lintAfterReformat
+        this.formatOnSave = state.formatOnSave
         this.disabledRules = state.disabledRules
         this.baselinePath = state.baselinePath
         this.editorConfigPath = state.editorConfigPath

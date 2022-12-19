@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.nbadal.ktlint.config
 import com.nbadal.ktlint.doLint
+import com.nbadal.ktlint.isKotlinFile
 
 class FormatAction : AnAction() {
     override fun update(event: AnActionEvent) {
@@ -29,7 +30,7 @@ class FormatAction : AnAction() {
     private fun lintFile(project: Project, file: VirtualFile) {
         if (file.isDirectory) {
             file.children.forEach { lintFile(project, it) }
-        } else if (file.extension in setOf("kt", "kts")) {
+        } else if (file.isKotlinFile()) {
             PsiManager.getInstance(project).findFile(file)?.let {
                 doLint(it, project.config(), true)
             }
