@@ -3,17 +3,8 @@
 # ktlint-intellij-plugin Changelog
 
 ## [Unreleased]
-### Added
-
 ### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
+- Updated to IntelliJ platform 203-223
 
 ## [0.10.0]
 ### Changed
