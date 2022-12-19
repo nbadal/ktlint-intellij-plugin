@@ -13,6 +13,7 @@
         <projectConfigurable groupId="tools" displayName="ktlint" id="preferences.ktlint"
                              instance="com.nbadal.ktlint.KtlintConfig"/>
         <errorHandler implementation="com.nbadal.ktlint.KtlintErrorHandler" />
+        <notificationGroup id="ktlint Notifications" displayType="BALLOON"/>
     </extensions>
 
     <actions>

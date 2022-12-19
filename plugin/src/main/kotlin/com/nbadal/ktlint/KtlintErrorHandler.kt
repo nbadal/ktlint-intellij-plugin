@@ -15,10 +15,10 @@ class KtlintErrorHandler : ErrorReportSubmitter() {
     override fun getReportActionText(): String = "Report"
 
     override fun submit(
-        events: Array<IdeaLoggingEvent>,
+        events: Array<out IdeaLoggingEvent>,
         additionalInfo: String?,
         parentComponent: Component,
-        consumer: Consumer<SubmittedReportInfo>
+        consumer: Consumer<in SubmittedReportInfo>
     ): Boolean {
         val config = withAccessToken(BuildConfig.ROLLBAR_ACCESS_TOKEN).apply {
             environment("production")

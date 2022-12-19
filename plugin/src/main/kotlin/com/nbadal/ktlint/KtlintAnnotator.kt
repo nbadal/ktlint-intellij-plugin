@@ -33,11 +33,15 @@ class KtlintAnnotator : ExternalAnnotator<LintResult, List<LintError>>() {
             val message = "${it.detail} (${it.ruleId})"
             val severity = if (config.treatAsErrors) HighlightSeverity.ERROR else HighlightSeverity.WARNING
 
-            holder.createAnnotation(severity, errorRange, message).apply {
-                if (it.canBeAutoCorrected) registerFix(FormatIntention())
-                registerFix(GlobalDisableRuleIntention(it.ruleId))
-                registerFix(LineDisableIntention(it))
-                registerFix(DisablePluginIntention())
+            holder.newAnnotation(severity, message).apply {
+                range(errorRange)
+
+                if (it.canBeAutoCorrected) withFix(FormatIntention())
+                withFix(GlobalDisableRuleIntention(it.ruleId))
+                withFix(LineDisableIntention(it))
+                withFix(DisablePluginIntention())
+
+                create()
             }
         }
     }
