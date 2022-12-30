@@ -11,13 +11,17 @@ dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0")
 }
 
+apply(plugin = "io.gitlab.arturbosch.detekt")
+
 detekt {
     config = files("./detekt-config.yml")
     buildUponDefaultConfig = true
+}
 
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
     reports {
-        html.enabled = false
-        xml.enabled = false
-        txt.enabled = false
+        html.required.set(false)
+        xml.required.set(false)
+        txt.required.set(false)
     }
 }
