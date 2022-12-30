@@ -7,7 +7,7 @@ import com.intellij.util.xmlb.annotations.Tag
 
 @State(
     name = "KtlintProjectConfiguration",
-    storages = [Storage("ktlint.xml")]
+    storages = [Storage("ktlint.xml")],
 )
 class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
 

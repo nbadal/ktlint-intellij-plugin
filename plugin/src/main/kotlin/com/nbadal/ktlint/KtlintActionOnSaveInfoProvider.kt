@@ -1,6 +1,10 @@
 package com.nbadal.ktlint
 
-import com.intellij.ide.actionsOnSave.*
+import com.intellij.ide.actionsOnSave.ActionOnSaveBackedByOwnConfigurable
+import com.intellij.ide.actionsOnSave.ActionOnSaveComment
+import com.intellij.ide.actionsOnSave.ActionOnSaveContext
+import com.intellij.ide.actionsOnSave.ActionOnSaveInfo
+import com.intellij.ide.actionsOnSave.ActionOnSaveInfoProvider
 
 private const val ACTION_ON_SAVE_NAME = "Reformat with ktlint"
 private const val KTLINT_CONFIGURABLE_ID = "preferences.ktlint"
@@ -17,7 +21,7 @@ private class KtlintOnSaveActionInfo(actionOnSaveContext: ActionOnSaveContext) :
     ActionOnSaveBackedByOwnConfigurable<KtlintConfig>(
         actionOnSaveContext,
         KTLINT_CONFIGURABLE_ID,
-        KtlintConfig::class.java
+        KtlintConfig::class.java,
     ) {
 
     override fun getActionOnSaveName() = ACTION_ON_SAVE_NAME

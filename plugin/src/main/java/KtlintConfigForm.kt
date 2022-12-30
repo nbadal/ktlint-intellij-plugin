@@ -8,7 +8,6 @@ import com.intellij.ui.TextFieldWithAutoCompletion
 import com.intellij.uiDesigner.core.GridConstraints
 import com.nbadal.ktlint.KtlintConfigStorage
 import com.nbadal.ktlint.KtlintRules
-import com.pinterest.ktlint.core.RuleSet
 import java.awt.Desktop
 import java.awt.Dimension
 import java.net.URI
@@ -40,7 +39,10 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     private lateinit var disabledRules: TextFieldWithAutoCompletion<String>
 
     private enum class AnnotationMode(private val bundleKey: String) {
-        ERROR("annotateError"), WARNING("annotateWarning"), NONE("annotateNone");
+        ERROR("annotateError"),
+        WARNING("annotateWarning"),
+        NONE("annotateNone"),
+        ;
 
         override fun toString(): String = ResourceBundle.getBundle("strings").getString(bundleKey)
 
@@ -57,16 +59,14 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
         // Stub.
     }
 
-    private fun RuleSet.ruleIds() = rules.map { rule -> if (id == "standard") rule.id else "$id:${rule.id}" }
-
     fun createComponent(): JComponent {
         // Manually create and insert disabled rules field
         val rules = try {
-            KtlintRules.find(config.externalJarPaths, config.useExperimental, false)
+            KtlintRules.findRules(config.externalJarPaths, config.useExperimental)
         } catch (ruleErr: Throwable) {
             // UI for rule issues?
-            KtlintRules.find(config.externalJarPaths, config.useExperimental, true)
-        }.flatMap { it.ruleIds() }
+            emptyList()
+        }
 
         disabledRules = TextFieldWithAutoCompletion.create(project, rules, false, "")
         disabledRules.toolTipText = ResourceBundle.getBundle("strings").getString("disabledRulesToolTip")
@@ -78,8 +78,8 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
                 GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
                 GridConstraints.SIZEPOLICY_CAN_GROW or GridConstraints.SIZEPOLICY_WANT_GROW,
                 GridConstraints.SIZEPOLICY_FIXED,
-                Dimension(-1, -1), Dimension(150, -1), Dimension(-1, -1)
-            )
+                Dimension(-1, -1), Dimension(150, -1), Dimension(-1, -1),
+            ),
         )
 
         mainPanel.border = IdeBorderFactory.createTitledBorder("Ktlint Settings")
@@ -111,14 +111,14 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
             null,
             null,
             project,
-            FileChooserDescriptorFactory.createSingleFileDescriptor("xml")
+            FileChooserDescriptorFactory.createSingleFileDescriptor("xml"),
         )
 
         editorConfigPath.addBrowseFolderListener(
             null,
             null,
             project,
-            FileChooserDescriptorFactory.createSingleFolderDescriptor()
+            FileChooserDescriptorFactory.createSingleFolderDescriptor(),
         )
 
         // If we're able to launch the browser, show the github button!
