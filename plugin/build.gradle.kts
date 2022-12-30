@@ -1,4 +1,5 @@
 import io.gitlab.arturbosch.detekt.Detekt
+import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.FileInputStream
@@ -10,7 +11,7 @@ plugins {
     // Kotlin support
     kotlin("jvm")
     // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.6.0"
+    id("org.jetbrains.intellij") version "1.11.0"
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
     id("org.jetbrains.changelog") version "2.0.0"
     // BuildConfig - read more: https://github.com/gmazzo/gradle-buildconfig-plugin
@@ -44,14 +45,15 @@ dependencies {
     compileOnly(project(":lib")) // Required for IDE
     implementation(project(":lib", "shadow"))
 
-    implementation("com.rollbar:rollbar-java:1.8.1") {
+    implementation("com.rollbar:rollbar-java:1.9.0") {
         exclude(group = "org.slf4j") // Duplicated in IDE environment
     }
 
     // Tests:
     testImplementation(project(":lib"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
-    testImplementation("io.mockk:mockk:1.12.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+    testImplementation("org.junit.platform:junit-platform-launcher:1.9.1")
+    testImplementation("io.mockk:mockk:1.13.2")
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -128,7 +130,7 @@ tasks {
         // Get the latest available change notes from the changelog file
         changeNotes.set(
             provider {
-                changelog.getLatest().toHTML()
+                changelog.renderItem(changelog.getLatest(), Changelog.OutputType.HTML)
             }
         )
     }
