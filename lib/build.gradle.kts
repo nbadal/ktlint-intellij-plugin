@@ -12,13 +12,13 @@ repositories {
 }
 
 dependencies {
-    api("com.pinterest.ktlint:ktlint-core:0.46.1") {
+    api("com.pinterest.ktlint:ktlint-core:0.48.0") {
         exclude("org.slf4j")
     }
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.46.1") {
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.48.0") {
         exclude("org.slf4j")
     }
-    implementation("com.pinterest.ktlint:ktlint-ruleset-experimental:0.46.1") {
+    implementation("com.pinterest.ktlint:ktlint-ruleset-experimental:0.48.0") {
         exclude("org.slf4j")
     }
 }

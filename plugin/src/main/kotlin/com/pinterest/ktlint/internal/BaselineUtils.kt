@@ -85,8 +85,8 @@ private fun parseBaselineErrorsByFile(element: Element): MutableList<LintError> 
                 line = errorElement.getAttribute("line").toInt(),
                 col = errorElement.getAttribute("column").toInt(),
                 ruleId = errorElement.getAttribute("source"),
-                detail = "" // we don't have details in the baseline file
-            )
+                detail = "", // we don't have details in the baseline file
+            ),
         )
     }
     return errors
@@ -94,7 +94,7 @@ private fun parseBaselineErrorsByFile(element: Element): MutableList<LintError> 
 
 internal class CurrentBaseline(
     val baselineRules: Map<String, List<LintError>>?,
-    val baselineGenerationNeeded: Boolean
+    val baselineGenerationNeeded: Boolean,
 )
 
 /**
