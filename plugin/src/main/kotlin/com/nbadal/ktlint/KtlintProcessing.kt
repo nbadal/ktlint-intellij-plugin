@@ -4,28 +4,36 @@ import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.ParseException
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
-import com.pinterest.ktlint.core.api.EditorConfigOverride
+import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
-import com.pinterest.ktlint.internal.containsLintError
+import com.pinterest.ktlint.core.api.KtLintParseException
+import com.pinterest.ktlint.core.api.KtLintRuleException
+import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.internal.loadBaseline
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
+import kotlin.io.path.Path
 
 internal fun doLint(
     file: PsiFile,
     config: KtlintConfigStorage,
-    format: Boolean
+    format: Boolean,
 ): LintResult {
-    val editorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride
+    val editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE
         .applyIf(config.disabledRules.isNotEmpty()) {
-            plus(disabledRulesProperty to config.disabledRules.joinToString(","))
+            plus(
+                *config.disabledRules
+                    .filter { it.isNotBlank() }
+                    .map { ruleId -> createRuleExecutionEditorConfigProperty(ruleId) to RuleExecution.disabled }
+                    .toTypedArray(),
+            )
         }
         .applyIf(config.androidMode) {
-            plus(codeStyleSetProperty to "android")
+            plus(CODE_STYLE_PROPERTY to CodeStyleValue.android)
         }
 
     var fileName = file.virtualFile.name
@@ -51,40 +59,39 @@ internal fun doLint(
     val uncorrectedErrors = mutableListOf<LintError>()
     val ignoredErrors = mutableListOf<LintError>()
 
-    val ruleSets = try {
-        KtlintRules.find(config.externalJarPaths, config.useExperimental, false)
+    val ruleProviders = try {
+        KtlintRules.findRuleProviders(config.externalJarPaths, config.useExperimental)
     } catch (err: Throwable) {
         KtlintNotifier.notifyErrorWithSettings(file.project, "Error in ruleset", err.toString())
         return emptyLintResult()
     }
 
-    val params = KtLint.ExperimentalParams(
-        fileName = fileName,
-        text = file.text,
-        ruleSets = ruleSets,
+    val engine = KtLintRuleEngine(
         editorConfigOverride = editorConfigOverride,
-        script = !fileName.endsWith(".kt", ignoreCase = true),
-        editorConfigPath = config.editorConfigPath,
-        debug = false,
-        cb = { lintError, corrected ->
-            if (corrected) {
-                correctedErrors.add(lintError)
-            } else if (!baselineErrors.containsLintError(lintError)) {
-                uncorrectedErrors.add(lintError)
-            } else {
-                ignoredErrors.add(lintError)
-            }
-        },
+        ruleProviders = ruleProviders,
     )
 
     // Clear editorconfig cache. (ideally, we could do this if .editorconfig files were changed)
-    KtLintWrapper.trimMemory()
+    engine.trimMemory()
 
     try {
         if (format) {
-            val results = KtLintWrapper.format(params)
+            val results = engine.format(
+                file.text,
+                Path(fileName),
+            ) { error, corrected ->
+                if (corrected) {
+                    correctedErrors.add(error)
+                } else if (!baselineErrors.contains(error)) {
+                    uncorrectedErrors.add(error)
+                } else {
+                    ignoredErrors.add(error)
+                }
+            }
             WriteCommandAction.runWriteCommandAction(
-                file.project, "Format with ktlint", null,
+                file.project,
+                "Format with ktlint",
+                null,
                 {
                     file.viewProvider.document?.apply {
                         PsiDocumentManager
@@ -93,13 +100,25 @@ internal fun doLint(
                         setText(results)
                     }
                 },
-                file
+                file,
             )
         } else {
-            KtLintWrapper.lint(params)
+            engine.lint(
+                file.text,
+                Path(fileName),
+            ) { error ->
+                if (!baselineErrors.contains(error)) {
+                    uncorrectedErrors.add(error)
+                } else {
+                    ignoredErrors.add(error)
+                }
+            }
         }
-    } catch (pe: ParseException) {
+    } catch (pe: KtLintParseException) {
         // TODO: report to rollbar?
+        return emptyLintResult()
+    } catch (re: KtLintRuleException) {
+        // No valid rules were passed
         return emptyLintResult()
     }
 

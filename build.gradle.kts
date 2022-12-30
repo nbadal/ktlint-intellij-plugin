@@ -3,8 +3,8 @@ plugins {
 
     // detekt linter - read more: https://github.com/detekt/detekt
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
-    // ktlint linter - read more: https://github.com/JLLeitschuh/ktlint-gradle
-    id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
+    // ktlint linter - read more: https://github.com/jeremymailen/kotlinter-gradle
+    id("org.jmailen.kotlinter") version "3.13.0"
 }
 
 dependencies {
