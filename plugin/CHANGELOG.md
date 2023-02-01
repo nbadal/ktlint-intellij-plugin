@@ -2,13 +2,10 @@
 
 # ktlint-intellij-plugin Changelog
 
-## [Unreleased]
-### Changed
-- Updated to IntelliJ platform 213-223
-
 ## [0.12.0]
 ### Changed
-- Upgrade to ktlint 0.48.0
+- Upgrade to ktlint 0.48.2
+- Updated to IntelliJ platform 213-223
 
 ## [0.10.0]
 ### Changed
