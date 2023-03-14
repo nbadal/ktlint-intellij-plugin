@@ -1,0 +1,24 @@
+name: Check IntelliJ Release
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *' 
+
+jobs:
+  release-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check for new verifier versions
+        id: check
+        run: ./check-verifier.sh
+      - name: Create pull request if necessary
+        uses: peter-evans/create-pull-request@v4
+        with:
+          title: Update plugin verifier versions with latest build
+          body: "Newer supported verifier builds available: ${{ steps.check.outputs.newUntil }}"
+          commit-message: Update verifier plugin versions
+          branch: update-verifier-versions
+          delete-branch: true
+
