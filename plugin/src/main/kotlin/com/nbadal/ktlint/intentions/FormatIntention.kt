@@ -18,7 +18,9 @@ class FormatIntention : BaseIntentionAction(), HighPriorityAction {
 
     override fun invoke(project: Project, editor: Editor?, file: PsiFile?) {
         file?.let {
-            doLint(it, project.config(), true)
+            if (it.virtualFile != null) {
+                doLint(it, project.config(), true)
+            }
         }
     }
 }
