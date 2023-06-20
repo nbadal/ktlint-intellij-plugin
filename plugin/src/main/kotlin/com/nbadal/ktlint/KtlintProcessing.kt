@@ -36,6 +36,11 @@ internal fun doLint(
             plus(CODE_STYLE_PROPERTY to CodeStyleValue.android)
         }
 
+    // This is a workaround for #310 -- we should figure out exactly when/why a virtualFile would be null
+    if (file.virtualFile == null) {
+        return emptyLintResult()
+    }
+
     var fileName = file.virtualFile.name
     // KtLint wants the full file path in order to search for .editorconfig files
     // Attempt to get the real file path:
