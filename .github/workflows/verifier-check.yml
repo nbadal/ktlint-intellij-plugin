@@ -1,4 +1,4 @@
-name: Check IntelliJ Release
+name: Check Verifier Release
 
 on:
   workflow_dispatch:
