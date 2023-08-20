@@ -165,6 +165,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+      # Make room on runner disk for IDE images
+      - name: Maximize Build Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          large-packages: false
+
       # Setup Java 11 environment for the next steps
       - name: Setup Java
         uses: actions/setup-java@v3
