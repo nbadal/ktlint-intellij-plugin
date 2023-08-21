@@ -4,17 +4,8 @@
 
 ## Unreleased
 
-### Added
-
 ### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
+- Updated to IntelliJ platform 213-232
 
 ## 0.12.0 - 2023-02-03
 
