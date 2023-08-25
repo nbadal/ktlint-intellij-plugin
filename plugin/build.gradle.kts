@@ -53,7 +53,7 @@ dependencies {
     testImplementation(project(":lib"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testImplementation("org.junit.platform:junit-platform-launcher:1.9.2")
-    testImplementation("io.mockk:mockk:1.13.5")
+    testImplementation("io.mockk:mockk:1.13.7")
 }
 
 // Configure gradle-intellij-plugin plugin.
