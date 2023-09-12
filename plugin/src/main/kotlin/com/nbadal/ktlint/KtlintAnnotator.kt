@@ -7,9 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.intentions.DisablePluginIntention
 import com.nbadal.ktlint.intentions.FormatIntention
-import com.nbadal.ktlint.intentions.GlobalDisableRuleIntention
-import com.nbadal.ktlint.intentions.LineDisableIntention
-import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.rule.engine.api.LintError
 
 class KtlintAnnotator : ExternalAnnotator<LintResult, List<LintError>>() {
     override fun collectInformation(file: PsiFile): LintResult {
@@ -37,8 +35,8 @@ class KtlintAnnotator : ExternalAnnotator<LintResult, List<LintError>>() {
                 range(errorRange)
 
                 if (it.canBeAutoCorrected) withFix(FormatIntention())
-                withFix(GlobalDisableRuleIntention(it.ruleId))
-                withFix(LineDisableIntention(it))
+                // TODO: Add suppression intention
+                // TODO: Add editorconfig intention
                 withFix(DisablePluginIntention())
 
                 create()

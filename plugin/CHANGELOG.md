@@ -7,10 +7,12 @@
 ### Added
 
 ### Changed
+- Updated to ktlint 1.0.0
 
 ### Deprecated
 
 ### Removed
+- Some flags and features no longer supported in ktlint CLI
 
 ### Fixed
 

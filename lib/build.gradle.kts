@@ -12,15 +12,11 @@ repositories {
 }
 
 dependencies {
-    api("com.pinterest.ktlint:ktlint-core:0.48.2") {
-        exclude("org.slf4j")
-    }
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.48.2") {
-        exclude("org.slf4j")
-    }
-    implementation("com.pinterest.ktlint:ktlint-ruleset-experimental:0.48.2") {
-        exclude("org.slf4j")
-    }
+    api("com.pinterest.ktlint:ktlint-rule-engine:1.0.0")
+    api("com.pinterest.ktlint:ktlint-cli-ruleset-core:1.0.0")
+    api("com.pinterest.ktlint:ktlint-cli-reporter-core:1.0.0")
+    api("com.pinterest.ktlint:ktlint-cli-reporter-baseline:1.0.0")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.0.0")
 }
 
 tasks {
