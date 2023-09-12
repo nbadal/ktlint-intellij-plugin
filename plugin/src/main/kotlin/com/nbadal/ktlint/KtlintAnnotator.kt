@@ -28,7 +28,7 @@ class KtlintAnnotator : ExternalAnnotator<LintResult, List<LintError>>() {
 
         errors.forEach {
             val errorRange = errorTextRange(file, it)
-            val message = "${it.detail} (${it.ruleId})"
+            val message = "${it.detail} (${it.ruleId.value})"
             val severity = if (config.treatAsErrors) HighlightSeverity.ERROR else HighlightSeverity.WARNING
 
             holder.newAnnotation(severity, message).apply {
