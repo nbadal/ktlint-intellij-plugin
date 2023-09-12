@@ -46,11 +46,12 @@ class KtlintAnnotator : ExternalAnnotator<LintResult, List<LintError>>() {
 
     private fun errorTextRange(file: PsiFile, it: LintError): TextRange {
         val doc = file.viewProvider.document!!
-        val lineStart = doc.getLineStartOffset(it.line - 1)
-        val errorOffset = lineStart + (it.col - 1)
+        val lineStart = doc.getLineStartOffset((it.line - 1).coerceIn(0, doc.lineCount - 1)).coerceIn(0, doc.textLength)
+        val errorOffset = (lineStart + (it.col - 1)).coerceIn(lineStart, doc.textLength)
 
         // Full line range in case we can't discern the indicated element:
-        val fullLineRange = TextRange(lineStart, doc.getLineEndOffset(it.line - 1))
+        val lineEndOffset = doc.getLineEndOffset((it.line - 1).coerceIn(0, doc.lineCount - 1)).coerceIn(0, doc.textLength)
+        val fullLineRange = TextRange(lineStart, lineEndOffset)
 
         return file.findElementAt(errorOffset)?.let { TextRange.from(errorOffset, it.textLength) } ?: fullLineRange
     }
