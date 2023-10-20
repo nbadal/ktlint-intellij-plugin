@@ -8,11 +8,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <externalAnnotator language="kotlin" implementationClass="com.nbadal.ktlint.KtlintAnnotator" id="KtlintAnnotatorKotlin"/>
-<!--        <annotator-->
-<!--                language="kotlin"-->
-<!--                implementationClass="com.nbadal.ktlint.SimpleAnnotator"/>-->
         <postFormatProcessor implementation="com.nbadal.ktlint.KtlintPostFormatProcessor" />
-        <projectConfigurable groupId="tools" displayName="ktlint" id="preferences.ktlint"
+        <projectConfigurable groupId="tools" displayName="KtLint" id="preferences.ktlint-plugin"
                              instance="com.nbadal.ktlint.KtlintConfig"/>
         <errorHandler implementation="com.nbadal.ktlint.KtlintErrorHandler" />
         <notificationGroup id="ktlint Notifications" displayType="BALLOON"/>
