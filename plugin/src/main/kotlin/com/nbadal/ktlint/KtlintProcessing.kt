@@ -1,11 +1,11 @@
 package com.nbadal.ktlint
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.util.applyIf
-import com.nbadal.ktlint.service.loadRuleProviders
 import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.rule.engine.api.Code
@@ -16,104 +16,128 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.api.LintError
 import java.io.File
 
-internal fun doLint(
-    file: PsiFile,
-    config: KtlintConfigStorage,
-    format: Boolean,
-): LintResult {
-    // This is a workaround for #310 -- we should figure out exactly when/why a virtualFile would be null
-    if (file.virtualFile == null) {
-        return emptyLintResult()
+internal fun ktlintFormat(
+    psiFile: PsiFile,
+    triggeredBy: String,
+    writeFormattedCode: Boolean = true,
+): KtlintFormatResult {
+    val virtualFileName = psiFile.virtualFile.name
+    println("Start ktlintFormat on file '${virtualFileName}' triggered by '$triggeredBy'")
+
+    val project = psiFile.project
+    if (!project.config().enableKtlint) {
+        return EMPTY_KTLINT_FORMAT_RESULT
     }
 
-    var fileName = file.virtualFile.name
+
+    if (!psiFile.virtualFile.isKotlinFile()) {
+        println("Finish ktlintFormat on file '${virtualFileName}': not a kotlin file")
+        return EMPTY_KTLINT_FORMAT_RESULT
+    }
+
     // KtLint wants the full file path in order to search for .editorconfig files
-    // Attempt to get the real file path:
-    file.viewProvider.document?.let { doc ->
-        FileDocumentManager.getInstance().getFile(doc)?.let { file ->
-            fileName = file.path
-        }
+    val filePath = psiFile.virtualFile.path
+
+    if (filePath == "/fragment.kt") {
+        return EMPTY_KTLINT_FORMAT_RESULT
     }
 
-    if (fileName == "/fragment.kt") {
-        return emptyLintResult()
-    }
-
-    // Get relative path, if possible.
-    var projectRelativePath = fileName
-    file.project.basePath?.let { projectRelativePath = fileName.removePrefix(it).removePrefix("/") }
-    val baselineErrors =
-        config.baselinePath?.let { loadBaseline(it).lintErrorsPerFile[projectRelativePath] } ?: emptyList()
-
-    val correctedErrors = mutableListOf<LintError>()
-    val uncorrectedErrors = mutableListOf<LintError>()
-    val ignoredErrors = mutableListOf<LintError>()
+    val baselineErrors = loadBaseline(project, filePath)
 
     val ruleProviders = try {
-        loadRuleProviders(config.externalJarPaths.map { File(it).toURI().toURL() })
+        loadRuleProviders(project)
     } catch (err: Throwable) {
-        KtlintNotifier.notifyErrorWithSettings(file.project, "Error in ruleset", err.toString())
-        return emptyLintResult()
+        KtlintNotifier.notifyErrorWithSettings(project, "Error in external ruleset JAR", err.toString())
+        return EMPTY_KTLINT_FORMAT_RESULT
     }
 
-    val editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE
-
-    val engine = KtLintRuleEngine(
-        editorConfigOverride = editorConfigOverride,
-        ruleProviders = ruleProviders,
-    )
-
-    // Clear editorconfig cache. (ideally, we could do this if .editorconfig files were changed)
-    engine.trimMemory()
-
+    val correctedErrors = mutableListOf<LintError>()
+    val canNotBeAutoCorrectedErrors = mutableListOf<LintError>()
+    val ignoredErrors = mutableListOf<LintError>()
     try {
-        if (format) {
-            val results = engine.format(
-                Code.fromFile(File(fileName)),
-            ) { error, corrected ->
-                if (corrected) {
-                    correctedErrors.add(error)
-                } else if (!baselineErrors.contains(error.toCliError(corrected))) {
-                    uncorrectedErrors.add(error)
-                } else {
-                    ignoredErrors.add(error)
+        // If file contains unsaved changed, those will not be picked up by the KtlintRuleEngine.
+        // Add new Code factory methode to create snippet with a virtual path. The ".editorconfig" will be read from
+        // this virtual path.
+        // Given code snippet below which does not contain lint violations:
+        //     fun foo(
+        //         a: String,
+        //         b: String,
+        //         c: Int
+        //     ) = a + b + c
+        // Joining any two consecutive lines with shortcut CTRL-SHIFT-J should result in a new lint violation. But,
+        // no such violation is found as the shortcut does not directly save the changes. Whenever the lines are
+        // merged by deleting the newline with either backspace or delete, does result in merging the lines *and*
+        // saving the changes before invoking the annotator.
+        val formattedCode =
+            KtLintRuleEngine(
+                editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
+                ruleProviders = ruleProviders,
+            ).format(Code.fromFile(File(filePath))) { error, corrected ->
+                when {
+                    baselineErrors.contains(error.toCliError(error.canBeAutoCorrected)) -> ignoredErrors.add(error)
+                    corrected -> correctedErrors.add(error)
+                    else -> canNotBeAutoCorrectedErrors.add(error)
                 }
             }
+        if (writeFormattedCode) {
             WriteCommandAction.runWriteCommandAction(
-                file.project,
-                "Format with ktlint",
+                project,
+                "Format With KtLint",
                 null,
                 {
-                    file.viewProvider.document?.apply {
-                        PsiDocumentManager
-                            .getInstance(file.project)
-                            .doPostponedOperationsAndUnblockDocument(this)
-                        setText(results)
-                    }
+                    psiFile
+                        .viewProvider
+                        .document
+                        ?.apply {
+                            PsiDocumentManager
+                                .getInstance(project)
+                                .doPostponedOperationsAndUnblockDocument(this)
+                            setText(formattedCode)
+                            DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
+                        }
                 },
-                file,
+                psiFile,
             )
-        } else {
-            engine.lint(
-                Code.fromFile(File(fileName)),
-            ) { error ->
-                if (!baselineErrors.contains(error.toCliError(false))) {
-                    uncorrectedErrors.add(error)
-                } else {
-                    ignoredErrors.add(error)
-                }
-            }
         }
     } catch (pe: KtLintParseException) {
         // TODO: report to rollbar?
-        return emptyLintResult()
+        println("ktlintFormat on file '${virtualFileName}', KtlintParseException: " + pe.stackTrace)
+        return EMPTY_KTLINT_FORMAT_RESULT
     } catch (re: KtLintRuleException) {
         // No valid rules were passed
-        return emptyLintResult()
+        println("ktlintFormat on file '${virtualFileName}', KtLintRuleException: " + re.stackTrace)
+        return EMPTY_KTLINT_FORMAT_RESULT
     }
 
-    return LintResult(correctedErrors, uncorrectedErrors, ignoredErrors)
+    println(
+        """
+        ktlintFormat on file '${virtualFileName}' finished:
+          - correctedErrors = ${correctedErrors.size}
+          - canNotBeAutoCorrectedErrors = ${canNotBeAutoCorrectedErrors.size}
+          - ignoredErrors = ${ignoredErrors.size}
+        """.trimIndent()
+    )
+    return KtlintFormatResult(canNotBeAutoCorrectedErrors, correctedErrors, ignoredErrors)
 }
+
+private fun loadBaseline(
+    project: Project,
+    filePath: String
+) = project
+    .config()
+    .baselinePath
+    ?.let {
+        val relativeFilePath = filePath.pathRelativeTo(project.basePath)
+        loadBaseline(it).lintErrorsPerFile[relativeFilePath]
+    }
+    ?: emptyList()
+
+private fun String.pathRelativeTo(projectBasePath: String?): String =
+    if (projectBasePath.isNullOrBlank()) {
+        this
+    } else {
+        removePrefix(projectBasePath).removePrefix("/")
+    }
 
 private fun LintError.toCliError(corrected: Boolean): KtlintCliError = KtlintCliError(
     line = this.line,
@@ -123,10 +147,10 @@ private fun LintError.toCliError(corrected: Boolean): KtlintCliError = KtlintCli
     status = if (corrected) KtlintCliError.Status.FORMAT_IS_AUTOCORRECTED else KtlintCliError.Status.LINT_CAN_NOT_BE_AUTOCORRECTED,
 )
 
-data class LintResult(
+data class KtlintFormatResult(
+    val canNotBeAutoCorrectedErrors: List<LintError>,
     val correctedErrors: List<LintError>,
-    val uncorrectedErrors: List<LintError>,
     val ignoredErrors: List<LintError>,
 )
 
-fun emptyLintResult() = LintResult(emptyList(), emptyList(), emptyList())
+private val EMPTY_KTLINT_FORMAT_RESULT = KtlintFormatResult(emptyList(), emptyList(), emptyList())

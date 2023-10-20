@@ -26,7 +26,7 @@ class KtlintConfig(private val project: Project) : SearchableConfigurable {
 
     override fun reset() = form.reset()
 
-    override fun getDisplayName() = "ktlint"
+    override fun getDisplayName() = "KtLintFormat"
 
     override fun getId() = "com.nbadal.ktlint.config"
 }

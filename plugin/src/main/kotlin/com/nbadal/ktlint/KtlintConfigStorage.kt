@@ -37,6 +37,7 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     override fun getState(): KtlintConfigStorage = this
 
     override fun loadState(state: KtlintConfigStorage) {
+        println("KtlintConfigStorage: loading state, enable ktlint: ${state.enableKtlint}")
         this.enableKtlint = state.enableKtlint
         this.treatAsErrors = state.treatAsErrors
         this.hideErrors = state.hideErrors

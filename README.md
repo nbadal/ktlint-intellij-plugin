@@ -9,12 +9,14 @@
 [![GitHub license](https://img.shields.io/github/license/nbadal/ktlint-intellij-plugin.svg)](https://github.com/nbadal/ktlint-intellij-plugin/blob/master/LICENSE.md)
 
 <!-- Plugin description -->
-Automatically runs [ktlint](https://ktlint.github.io/) on Kotlin files, and annotates any errors found.
+[KtLint](https://pinterest.github.io/ktlint/) is an anti bikeshedding linter/formatter for Kotlin code.
 
-Enable and configure in `Preferences` > `Tools` > `ktlint`.
+This plugin applies KtLint formatting after IntelliJ IDEA formatting. Formatting is also applied on save of file. Lint violations that can not be fixed by KtLint are highlighted as error for manual resolving. KtLint should be configured via ".editorconfig". See [KtLint configuration](https://pinterest.github.io/ktlint/latest/rules/configuration-ktlint/).
+
+Enable and configure in `Preferences` > `Tools` > `KtLint Format`.
+
+This plugin is based on the "Ktlint (unofficial)" plugin, developed by Nick Badal. The "KtLint Format" plugin is maintained by the KtLint team. The official plugin puts more focus on the automatic format of Kotlin code by offering fewer features. This results in more consistent code, better performance in IntelliJ IDEA, and less time on fixing errors which can be autocorrected. Finally, the plugin will be updated in same release cycle as KtLint itself.
 <!-- Plugin description end -->
-
-Adding more features over time: [TODO.md](TODO.md)
 
 ## Installation
 

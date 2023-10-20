@@ -1,16 +1,23 @@
 package com.nbadal.ktlint.actions
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ContentIterator
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiManager
+import com.intellij.openapi.vfs.isFile
 import com.nbadal.ktlint.config
-import com.nbadal.ktlint.doLint
-import com.nbadal.ktlint.isKotlinFile
+import com.nbadal.ktlint.ktlintFormat
+import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 class FormatAction : AnAction() {
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return ActionUpdateThread.BGT
+    }
+
     override fun update(event: AnActionEvent) {
         val files = event.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: return
         val project = event.getData(CommonDataKeys.PROJECT) ?: return
@@ -24,16 +31,19 @@ class FormatAction : AnAction() {
         val files = event.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: return
         val project = event.getData(CommonDataKeys.PROJECT) ?: return
 
-        files.forEach { lintFile(project, it) }
+        val ktlintFormatContentIterator = KtlintFormatContentIterator(project)
+        files.forEach {
+            VfsUtilCore.iterateChildrenRecursively(it, null, ktlintFormatContentIterator)
+        }
     }
 
-    private fun lintFile(project: Project, file: VirtualFile) {
-        if (file.isDirectory) {
-            file.children.forEach { lintFile(project, it) }
-        } else if (file.isKotlinFile()) {
-            PsiManager.getInstance(project).findFile(file)?.let {
-                doLint(it, project.config(), true)
-            }
+    class KtlintFormatContentIterator(val project: Project) : ContentIterator {
+        override fun processFile(fileOrDir: VirtualFile): Boolean {
+            fileOrDir
+                .takeIf { it.isFile }
+                ?.toPsiFile(project)
+                ?.let { ktlintFormat(it, "FormatAction") }
+            return true
         }
     }
 }

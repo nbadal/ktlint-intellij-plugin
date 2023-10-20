@@ -12,7 +12,7 @@ object KtlintNotifier {
     fun notifyErrorWithSettings(project: Project, subtitle: String, content: String) =
         NotificationGroupManager.getInstance()
             .getNotificationGroup("ktlint Notifications")
-            .createNotification("ktlint Error", NotificationType.ERROR).apply {
+            .createNotification("KtLint error", NotificationType.ERROR).apply {
                 setSubtitle(subtitle)
                 setContent(content)
                 addAction(OpenSettingsAction(project))
