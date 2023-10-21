@@ -6,8 +6,8 @@ import com.intellij.ide.actionsOnSave.ActionOnSaveContext
 import com.intellij.ide.actionsOnSave.ActionOnSaveInfo
 import com.intellij.ide.actionsOnSave.ActionOnSaveInfoProvider
 
-private const val ACTION_ON_SAVE_NAME = "Reformat with ktlint"
-private const val KTLINT_CONFIGURABLE_ID = "preferences.ktlint"
+private const val ACTION_ON_SAVE_NAME = "Format with ktlint"
+private const val KTLINT_FORMAT_CONFIGURABLE_ID = "preferences.ktlint-plugin"
 
 class KtlintActionOnSaveInfoProvider : ActionOnSaveInfoProvider() {
     override fun getActionOnSaveInfos(context: ActionOnSaveContext): List<ActionOnSaveInfo> = listOf(KtlintOnSaveActionInfo(context))
@@ -20,7 +20,7 @@ class KtlintActionOnSaveInfoProvider : ActionOnSaveInfoProvider() {
 private class KtlintOnSaveActionInfo(actionOnSaveContext: ActionOnSaveContext) :
     ActionOnSaveBackedByOwnConfigurable<KtlintConfig>(
         actionOnSaveContext,
-        KTLINT_CONFIGURABLE_ID,
+        KTLINT_FORMAT_CONFIGURABLE_ID,
         KtlintConfig::class.java,
     ) {
 
@@ -34,7 +34,7 @@ private class KtlintOnSaveActionInfo(actionOnSaveContext: ActionOnSaveContext) :
 
     private fun getComment(ktlintEnabled: Boolean): ActionOnSaveComment? {
         if (!ktlintEnabled) {
-            val message = "Ktlint is not enabled"
+            val message = "Ktlint plugin is not enabled"
             // no need to show warning if save action is disabled
             return if (isActionOnSaveEnabled) ActionOnSaveComment.warning(message) else ActionOnSaveComment.info(message)
         }
@@ -42,14 +42,14 @@ private class KtlintOnSaveActionInfo(actionOnSaveContext: ActionOnSaveContext) :
         return null
     }
 
-    override fun isActionOnSaveEnabledAccordingToStoredState() = project.config().formatOnSave
+    override fun isActionOnSaveEnabledAccordingToStoredState() = project.config().enableKtlint
 
     override fun isActionOnSaveEnabledAccordingToUiState(configurable: KtlintConfig) =
-        configurable.formatOnSaveCheckbox.isSelected
+        configurable.enableKtlintCheckbox.isSelected
 
     override fun setActionOnSaveEnabled(configurable: KtlintConfig, enabled: Boolean) {
-        configurable.formatOnSaveCheckbox.isSelected = enabled
+        configurable.enableKtlintCheckbox.isSelected = enabled
     }
 
-    override fun getActionLinks() = listOf(createGoToPageInSettingsLink(KTLINT_CONFIGURABLE_ID))
+    override fun getActionLinks() = listOf(createGoToPageInSettingsLink(KTLINT_FORMAT_CONFIGURABLE_ID))
 }
