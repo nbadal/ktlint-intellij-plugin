@@ -5,37 +5,44 @@ import com.intellij.lang.annotation.ExternalAnnotator
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
+import com.nbadal.ktlint.intentions.DisablePluginIntention
+import com.nbadal.ktlint.intentions.FormatIntention
 import com.pinterest.ktlint.rule.engine.api.LintError
 
-class KtlintAnnotator : ExternalAnnotator<KtlintFormatResult, List<LintError>>() {
-    override fun collectInformation(psiFile: PsiFile): KtlintFormatResult {
-        // Format the code, but do not write the result as this results in a deadlock (write command may not be invoked
-        // from read command).
-        return ktlintFormat(psiFile, "KtlintAnnotator", writeFormattedCode = false)
+class KtlintAnnotator : ExternalAnnotator<LintResult, List<LintError>>() {
+    override fun collectInformation(file: PsiFile): LintResult {
+        val config = file.project.config()
+        if (!config.enableKtlint || config.hideErrors) {
+            return emptyLintResult()
+        }
+
+        return doLint(file, config, false)
     }
 
+    override fun doAnnotate(collectedInfo: LintResult): List<LintError> {
+        return collectedInfo.uncorrectedErrors
+    }
 
-    override fun doAnnotate(collectedInfo: KtlintFormatResult?): List<LintError>? =
-        // Ignore errors that can be autocorrected by ktlint to prevent that developer is going to resolve errors
-        // manually and errors in baseline.
-        collectedInfo?.canNotBeAutoCorrectedErrors
+    override fun apply(file: PsiFile, errors: List<LintError>, holder: AnnotationHolder) {
+        val config = file.project.config()
 
-    override fun apply(file: PsiFile, errors: List<LintError>?, holder: AnnotationHolder) {
-        errors?.forEach {
-            holder
-                .newAnnotation(HighlightSeverity.ERROR, it.errorMessage())
-                .apply {
-                    range(errorTextRange(file, it))
+        errors.forEach {
+            val errorRange = errorTextRange(file, it)
+            val message = "${it.detail} (${it.ruleId.value})"
+            val severity = if (config.treatAsErrors) HighlightSeverity.ERROR else HighlightSeverity.WARNING
 
-                    // TODO: Add suppression intention
+            holder.newAnnotation(severity, message).apply {
+                range(errorRange)
 
-                    create()
-                }
+                if (it.canBeAutoCorrected) withFix(FormatIntention())
+                // TODO: Add suppression intention
+                // TODO: Add editorconfig intention
+                withFix(DisablePluginIntention())
+
+                create()
+            }
         }
     }
-
-    private fun LintError.errorMessage(): String =
-        "$detail (${ruleId.value}) offset: $line:$col"
 
     private fun errorTextRange(file: PsiFile, it: LintError): TextRange {
         val doc = file.viewProvider.document!!

@@ -7,10 +7,7 @@
     <depends>org.jetbrains.kotlin</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <externalAnnotator language="kotlin" implementationClass="com.nbadal.ktlint.KtlintAnnotator" id="KtlintAnnotatorKotlin"/>
-<!--        <annotator-->
-<!--                language="kotlin"-->
-<!--                implementationClass="com.nbadal.ktlint.SimpleAnnotator"/>-->
+        <externalAnnotator language="kotlin" implementationClass="com.nbadal.ktlint.KtlintAnnotator"/>
         <postFormatProcessor implementation="com.nbadal.ktlint.KtlintPostFormatProcessor" />
         <projectConfigurable groupId="tools" displayName="ktlint" id="preferences.ktlint"
                              instance="com.nbadal.ktlint.KtlintConfig"/>

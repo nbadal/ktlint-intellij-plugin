@@ -22,7 +22,7 @@ dependencies {
 tasks {
     // Set the compatibility versions to 11
     withType<JavaCompile> {
-        sourceCompatibility = "17"
+        sourceCompatibility = "11"
         targetCompatibility = "11"
     }
     withType<KotlinCompile> {

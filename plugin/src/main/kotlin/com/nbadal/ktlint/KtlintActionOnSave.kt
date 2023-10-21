@@ -11,13 +11,15 @@ class KtlintActionOnSave : ActionOnSave() {
         return project.config().formatOnSave
     }
 
-    override fun processDocuments(project: Project, documents: Array<Document?>) {
+    override fun processDocuments(project: Project, documents: Array<out Document>) {
         if (!project.config().enableKtlint || !project.config().formatOnSave) return
 
         val manager = FileDocumentManager.getInstance()
-        documents
-            .filterNotNull()
-            .mapNotNull { manager.getFile(it)?.toPsiFile(project) }
-            .forEach { psiFile -> ktlintFormat(psiFile, "KtlintActionOnSave") }
+        for (document in documents) {
+            val file = manager.getFile(document)
+            if (file != null && file.isKotlinFile()) {
+                file.toPsiFile(project)?.let { psiFile -> doLint(psiFile, project.config(), true) }
+            }
+        }
     }
 }

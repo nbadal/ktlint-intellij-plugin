@@ -50,7 +50,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     }
 
     fun createComponent(): JComponent {
-        mainPanel.border = IdeBorderFactory.createTitledBorder("Ktlint Format Settings")
+        mainPanel.border = IdeBorderFactory.createTitledBorder("Ktlint Settings")
 
         // Disable fields when plugin disabled
         val fieldsToDisable = listOf(
@@ -91,7 +91,6 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     }
 
     fun apply() {
-        println("Apply KtlintConfigForm, enable ktlint: ${enableKtlint.isSelected}")
         config.enableKtlint = enableKtlint.isSelected
         config.treatAsErrors = AnnotationMode.ERROR == annotateAs.selectedItem
         config.hideErrors = AnnotationMode.NONE == annotateAs.selectedItem
