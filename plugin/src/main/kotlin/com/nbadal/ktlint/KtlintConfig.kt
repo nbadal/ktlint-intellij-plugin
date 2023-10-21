@@ -10,6 +10,8 @@ class KtlintConfig(private val project: Project) : SearchableConfigurable {
 
     private val form = KtlintConfigForm(project, project.config())
 
+    val formatOnSaveCheckbox by form::formatOnSave
+
     val enableKtlintCheckbox by form::enableKtlint
 
     override fun createComponent(): JComponent = form.createComponent()
