@@ -29,7 +29,6 @@ internal fun ktlintFormat(
         return EMPTY_KTLINT_FORMAT_RESULT
     }
 
-
     if (!psiFile.virtualFile.isKotlinFile()) {
         return EMPTY_KTLINT_FORMAT_RESULT
     }
@@ -54,24 +53,18 @@ internal fun ktlintFormat(
     val canNotBeAutoCorrectedErrors = mutableListOf<LintError>()
     val ignoredErrors = mutableListOf<LintError>()
     try {
-        // If file contains unsaved changed, those will not be picked up by the KtlintRuleEngine.
-        // Add new Code factory methode to create snippet with a virtual path. The ".editorconfig" will be read from
-        // this virtual path.
-        // Given code snippet below which does not contain lint violations:
-        //     fun foo(
-        //         a: String,
-        //         b: String,
-        //         c: Int
-        //     ) = a + b + c
-        // Joining any two consecutive lines with shortcut CTRL-SHIFT-J should result in a new lint violation. But,
-        // no such violation is found as the shortcut does not directly save the changes. Whenever the lines are
-        // merged by deleting the newline with either backspace or delete, does result in merging the lines *and*
-        // saving the changes before invoking the annotator.
         val formattedCode =
             KtLintRuleEngine(
                 editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
                 ruleProviders = ruleProviders,
-            ).format(Code.fromFile(File(filePath))) { error, corrected ->
+            ).format(
+                // The psiFile may contain unsaved changes. So create a snippet based on content of the psiFile *and*
+                // with the same path as that psiFile so that the correct '.editorconfig' is picked up by ktlint.
+                Code.fromSnippet(
+                    content = psiFile.text,
+                    path = psiFile.virtualFile.toNioPath(),
+                )
+            ) { error, corrected ->
                 when {
                     baselineErrors.contains(error.toCliError(error.canBeAutoCorrected)) -> ignoredErrors.add(error)
                     corrected -> correctedErrors.add(error)

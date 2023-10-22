@@ -5,6 +5,7 @@ import com.intellij.lang.annotation.ExternalAnnotator
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
+import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
 import com.pinterest.ktlint.rule.engine.api.LintError
 
 class KtlintAnnotator : ExternalAnnotator<KtlintFormatResult, List<LintError>>() {
@@ -14,20 +15,21 @@ class KtlintAnnotator : ExternalAnnotator<KtlintFormatResult, List<LintError>>()
         return ktlintFormat(psiFile, "KtlintAnnotator", writeFormattedCode = false)
     }
 
-
     override fun doAnnotate(collectedInfo: KtlintFormatResult?): List<LintError>? =
         // Ignore errors that can be autocorrected by ktlint to prevent that developer is going to resolve errors
         // manually and errors in baseline.
         collectedInfo?.canNotBeAutoCorrectedErrors
 
     override fun apply(file: PsiFile, errors: List<LintError>?, holder: AnnotationHolder) {
-        errors?.forEach {
+        errors?.forEach { lintError ->
             holder
-                .newAnnotation(HighlightSeverity.ERROR, it.errorMessage())
+                .newAnnotation(HighlightSeverity.ERROR, lintError.errorMessage())
                 .apply {
-                    range(errorTextRange(file, it))
+                    range(errorTextRange(file, lintError))
 
-                    // TODO: Add suppression intention
+                    if (!lintError.canBeAutoCorrected) {
+                        withFix(KtlintRuleSuppressIntention(lintError))
+                    }
 
                     create()
                 }
