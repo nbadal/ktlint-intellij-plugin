@@ -3,17 +3,21 @@ package com.nbadal.ktlint
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.ExternalAnnotator
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
 import com.pinterest.ktlint.rule.engine.api.LintError
 
 class KtlintAnnotator : ExternalAnnotator<KtlintFormatResult, List<LintError>>() {
-    override fun collectInformation(psiFile: PsiFile): KtlintFormatResult {
-        // Format the code, but do not write the result as this results in a deadlock (write command may not be invoked
-        // from read command).
-        return ktlintFormat(psiFile, "KtlintAnnotator", writeFormattedCode = false)
-    }
+    override fun collectInformation(psiFile: PsiFile, editor: Editor, hasErrors: Boolean): KtlintFormatResult? =
+        if (hasErrors) {
+            null
+        } else {
+            // Format the code, but do not write the result as this results in a deadlock (write command may not be invoked
+            // from read command).
+            ktlintFormat(psiFile, "KtlintAnnotator", writeFormattedCode = false)
+        }
 
     override fun doAnnotate(collectedInfo: KtlintFormatResult?): List<LintError>? =
         // Ignore errors that can be autocorrected by ktlint to prevent that developer is going to resolve errors
