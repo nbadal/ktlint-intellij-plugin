@@ -62,7 +62,8 @@ internal fun ktlintFormat(
                 // with the same path as that psiFile so that the correct '.editorconfig' is picked up by ktlint.
                 Code.fromSnippet(
                     content = psiFile.text,
-                    path = psiFile.virtualFile.toNioPath(),
+                    // TODO: de-comment when parameter is supported in Ktlint 1.1.0
+                    // path = psiFile.virtualFile.toNioPath(),
                 )
             ) { error, corrected ->
                 when {
