@@ -1,15 +1,18 @@
-package com.nbadal.ktlint.service
+package com.nbadal.ktlint
 
+import com.intellij.openapi.project.Project
 import com.nbadal.ktlint.actions.FormatAction
 import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import java.io.File
 import java.net.URL
 import java.net.URLClassLoader
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 
 // See: LoadRuleProviders.kt
-internal fun loadRuleProviders(urls: List<URL>): Set<RuleProvider> {
+internal fun loadRuleProviders(project: Project): Set<RuleProvider> {
+    val urls = project.config().externalJarPaths.map { File(it).toURI().toURL() }
     return RuleSetProviderV3::class.java
         .loadFromJarFiles(urls, providerId = { it.id.value })
         .flatMap { it.getRuleProviders() }
@@ -17,7 +20,7 @@ internal fun loadRuleProviders(urls: List<URL>): Set<RuleProvider> {
 }
 
 // See: KtlintServiceLoader.kt
-internal fun <T> Class<T>.loadFromJarFiles(
+private fun <T> Class<T>.loadFromJarFiles(
     urls: List<URL>,
     providerId: (T) -> String,
 ): Set<T> {
@@ -28,9 +31,7 @@ internal fun <T> Class<T>.loadFromJarFiles(
         .distinct()
         .flatMap { url ->
             loadProvidersFromJars(url)
-                .also { providers ->
-                    println("Loaded ${providers.size} providers from $url")
-                }
+                .also { providers -> println("Loaded ${providers.size} providers from $url") }
                 .filterNot { providerIdsFromKtlintJars.contains(providerId(it)) }
                 .filterNotNull()
         }
