@@ -7,7 +7,7 @@
 ### Added
 
 ### Changed
-- Updated to ktlint 1.0.0
+- Update ktlint to 1.0.1
 
 ### Deprecated
 
