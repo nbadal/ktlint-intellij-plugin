@@ -8,12 +8,15 @@ import com.intellij.psi.PsiFile
 import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.rule.engine.api.Code
+import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.api.LintError
-import java.io.File
+import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
+import java.nio.file.Files
+import java.nio.file.Path
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
 internal fun ktlintFormat(
@@ -57,6 +60,13 @@ internal fun ktlintFormat(
             KtLintRuleEngine(
                 editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
                 ruleProviders = ruleProviders,
+                // TODO: remove when Code.fromSnippet takes a path as parameter in Ktlint 1.1.0.
+                //  Drawback of this method is that it ignores property "root" in '.editorconfig' file.
+                editorConfigDefaults =
+                EditorConfigDefaults.load(
+                    path = psiFile.findEditorConfigDirectoryPath(),
+                    propertyTypes = ruleProviders.propertyTypes(),
+                ),
             ).format(
                 // The psiFile may contain unsaved changes. So create a snippet based on content of the psiFile *and*
                 // with the same path as that psiFile so that the correct '.editorconfig' is picked up by ktlint.
@@ -112,6 +122,14 @@ internal fun ktlintFormat(
         """.trimIndent()
     )
     return KtlintFormatResult(canNotBeAutoCorrectedErrors, correctedErrors, ignoredErrors)
+}
+
+private fun PsiFile.findEditorConfigDirectoryPath(): Path? {
+    var directory = virtualFile.toNioPath().parent
+    while (Files.notExists(directory.resolve(".editorconfig")) && directory.parent != null) {
+        directory = directory.parent
+    }
+    return directory
 }
 
 private fun loadBaseline(
