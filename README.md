@@ -25,11 +25,19 @@ Enable and configure in `Preferences` > `Tools` > `KtLint Format`.
   <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "ktlint"</kbd> >
   <kbd>Install Plugin</kbd>
   
-- Manually:
+- Manually with published version of plugin:
 
   Download the [latest release](https://github.com/nbadal/ktlint-intellij-plugin/releases/latest) and install it manually using
   <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
+- Manually with development (e.g. unpublished) version of plugin:
+  - Run the Plugin so that the IDEA sandbox is refreshed
+  - Create zip file with development version of plugin from IDEA sandbox
+    ```shell
+    (cd plugin/build/idea-sandbox/plugins && zip  -r ../../ktlint-plugin-dev.zip ktlint)
+    ```
+  - Install the zip file manually using
+    <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].
