@@ -15,9 +15,9 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
+import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import java.nio.file.Files
 import java.nio.file.Path
-import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
 internal fun ktlintFormat(
     psiFile: PsiFile,
@@ -74,9 +74,16 @@ internal fun ktlintFormat(
                     content = psiFile.text,
                     // TODO: de-comment when parameter is supported in Ktlint 1.1.0
                     // path = psiFile.virtualFile.toNioPath(),
-                )
+                ),
             ) { error, corrected ->
                 when {
+                    // TODO: remove exclusion of rule "standard:filename" as this now results in false positives. When
+                    //  using "Code.fromSnippet" in Ktlint 1.0.0, the filename "File.kt" or "File.kts" is being used
+                    //  instead of the real name of the file. With fix in Ktlint 1.1.0 the filename will be based on
+                    //  parameter "path" and the rule will no longer cause false positives.
+                    error.ruleId.value == "standard:filename" -> {
+                        println("Ignore rule '${error.ruleId.value}'")
+                    }
                     baselineErrors.contains(error.toCliError(error.canBeAutoCorrected)) -> ignoredErrors.add(error)
                     corrected -> correctedErrors.add(error)
                     else -> canNotBeAutoCorrectedErrors.add(error)
