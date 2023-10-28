@@ -11,7 +11,7 @@ plugins {
     // Kotlin support
     kotlin("jvm")
     // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.15.0"
+    id("org.jetbrains.intellij") version "1.16.0"
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
     id("org.jetbrains.changelog") version "2.2.0"
     // BuildConfig - read more: https://github.com/gmazzo/gradle-buildconfig-plugin
@@ -53,7 +53,7 @@ dependencies {
     testImplementation(project(":lib"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("org.junit.platform:junit-platform-launcher:1.10.0")
-    testImplementation("io.mockk:mockk:1.13.7")
+    testImplementation("io.mockk:mockk:1.13.8")
 }
 
 // Configure gradle-intellij-plugin plugin.
