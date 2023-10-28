@@ -12,11 +12,11 @@ TARGETS=$(curl -s 'https://data.services.jetbrains.com/products?code=IIU&fields=
 
 if [[ "$TARGETS" == "$CURRENT" ]]; then
     echo "Up to date."
-    echo "::set-output name=updated::false"
+    echo "name=updated::false" >> $GITHUB_OUTPUT
     exit
 fi
 
-echo "::set-output name=updated::true"
-echo "::set-output name=newTargets::$TARGETS"
+echo "name=updated::true" >> $GITHUB_OUTPUT
+echo "name=newTargets::$TARGETS" >> $GITHUB_OUTPUT
 
 sed -i -E "s|(pluginVerifierIdeVersions = )(.*)\$|\1$TARGETS|g" gradle.properties
