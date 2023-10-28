@@ -141,10 +141,10 @@ jobs:
           CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
           ARTIFACT="${NAME}-${VERSION}.zip"
 
-          echo "name=version::$VERSION" >> $GITHUB_OUTPUT
-          echo "name=name::$NAME" >> $GITHUB_OUTPUT
-          echo "name=changelog::$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "name=artifact::$ARTIFACT" >> $GITHUB_OUTPUT
+          echo "version::$VERSION" >> $GITHUB_OUTPUT
+          echo "name::$NAME" >> $GITHUB_OUTPUT
+          echo "changelog::$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "artifact::$ARTIFACT" >> $GITHUB_OUTPUT
 
       # Build artifact using buildPlugin Gradle task
       - name: Build Plugin
@@ -212,8 +212,8 @@ jobs:
           PROPERTIES="$(./gradlew plugin:properties --console=plain -q)"
           IDE_VERSIONS="$(echo "$PROPERTIES" | grep "^pluginVerifierIdeVersions:" | base64)"
 
-          echo "name=ideVersions::$IDE_VERSIONS" >> $GITHUB_OUTPUT
-          echo "name=pluginVerifierHomeDir::~/.pluginVerifier" >> $GITHUB_OUTPUT
+          echo "ideVersions::$IDE_VERSIONS" >> $GITHUB_OUTPUT
+          echo "pluginVerifierHomeDir::~/.pluginVerifier" >> $GITHUB_OUTPUT
 
       # Cache Plugin Verifier IDEs
       - name: Setup Plugin Verifier IDEs Cache

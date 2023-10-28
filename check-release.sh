@@ -9,12 +9,12 @@ CURRENT=$(grep pluginUntilBuild gradle.properties | cut -d '=' -f 2 | xargs)
 
 if [[ "$UNTIL" == "$CURRENT" ]]; then
     echo "Up to date."
-    echo "::name=updated::false" >> $GITHUB_OUTPUT
+    echo "updated=false" >> $GITHUB_OUTPUT
     exit
 fi
 
-echo "name=updated::true" >> $GITHUB_OUTPUT
-echo "name=newUntil::$UNTIL" >> $GITHUB_OUTPUT
+echo "updated=true" >> $GITHUB_OUTPUT
+echo "newUntil=$UNTIL" >> $GITHUB_OUTPUT
 
 sed -i -E "s|(pluginVerifierIdeVersions = )(.*)\$|\1\2, $LATEST_BUILD|g" gradle.properties
 sed -i "s|pluginUntilBuild = $CURRENT|pluginUntilBuild = $UNTIL|g" gradle.properties
