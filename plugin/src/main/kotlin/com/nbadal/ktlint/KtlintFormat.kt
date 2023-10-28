@@ -55,7 +55,8 @@ private fun executeKtlintFormat(
         return EMPTY_KTLINT_FORMAT_RESULT
     }
 
-    if (!psiFile.virtualFile.isKotlinFile()) {
+    if (psiFile.virtualFile.extension !in setOf("kt", "kts")) {
+        // Not a file which can be processed by ktlint
         return EMPTY_KTLINT_FORMAT_RESULT
     }
 
