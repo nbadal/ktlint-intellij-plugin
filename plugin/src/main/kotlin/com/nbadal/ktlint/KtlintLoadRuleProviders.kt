@@ -27,15 +27,16 @@ private fun <T> Class<T>.loadFromJarFiles(
     val providersFromKtlintJars = this.loadProvidersFromJars(null)
     println("Loaded ${providersFromKtlintJars.size} providers from ktlint jars")
     val providerIdsFromKtlintJars = providersFromKtlintJars.map { providerId(it) }
-    val providersFromCustomJars = urls
-        .distinct()
-        .flatMap { url ->
-            loadProvidersFromJars(url)
-                .also { providers -> println("Loaded ${providers.size} providers from $url") }
-                .filterNot { providerIdsFromKtlintJars.contains(providerId(it)) }
-                .filterNotNull()
-        }
-        .toSet()
+    val providersFromCustomJars =
+        urls
+            .distinct()
+            .flatMap { url ->
+                loadProvidersFromJars(url)
+                    .also { providers -> println("Loaded ${providers.size} providers from $url") }
+                    .filterNot { providerIdsFromKtlintJars.contains(providerId(it)) }
+                    .filterNotNull()
+            }
+            .toSet()
     return providersFromKtlintJars
         .plus(providersFromCustomJars)
         .filterNotNull()

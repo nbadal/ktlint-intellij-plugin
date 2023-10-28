@@ -29,10 +29,11 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
         mainPanel.border = IdeBorderFactory.createTitledBorder("Ktlint Format Settings")
 
         // Disable fields when plugin disabled
-        val fieldsToDisable = listOf(
-            externalJarPaths,
-            baselinePath,
-        )
+        val fieldsToDisable =
+            listOf(
+                externalJarPaths,
+                baselinePath,
+            )
         enableKtlint.addChangeListener { fieldsToDisable.forEach { it.isEnabled = enableKtlint.isSelected } }
 
         externalJarPaths.addActionListener {
@@ -63,13 +64,15 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
 
     fun apply() {
         config.enableKtlint = enableKtlint.isSelected
-        config.externalJarPaths = externalJarPaths.text
-            .split(",")
-            .map { it.trim() }
-            .filter { it.isNotBlank() }
-        config.baselinePath = baselinePath.text
-            .trim()
-            .let { it.ifBlank { null } }
+        config.externalJarPaths =
+            externalJarPaths.text
+                .split(",")
+                .map { it.trim() }
+                .filter { it.isNotBlank() }
+        config.baselinePath =
+            baselinePath.text
+                .trim()
+                .let { it.ifBlank { null } }
     }
 
     fun reset() {
@@ -78,8 +81,9 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     }
 
     val isModified
-        get() = !(
-            Objects.equals(config.enableKtlint, enableKtlint.isSelected) &&
-                Objects.equals(config.externalJarPaths, externalJarPaths.text)
+        get() =
+            !(
+                Objects.equals(config.enableKtlint, enableKtlint.isSelected) &&
+                    Objects.equals(config.externalJarPaths, externalJarPaths.text)
             )
 }

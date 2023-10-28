@@ -9,18 +9,24 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 
 object KtlintNotifier {
-    fun notifyErrorWithSettings(project: Project, subtitle: String, content: String) =
-        NotificationGroupManager.getInstance()
-            .getNotificationGroup("ktlint Notifications")
-            .createNotification("KtLint error", NotificationType.ERROR).apply {
-                setSubtitle(subtitle)
-                setContent(content)
-                addAction(OpenSettingsAction(project))
-                notify(project)
-            }
+    fun notifyErrorWithSettings(
+        project: Project,
+        subtitle: String,
+        content: String,
+    ) = NotificationGroupManager.getInstance()
+        .getNotificationGroup("ktlint Notifications")
+        .createNotification("KtLint error", NotificationType.ERROR).apply {
+            setSubtitle(subtitle)
+            setContent(content)
+            addAction(OpenSettingsAction(project))
+            notify(project)
+        }
 
     private class OpenSettingsAction(val project: Project) : NotificationAction("Open ktlint settings...") {
-        override fun actionPerformed(e: AnActionEvent, notification: Notification) {
+        override fun actionPerformed(
+            e: AnActionEvent,
+            notification: Notification,
+        ) {
             ShowSettingsUtil.getInstance().showSettingsDialog(project, KtlintConfig::class.java)
         }
     }

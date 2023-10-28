@@ -20,19 +20,21 @@ class KtlintErrorHandler : ErrorReportSubmitter() {
         parentComponent: Component,
         consumer: Consumer<in SubmittedReportInfo>,
     ): Boolean {
-        val config = withAccessToken(BuildConfig.ROLLBAR_ACCESS_TOKEN).apply {
-            environment("production")
-            appPackages(listOf(BuildConfig.NAME))
-            codeVersion(BuildConfig.VERSION)
-        }.build()
+        val config =
+            withAccessToken(BuildConfig.ROLLBAR_ACCESS_TOKEN).apply {
+                environment("production")
+                appPackages(listOf(BuildConfig.NAME))
+                codeVersion(BuildConfig.VERSION)
+            }.build()
 
         val rollbar = Rollbar.init(config)
         events.forEach { event ->
-            val extras = mapOf(
-                "last_action" to IdeaLogger.ourLastActionId,
-                "additional_info" to additionalInfo,
-                "ide_build" to ApplicationInfo.getInstance().build.asString(),
-            ).filterValues { it != null }
+            val extras =
+                mapOf(
+                    "last_action" to IdeaLogger.ourLastActionId,
+                    "additional_info" to additionalInfo,
+                    "ide_build" to ApplicationInfo.getInstance().build.asString(),
+                ).filterValues { it != null }
 
             when (event) {
                 is IdeaReportingEvent -> {

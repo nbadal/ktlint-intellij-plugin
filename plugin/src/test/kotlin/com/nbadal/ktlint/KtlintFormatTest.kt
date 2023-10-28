@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 internal class KtlintFormatTest {
-
     private val config = KtlintConfigStorage()
 
     @BeforeEach
@@ -34,9 +33,11 @@ internal class KtlintFormatTest {
 //        assertEquals(emptyList<LintError>(), result.ignoredErrors)
     }
 
-    private fun mockFile() = mockk<PsiFile>(relaxed = true).apply {
-        every { viewProvider } returns mockk<FileViewProvider>().apply {
-            every { document } returns null
+    private fun mockFile() =
+        mockk<PsiFile>(relaxed = true).apply {
+            every { viewProvider } returns
+                mockk<FileViewProvider>().apply {
+                    every { document } returns null
+                }
         }
-    }
 }

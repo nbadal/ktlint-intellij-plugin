@@ -18,7 +18,11 @@ class KtlintRuleSuppressIntention(private val lintError: LintError) : BaseIntent
 
     override fun getText() = "Suppress '${lintError.ruleId.value}'"
 
-    override fun isAvailable(project: Project, editor: Editor?, psiFile: PsiFile): Boolean {
+    override fun isAvailable(
+        project: Project,
+        editor: Editor?,
+        psiFile: PsiFile,
+    ): Boolean {
         // Skip if there's an existing EOL comment that isn't a ktlint-disable one
         val errorEolComment = psiFile.errorEolComment()
         if (errorEolComment != null && !errorEolComment.text.isKtlintDisableDirective()) {
@@ -29,7 +33,11 @@ class KtlintRuleSuppressIntention(private val lintError: LintError) : BaseIntent
         return psiFile.errorEol() != null
     }
 
-    override fun invoke(project: Project, editor: Editor?, psiFile: PsiFile) {
+    override fun invoke(
+        project: Project,
+        editor: Editor?,
+        psiFile: PsiFile,
+    ) {
         psiFile.apply {
             // At this moment it is not possible to add the 'Suppress' annotation directly into the PsiFile as it does
             // not contain the Kotlin representation of the file. As of that the KtTokens which are needed to determine
@@ -66,9 +74,9 @@ class KtlintRuleSuppressIntention(private val lintError: LintError) : BaseIntent
         viewProvider
             .document
             ?.let { doc ->
-            if (lintError.line >= doc.lineCount) return null
-            return findElementAt(doc.getLineStartOffset(lintError.line - 1) + lintError.col - 1)
-        }
+                if (lintError.line >= doc.lineCount) return null
+                return findElementAt(doc.getLineStartOffset(lintError.line - 1) + lintError.col - 1)
+            }
 
     /** @return the EOL whitespace after this error, if found */
     private fun PsiFile.errorEol(): PsiWhiteSpace? =
@@ -97,6 +105,6 @@ class KtlintRuleSuppressIntention(private val lintError: LintError) : BaseIntent
             .trim()
             .split(" ")
             .takeIf { it.isNotEmpty() }
-            ?.let { it[0] == "ktlint-disable"}
+            ?.let { it[0] == "ktlint-disable" }
             ?: false
 }

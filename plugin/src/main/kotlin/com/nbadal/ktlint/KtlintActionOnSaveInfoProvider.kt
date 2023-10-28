@@ -23,14 +23,11 @@ private class KtlintOnSaveActionInfo(actionOnSaveContext: ActionOnSaveContext) :
         KTLINT_FORMAT_CONFIGURABLE_ID,
         KtlintConfig::class.java,
     ) {
-
     override fun getActionOnSaveName() = ACTION_ON_SAVE_NAME
 
-    override fun getCommentAccordingToStoredState() =
-        getComment(project.config().enableKtlint)
+    override fun getCommentAccordingToStoredState() = getComment(project.config().enableKtlint)
 
-    override fun getCommentAccordingToUiState(configurable: KtlintConfig) =
-        getComment(configurable.enableKtlintCheckbox.isSelected)
+    override fun getCommentAccordingToUiState(configurable: KtlintConfig) = getComment(configurable.enableKtlintCheckbox.isSelected)
 
     private fun getComment(ktlintEnabled: Boolean): ActionOnSaveComment? {
         if (!ktlintEnabled) {
@@ -44,10 +41,12 @@ private class KtlintOnSaveActionInfo(actionOnSaveContext: ActionOnSaveContext) :
 
     override fun isActionOnSaveEnabledAccordingToStoredState() = project.config().enableKtlint
 
-    override fun isActionOnSaveEnabledAccordingToUiState(configurable: KtlintConfig) =
-        configurable.enableKtlintCheckbox.isSelected
+    override fun isActionOnSaveEnabledAccordingToUiState(configurable: KtlintConfig) = configurable.enableKtlintCheckbox.isSelected
 
-    override fun setActionOnSaveEnabled(configurable: KtlintConfig, enabled: Boolean) {
+    override fun setActionOnSaveEnabled(
+        configurable: KtlintConfig,
+        enabled: Boolean,
+    ) {
         configurable.enableKtlintCheckbox.isSelected = enabled
     }
 

@@ -11,7 +11,10 @@ class KtlintActionOnSave : ActionOnSave() {
         return project.config().enableKtlint
     }
 
-    override fun processDocuments(project: Project, documents: Array<out Document>) {
+    override fun processDocuments(
+        project: Project,
+        documents: Array<out Document>,
+    ) {
         with(FileDocumentManager.getInstance()) {
             documents
                 .mapNotNull { getFile(it)?.toPsiFile(project) }
