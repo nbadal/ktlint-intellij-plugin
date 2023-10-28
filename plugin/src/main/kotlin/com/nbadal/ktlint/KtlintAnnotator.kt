@@ -10,13 +10,15 @@ import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
 import com.pinterest.ktlint.rule.engine.api.LintError
 
 class KtlintAnnotator : ExternalAnnotator<KtlintFormatResult, List<LintError>>() {
-    override fun collectInformation(psiFile: PsiFile, editor: Editor, hasErrors: Boolean): KtlintFormatResult? =
+    override fun collectInformation(
+        psiFile: PsiFile,
+        editor: Editor,
+        hasErrors: Boolean,
+    ): KtlintFormatResult? =
         if (hasErrors) {
             null
         } else {
-            // Format the code, but do not write the result as this results in a deadlock (write command may not be invoked
-            // from read command).
-            ktlintFormat(psiFile, "KtlintAnnotator", writeFormattedCode = false)
+            ktlintLint(psiFile, "KtlintAnnotator")
         }
 
     override fun doAnnotate(collectedInfo: KtlintFormatResult?): List<LintError>? =
@@ -24,7 +26,11 @@ class KtlintAnnotator : ExternalAnnotator<KtlintFormatResult, List<LintError>>()
         // manually and errors in baseline.
         collectedInfo?.canNotBeAutoCorrectedErrors
 
-    override fun apply(file: PsiFile, errors: List<LintError>?, holder: AnnotationHolder) {
+    override fun apply(
+        file: PsiFile,
+        errors: List<LintError>?,
+        holder: AnnotationHolder,
+    ) {
         errors?.forEach { lintError ->
             holder
                 .newAnnotation(HighlightSeverity.ERROR, lintError.errorMessage())
@@ -42,7 +48,10 @@ class KtlintAnnotator : ExternalAnnotator<KtlintFormatResult, List<LintError>>()
 
     private fun LintError.errorMessage(): String = "$detail (${ruleId.value})"
 
-    private fun errorTextRange(file: PsiFile, it: LintError): TextRange {
+    private fun errorTextRange(
+        file: PsiFile,
+        it: LintError,
+    ): TextRange {
         val doc = file.viewProvider.document!!
         val lineStart = doc.getLineStartOffset((it.line - 1).coerceIn(0, doc.lineCount - 1)).coerceIn(0, doc.textLength)
         val errorOffset = (lineStart + (it.col - 1)).coerceIn(lineStart, doc.textLength)

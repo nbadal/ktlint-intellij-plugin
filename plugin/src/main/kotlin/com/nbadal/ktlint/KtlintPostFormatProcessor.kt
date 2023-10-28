@@ -7,11 +7,17 @@ import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.impl.source.codeStyle.PostFormatProcessor
 
 class KtlintPostFormatProcessor : PostFormatProcessor {
-    override fun processElement(source: PsiElement, settings: CodeStyleSettings) = source // Stub.
+    override fun processElement(
+        source: PsiElement,
+        settings: CodeStyleSettings,
+    ) = source // Stub.
 
-    override fun processText(psiFile: PsiFile, rangeToReformat: TextRange, settings: CodeStyleSettings): TextRange {
+    override fun processText(
+        psiFile: PsiFile,
+        rangeToReformat: TextRange,
+        settings: CodeStyleSettings,
+    ): TextRange {
         ktlintFormat(psiFile, "KtlintPostFormatProcessor")
-
         return rangeToReformat
     }
 }
