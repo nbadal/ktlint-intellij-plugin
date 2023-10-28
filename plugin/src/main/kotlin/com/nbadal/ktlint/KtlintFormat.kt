@@ -16,7 +16,6 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
-import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -109,7 +108,7 @@ private fun executeKtlintFormat(
                     error.ruleId.value == "standard:filename" -> {
                         println("Ignore rule '${error.ruleId.value}'")
                     }
-                    baselineErrors.contains(error.toCliError(error.canBeAutoCorrected)) -> ignoredErrors.add(error)
+                    error.isIgnoredInBaseline(baselineErrors) -> ignoredErrors.add(error)
                     corrected -> correctedErrors.add(error)
                     else -> canNotBeAutoCorrectedErrors.add(error)
                 }
@@ -143,6 +142,15 @@ private fun executeKtlintFormat(
     return KtlintFormatResult(canNotBeAutoCorrectedErrors, correctedErrors, ignoredErrors)
 }
 
+private fun LintError.isIgnoredInBaseline(baselineErrors: List<KtlintCliError>) =
+    baselineErrors
+        .any { baselineError ->
+            baselineError.line == line &&
+                baselineError.col == col &&
+                baselineError.ruleId == ruleId.value &&
+                baselineError.status == KtlintCliError.Status.BASELINE_IGNORED
+        }
+
 private fun PsiFile.findEditorConfigDirectoryPath(): Path? {
     var directory = virtualFile.toNioPath().parent
     while (Files.notExists(directory.resolve(".editorconfig")) && directory.parent != null) {
@@ -169,15 +177,6 @@ private fun String.pathRelativeTo(projectBasePath: String?): String =
     } else {
         removePrefix(projectBasePath).removePrefix("/")
     }
-
-private fun LintError.toCliError(corrected: Boolean): KtlintCliError =
-    KtlintCliError(
-        line = this.line,
-        col = this.col,
-        ruleId = this.ruleId.value,
-        detail = this.detail.applyIf(corrected) { "$this (cannot be auto-corrected)" },
-        status = if (corrected) KtlintCliError.Status.FORMAT_IS_AUTOCORRECTED else KtlintCliError.Status.LINT_CAN_NOT_BE_AUTOCORRECTED,
-    )
 
 data class KtlintFormatResult(
     val canNotBeAutoCorrectedErrors: List<LintError>,

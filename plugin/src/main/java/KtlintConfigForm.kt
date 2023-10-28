@@ -77,6 +77,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
 
     fun reset() {
         enableKtlint.isSelected = config.enableKtlint
+        baselinePath.text = config.baselinePath.orEmpty()
         externalJarPaths.text = config.externalJarPaths.joinToString(", ")
     }
 
@@ -84,6 +85,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
         get() =
             !(
                 Objects.equals(config.enableKtlint, enableKtlint.isSelected) &&
+                    Objects.equals(config.baselinePath, baselinePath.text) &&
                     Objects.equals(config.externalJarPaths, externalJarPaths.text)
             )
 }
