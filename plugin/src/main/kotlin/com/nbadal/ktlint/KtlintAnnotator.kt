@@ -3,9 +3,11 @@ package com.nbadal.ktlint
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.ExternalAnnotator
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
+import com.intellij.refactoring.suggested.startOffset
 import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
 import com.pinterest.ktlint.rule.engine.api.LintError
 
@@ -49,17 +51,32 @@ class KtlintAnnotator : ExternalAnnotator<KtlintFormatResult, List<LintError>>()
     private fun LintError.errorMessage(): String = "$detail (${ruleId.value})"
 
     private fun errorTextRange(
-        file: PsiFile,
-        it: LintError,
+        psiFile: PsiFile,
+        lintError: LintError,
     ): TextRange {
-        val doc = file.viewProvider.document!!
-        val lineStart = doc.getLineStartOffset((it.line - 1).coerceIn(0, doc.lineCount - 1)).coerceIn(0, doc.textLength)
-        val errorOffset = (lineStart + (it.col - 1)).coerceIn(lineStart, doc.textLength)
-
-        // Full line range in case we can't discern the indicated element:
-        val lineEndOffset = doc.getLineEndOffset((it.line - 1).coerceIn(0, doc.lineCount - 1)).coerceIn(0, doc.textLength)
-        val fullLineRange = TextRange(lineStart, lineEndOffset)
-
-        return file.findElementAt(errorOffset)?.let { TextRange.from(errorOffset, it.textLength) } ?: fullLineRange
+        val document = psiFile.viewProvider.document!!
+        return psiFile
+            .findElementAt(lintError.offsetFromStartOf(document))
+            ?.let { TextRange.from(it.startOffset, it.textLength) }
+            ?: TextRange(lintError.lineStartOffset(document), lintError.getLineEndOffset(document))
     }
+
+    private fun LintError.offsetFromStartOf(document: Document) =
+        with(document) {
+            val lineStartOffset = lineStartOffset(this)
+            (lineStartOffset + (col - 1))
+                .coerceIn(lineStartOffset, textLength)
+        }
+
+    private fun LintError.lineStartOffset(document: Document) =
+        with(document) {
+            getLineStartOffset((line - 1).coerceIn(0, lineCount - 1))
+                .coerceIn(0, textLength)
+        }
+
+    private fun LintError.getLineEndOffset(document: Document) =
+        with(document) {
+            getLineEndOffset((line - 1).coerceIn(0, lineCount - 1))
+                .coerceIn(0, textLength)
+        }
 }
