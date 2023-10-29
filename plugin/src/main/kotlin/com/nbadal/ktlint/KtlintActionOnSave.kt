@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 class KtlintActionOnSave : ActionOnSave() {
     override fun isEnabledForProject(project: Project): Boolean {
-        return project.config().enableKtlint
+        return project.ktlintEnabled()
     }
 
     override fun processDocuments(

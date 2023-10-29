@@ -5,6 +5,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.ui.IdeBorderFactory
 import com.nbadal.ktlint.KtlintConfigStorage
+import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISABLED
+import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.ENABLED
+import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.NOT_INITIALIZED
 import java.awt.Desktop
 import java.net.URI
 import java.util.Objects
@@ -15,6 +18,7 @@ import javax.swing.JPanel
 
 class KtlintConfigForm(private val project: Project, private val config: KtlintConfigStorage) {
     private lateinit var mainPanel: JPanel
+    private var ktlintMode = NOT_INITIALIZED
     lateinit var enableKtlint: JCheckBox
         private set
     private lateinit var externalJarPaths: TextFieldWithBrowseButton
@@ -63,7 +67,12 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     }
 
     fun apply() {
-        config.enableKtlint = enableKtlint.isSelected
+        config.ktlintMode =
+            if (enableKtlint.isSelected) {
+                ENABLED
+            } else {
+                DISABLED
+            }
         config.externalJarPaths =
             externalJarPaths.text
                 .split(",")
@@ -76,7 +85,8 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     }
 
     fun reset() {
-        enableKtlint.isSelected = config.enableKtlint
+        ktlintMode = config.ktlintMode
+        enableKtlint.isSelected = (config.ktlintMode != DISABLED)
         baselinePath.text = config.baselinePath.orEmpty()
         externalJarPaths.text = config.externalJarPaths.joinToString(", ")
     }
@@ -84,7 +94,7 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     val isModified
         get() =
             !(
-                Objects.equals(config.enableKtlint, enableKtlint.isSelected) &&
+                Objects.equals(config.ktlintMode, ktlintMode) &&
                     Objects.equals(config.baselinePath, baselinePath.text) &&
                     Objects.equals(config.externalJarPaths, externalJarPaths.text)
             )

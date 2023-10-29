@@ -25,7 +25,7 @@ private class KtlintOnSaveActionInfo(actionOnSaveContext: ActionOnSaveContext) :
     ) {
     override fun getActionOnSaveName() = ACTION_ON_SAVE_NAME
 
-    override fun getCommentAccordingToStoredState() = getComment(project.config().enableKtlint)
+    override fun getCommentAccordingToStoredState() = getComment(project.ktlintEnabled())
 
     override fun getCommentAccordingToUiState(configurable: KtlintConfig) = getComment(configurable.enableKtlintCheckbox.isSelected)
 
@@ -39,7 +39,7 @@ private class KtlintOnSaveActionInfo(actionOnSaveContext: ActionOnSaveContext) :
         return null
     }
 
-    override fun isActionOnSaveEnabledAccordingToStoredState() = project.config().enableKtlint
+    override fun isActionOnSaveEnabledAccordingToStoredState() = project.ktlintEnabled()
 
     override fun isActionOnSaveEnabledAccordingToUiState(configurable: KtlintConfig) = configurable.enableKtlintCheckbox.isSelected
 

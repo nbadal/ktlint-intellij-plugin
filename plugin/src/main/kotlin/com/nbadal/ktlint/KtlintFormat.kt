@@ -45,19 +45,21 @@ private fun executeKtlintFormat(
     psiFile: PsiFile,
     triggeredBy: String,
     writeFormattedCode: Boolean = false,
-): KtlintFormatResult {
-    val virtualFileName = psiFile.virtualFile.name
-    println("Start ktlintFormat on file '$virtualFileName' triggered by '$triggeredBy'")
-
-    val project = psiFile.project
-    if (!project.config().enableKtlint) {
-        return EMPTY_KTLINT_FORMAT_RESULT
-    }
-
+): List<LintError> {
     if (psiFile.virtualFile.extension !in setOf("kt", "kts")) {
         // Not a file which can be processed by ktlint
         return EMPTY_KTLINT_FORMAT_RESULT
     }
+
+    val virtualFileName = psiFile.virtualFile.name
+
+    val project = psiFile.project
+//    if (project.ktlintDisabled()) {
+//        println("Ignore ktlintFormat on file '$virtualFileName' triggered by '$triggeredBy' as Ktlint plugin is disabled for the project")
+//        return EMPTY_KTLINT_FORMAT_RESULT
+//    }
+
+    println("Start ktlintFormat on file '$virtualFileName' triggered by '$triggeredBy'")
 
     // KtLint wants the full file path in order to search for .editorconfig files
     val filePath = psiFile.virtualFile.path
@@ -76,9 +78,7 @@ private fun executeKtlintFormat(
             return EMPTY_KTLINT_FORMAT_RESULT
         }
 
-    val correctedErrors = mutableListOf<LintError>()
-    val canNotBeAutoCorrectedErrors = mutableListOf<LintError>()
-    val ignoredErrors = mutableListOf<LintError>()
+    val lintErrors = mutableListOf<LintError>()
     try {
         val formattedCode =
             KtLintRuleEngine(
@@ -99,7 +99,7 @@ private fun executeKtlintFormat(
                     // TODO: de-comment when parameter is supported in Ktlint 1.1.0
                     // path = psiFile.virtualFile.toNioPath(),
                 ),
-            ) { error, corrected ->
+            ) { error, _ ->
                 when {
                     // TODO: remove exclusion of rule "standard:filename" as this now results in false positives. When
                     //  using "Code.fromSnippet" in Ktlint 1.0.0, the filename "File.kt" or "File.kts" is being used
@@ -108,9 +108,8 @@ private fun executeKtlintFormat(
                     error.ruleId.value == "standard:filename" -> {
                         println("Ignore rule '${error.ruleId.value}'")
                     }
-                    error.isIgnoredInBaseline(baselineErrors) -> ignoredErrors.add(error)
-                    corrected -> correctedErrors.add(error)
-                    else -> canNotBeAutoCorrectedErrors.add(error)
+                    error.isIgnoredInBaseline(baselineErrors) -> Unit
+                    else -> lintErrors.add(error)
                 }
             }
         if (writeFormattedCode) {
@@ -130,16 +129,7 @@ private fun executeKtlintFormat(
         return EMPTY_KTLINT_FORMAT_RESULT
     }
 
-    // TODO: remove
-    println(
-        """
-        ktlintFormat on file '$virtualFileName' finished:
-          - correctedErrors = ${correctedErrors.size}
-          - canNotBeAutoCorrectedErrors = ${canNotBeAutoCorrectedErrors.size}
-          - ignoredErrors = ${ignoredErrors.size}
-        """.trimIndent(),
-    )
-    return KtlintFormatResult(canNotBeAutoCorrectedErrors, correctedErrors, ignoredErrors)
+    return lintErrors
 }
 
 private fun LintError.isIgnoredInBaseline(baselineErrors: List<KtlintCliError>) =
@@ -178,10 +168,4 @@ private fun String.pathRelativeTo(projectBasePath: String?): String =
         removePrefix(projectBasePath).removePrefix("/")
     }
 
-data class KtlintFormatResult(
-    val canNotBeAutoCorrectedErrors: List<LintError>,
-    val correctedErrors: List<LintError>,
-    val ignoredErrors: List<LintError>,
-)
-
-private val EMPTY_KTLINT_FORMAT_RESULT = KtlintFormatResult(emptyList(), emptyList(), emptyList())
+private val EMPTY_KTLINT_FORMAT_RESULT = emptyList<LintError>()

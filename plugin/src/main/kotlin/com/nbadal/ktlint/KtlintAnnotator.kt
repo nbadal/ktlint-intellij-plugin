@@ -8,43 +8,72 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import com.intellij.refactoring.suggested.startOffset
+import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISABLED
+import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.ENABLED
+import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.NOT_INITIALIZED
+import com.nbadal.ktlint.actions.KtlintModeIntention
 import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
 import com.pinterest.ktlint.rule.engine.api.LintError
 
-class KtlintAnnotator : ExternalAnnotator<KtlintFormatResult, List<LintError>>() {
+class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
     override fun collectInformation(
         psiFile: PsiFile,
         editor: Editor,
         hasErrors: Boolean,
-    ): KtlintFormatResult? =
+    ): List<LintError>? =
         if (hasErrors) {
             null
         } else {
             ktlintLint(psiFile, "KtlintAnnotator")
         }
 
-    override fun doAnnotate(collectedInfo: KtlintFormatResult?): List<LintError>? =
-        // Ignore errors that can be autocorrected by ktlint to prevent that developer is going to resolve errors
-        // manually and errors in baseline.
-        collectedInfo?.canNotBeAutoCorrectedErrors
+    override fun doAnnotate(collectedInfo: List<LintError>?): List<LintError>? =
+        collectedInfo?.sortedWith(compareBy(LintError::line).thenComparingInt(LintError::col))
 
     override fun apply(
         file: PsiFile,
         errors: List<LintError>?,
         holder: AnnotationHolder,
     ) {
-        errors?.forEach { lintError ->
-            holder
-                .newAnnotation(HighlightSeverity.ERROR, lintError.errorMessage())
-                .apply {
-                    range(errorTextRange(file, lintError))
-
-                    if (!lintError.canBeAutoCorrected) {
-                        withFix(KtlintRuleSuppressIntention(lintError))
-                    }
-
-                    create()
+        when (file.project.config().ktlintMode) {
+            NOT_INITIALIZED -> {
+                errors?.forEach { lintError ->
+                    holder
+                        .newAnnotation(HighlightSeverity.WARNING, lintError.errorMessage())
+                        .apply {
+                            range(errorTextRange(file, lintError))
+                            withFix(KtlintModeIntention(ENABLED))
+                            withFix(KtlintModeIntention(DISABLED))
+                            create()
+                        }
                 }
+            }
+
+            ENABLED -> {
+                errors
+                    ?.forEach { lintError ->
+                        holder
+                            .newAnnotation(HighlightSeverity.ERROR, lintError.errorMessage())
+                            .apply {
+                                range(errorTextRange(file, lintError))
+                                withFix(KtlintRuleSuppressIntention(lintError))
+                                withFix(KtlintModeIntention(DISABLED))
+                                create()
+                            }
+                    }
+            }
+
+            DISABLED -> {
+                errors?.forEach { lintError ->
+                    holder
+                        .newAnnotation(HighlightSeverity.WEAK_WARNING, lintError.errorMessage())
+                        .apply {
+                            range(errorTextRange(file, lintError))
+                            withFix(KtlintModeIntention(ENABLED))
+                            create()
+                        }
+                }
+            }
         }
     }
 

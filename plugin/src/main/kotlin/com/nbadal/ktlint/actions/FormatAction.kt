@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ContentIterator
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
-import com.nbadal.ktlint.config
+import com.nbadal.ktlint.ktlintEnabled
 import com.nbadal.ktlint.ktlintFormat
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
@@ -17,7 +17,7 @@ class FormatAction : AnAction() {
         val project = event.getData(CommonDataKeys.PROJECT) ?: return
 
         event.presentation.apply {
-            isEnabledAndVisible = files.isNotEmpty() && project.config().enableKtlint
+            isEnabledAndVisible = files.isNotEmpty() && project.ktlintEnabled()
         }
     }
 

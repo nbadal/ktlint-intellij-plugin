@@ -16,6 +16,7 @@
         <actionOnSaveInfoProvider implementation="com.nbadal.ktlint.KtlintActionOnSaveInfoProvider"
                                   order="after FormatOnSaveInfoProvider"/>
         <actionOnSave implementation="com.nbadal.ktlint.KtlintActionOnSave" order="after FormatOnSaveAction"/>
+        <editorNotificationProvider implementation="com.nbadal.ktlint.KtlintEditorNotificationProvider"/>
     </extensions>
 
     <actions>
