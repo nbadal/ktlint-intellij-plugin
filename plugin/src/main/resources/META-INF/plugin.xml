@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>com.nbadal.ktlint</id>
-    <name>Ktlint (unofficial)</name>
+    <name>Ktlint</name>
     <vendor url="https://nbad.al">Nick Badal</vendor>
 
     <depends>com.intellij.modules.platform</depends>
