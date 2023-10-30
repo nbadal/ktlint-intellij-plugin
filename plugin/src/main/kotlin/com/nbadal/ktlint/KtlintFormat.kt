@@ -36,6 +36,8 @@ internal fun ktlintFormat(
     WriteCommandAction.runWriteCommandAction(project) {
         executeKtlintFormat(psiFile, triggeredBy, true)
     }
+    FileDocumentManager.getInstance().saveDocument(document)
+    DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
     PsiDocumentManager
         .getInstance(project)
         .doPostponedOperationsAndUnblockDocument(document)
@@ -54,10 +56,6 @@ private fun executeKtlintFormat(
     val virtualFileName = psiFile.virtualFile.name
 
     val project = psiFile.project
-//    if (project.ktlintDisabled()) {
-//        println("Ignore ktlintFormat on file '$virtualFileName' triggered by '$triggeredBy' as Ktlint plugin is disabled for the project")
-//        return EMPTY_KTLINT_FORMAT_RESULT
-//    }
 
     println("Start ktlintFormat on file '$virtualFileName' triggered by '$triggeredBy'")
 
@@ -68,8 +66,10 @@ private fun executeKtlintFormat(
         return EMPTY_KTLINT_FORMAT_RESULT
     }
 
+    // TODO: save in KtlintConfigStorage?
     val baselineErrors = loadBaseline(project, filePath)
 
+    // TODO: save in KtlintConfigStorage?
     val ruleProviders =
         try {
             loadRuleProviders(project)
@@ -78,20 +78,25 @@ private fun executeKtlintFormat(
             return EMPTY_KTLINT_FORMAT_RESULT
         }
 
+    // TODO: save in KtlintConfigStorage? Might need to wait until update to Ktlint 1.1 for loading '.editorconfig' of
+    //  snippet
+    val ktLintRuleEngine =
+        KtLintRuleEngine(
+            editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
+            ruleProviders = ruleProviders,
+            // TODO: remove when Code.fromSnippet takes a path as parameter in Ktlint 1.1.0.
+            //  Drawback of this method is that it ignores property "root" in '.editorconfig' file.
+            editorConfigDefaults =
+                EditorConfigDefaults.load(
+                    path = psiFile.findEditorConfigDirectoryPath(),
+                    propertyTypes = ruleProviders.propertyTypes(),
+                ),
+        )
+
     val lintErrors = mutableListOf<LintError>()
     try {
         val formattedCode =
-            KtLintRuleEngine(
-                editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
-                ruleProviders = ruleProviders,
-                // TODO: remove when Code.fromSnippet takes a path as parameter in Ktlint 1.1.0.
-                //  Drawback of this method is that it ignores property "root" in '.editorconfig' file.
-                editorConfigDefaults =
-                    EditorConfigDefaults.load(
-                        path = psiFile.findEditorConfigDirectoryPath(),
-                        propertyTypes = ruleProviders.propertyTypes(),
-                    ),
-            ).format(
+            ktLintRuleEngine.format(
                 // The psiFile may contain unsaved changes. So create a snippet based on content of the psiFile *and*
                 // with the same path as that psiFile so that the correct '.editorconfig' is picked up by ktlint.
                 Code.fromSnippet(
@@ -113,11 +118,7 @@ private fun executeKtlintFormat(
                 }
             }
         if (writeFormattedCode) {
-            with(psiFile.viewProvider.document) {
-                setText(formattedCode)
-                FileDocumentManager.getInstance().saveDocument(this)
-                DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
-            }
+            psiFile.viewProvider.document.setText(formattedCode)
         }
     } catch (pe: KtLintParseException) {
         // TODO: report to rollbar?
