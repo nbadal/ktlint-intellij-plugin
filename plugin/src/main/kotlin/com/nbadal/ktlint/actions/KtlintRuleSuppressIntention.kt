@@ -1,5 +1,6 @@
 package com.nbadal.ktlint.actions
 
+import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -13,7 +14,7 @@ import org.jetbrains.kotlin.lexer.KtTokens.EOL_COMMENT
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 
-class KtlintRuleSuppressIntention(private val lintError: LintError) : BaseIntentionAction() {
+class KtlintRuleSuppressIntention(private val lintError: LintError) : BaseIntentionAction(), HighPriorityAction {
     override fun getFamilyName() = "KtLint"
 
     override fun getText() = "Suppress '${lintError.ruleId.value}'"

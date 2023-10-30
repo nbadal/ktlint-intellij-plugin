@@ -1,6 +1,7 @@
 package com.nbadal.ktlint.actions
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.codeInsight.intention.LowPriorityAction
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -9,7 +10,7 @@ import com.nbadal.ktlint.KtlintConfigStorage
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.ENABLED
 import com.nbadal.ktlint.config
 
-class KtlintModeIntention(private val ktlintMode: KtlintConfigStorage.KtlintMode) : BaseIntentionAction() {
+class KtlintModeIntention(private val ktlintMode: KtlintConfigStorage.KtlintMode) : BaseIntentionAction(), LowPriorityAction {
     override fun getFamilyName() = "KtLint"
 
     override fun getText() =
