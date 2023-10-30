@@ -40,38 +40,31 @@ class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
                 errors?.forEach { lintError ->
                     holder
                         .newAnnotation(HighlightSeverity.WARNING, lintError.errorMessage())
-                        .apply {
-                            range(errorTextRange(file, lintError))
-                            withFix(KtlintModeIntention(ENABLED))
-                            withFix(KtlintModeIntention(DISABLED))
-                            create()
-                        }
+                        .range(errorTextRange(file, lintError))
+                        .withFix(KtlintModeIntention(ENABLED))
+                        .withFix(KtlintModeIntention(DISABLED))
+                        .create()
                 }
             }
 
             ENABLED -> {
-                errors
-                    ?.forEach { lintError ->
-                        holder
-                            .newAnnotation(HighlightSeverity.ERROR, lintError.errorMessage())
-                            .apply {
-                                range(errorTextRange(file, lintError))
-                                withFix(KtlintRuleSuppressIntention(lintError))
-                                withFix(KtlintModeIntention(DISABLED))
-                                create()
-                            }
-                    }
+                errors?.forEach { lintError ->
+                    holder
+                        .newAnnotation(HighlightSeverity.ERROR, lintError.errorMessage())
+                        .range(errorTextRange(file, lintError))
+                        .withFix(KtlintRuleSuppressIntention(lintError))
+                        .withFix(KtlintModeIntention(DISABLED))
+                        .create()
+                }
             }
 
             DISABLED -> {
                 errors?.forEach { lintError ->
                     holder
                         .newAnnotation(HighlightSeverity.WEAK_WARNING, lintError.errorMessage())
-                        .apply {
-                            range(errorTextRange(file, lintError))
-                            withFix(KtlintModeIntention(ENABLED))
-                            create()
-                        }
+                        .range(errorTextRange(file, lintError))
+                        .withFix(KtlintModeIntention(ENABLED))
+                        .create()
                 }
             }
         }
