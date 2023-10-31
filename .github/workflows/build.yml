@@ -53,6 +53,13 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
 
+      # Builds secrets file
+      - name: Build secrets file
+        env:
+          ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
+        shell: bash
+        run: echo "ROLLBAR_ACCESS_TOKEN=$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
+
       # Set environment variables
       - name: Export Properties
         id: properties
@@ -70,13 +77,6 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
           ./gradlew listProductsReleases # prepare list of IDEs for Plugin Verifier
-
-      # Builds secrets file
-      - name: Build secrets file
-        env:
-          ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
-        shell: bash
-        run: echo "ROLLBAR_ACCESS_TOKEN=$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
 
       # Build plugin
       - name: Build plugin
