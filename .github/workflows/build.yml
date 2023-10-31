@@ -75,6 +75,13 @@ jobs:
       - name: Build plugin
         run: ./gradlew buildPlugin
 
+      # Builds secrets file
+      - name: Build secrets file
+        env:
+          ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
+        shell: bash
+        run: echo "ROLLBAR_ACCESS_TOKEN=$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
+
       # Prepare plugin archive content for creating artifact
       - name: Prepare Plugin Artifact
         id: artifact
