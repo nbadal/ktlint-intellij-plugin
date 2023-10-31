@@ -16,7 +16,7 @@ import javax.swing.JCheckBox
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-class KtlintConfigForm(private val project: Project, private val config: KtlintConfigStorage) {
+class KtlintConfigForm(private val project: Project, private val ktlintConfigStorage: KtlintConfigStorage) {
     private lateinit var mainPanel: JPanel
     private var ktlintMode = NOT_INITIALIZED
     lateinit var enableKtlint: JCheckBox
@@ -67,35 +67,35 @@ class KtlintConfigForm(private val project: Project, private val config: KtlintC
     }
 
     fun apply() {
-        config.ktlintMode =
+        ktlintConfigStorage.ktlintMode =
             if (enableKtlint.isSelected) {
                 ENABLED
             } else {
                 DISABLED
             }
-        config.externalJarPaths =
+        ktlintConfigStorage.externalJarPaths =
             externalJarPaths.text
                 .split(",")
                 .map { it.trim() }
                 .filter { it.isNotBlank() }
-        config.baselinePath =
+        ktlintConfigStorage.baselinePath =
             baselinePath.text
                 .trim()
                 .let { it.ifBlank { null } }
     }
 
     fun reset() {
-        ktlintMode = config.ktlintMode
-        enableKtlint.isSelected = (config.ktlintMode != DISABLED)
-        baselinePath.text = config.baselinePath.orEmpty()
-        externalJarPaths.text = config.externalJarPaths.joinToString(", ")
+        ktlintMode = ktlintConfigStorage.ktlintMode
+        enableKtlint.isSelected = (ktlintConfigStorage.ktlintMode != DISABLED)
+        baselinePath.text = ktlintConfigStorage.baselinePath.orEmpty()
+        externalJarPaths.text = ktlintConfigStorage.externalJarPaths.joinToString(", ")
     }
 
     val isModified
         get() =
             !(
-                Objects.equals(config.ktlintMode, ktlintMode) &&
-                    Objects.equals(config.baselinePath, baselinePath.text) &&
-                    Objects.equals(config.externalJarPaths, externalJarPaths.text)
+                Objects.equals(ktlintConfigStorage.ktlintMode, ktlintMode) &&
+                    Objects.equals(ktlintConfigStorage.baselinePath, baselinePath.text) &&
+                    Objects.equals(ktlintConfigStorage.externalJarPaths, externalJarPaths.text)
             )
 }

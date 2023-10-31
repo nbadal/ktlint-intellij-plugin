@@ -6,16 +6,11 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.rule.engine.api.Code
-import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
-import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
-import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.api.LintError
-import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -66,60 +61,55 @@ private fun executeKtlintFormat(
         return EMPTY_KTLINT_FORMAT_RESULT
     }
 
-    // TODO: save in KtlintConfigStorage?
-    val baselineErrors = loadBaseline(project, filePath)
-
-    // TODO: save in KtlintConfigStorage?
-    val ruleProviders =
-        try {
-            loadRuleProviders(project)
-        } catch (err: Throwable) {
-            KtlintNotifier.notifyErrorWithSettings(project, "Error in external ruleset JAR", err.toString())
+    project
+        .config()
+        .ruleSetProviders
+        .takeIf { !it.isLoaded }
+        ?.let {
+            KtlintNotifier
+                .notifyErrorWithSettings(
+                    project = project,
+                    subtitle = "Error in external ruleset JAR",
+                    content = project.config().ruleSetProviders.error.orEmpty(),
+                )
             return EMPTY_KTLINT_FORMAT_RESULT
         }
 
-    // TODO: save in KtlintConfigStorage? Might need to wait until update to Ktlint 1.1 for loading '.editorconfig' of
-    //  snippet
-    val ktLintRuleEngine =
-        KtLintRuleEngine(
-            editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
-            ruleProviders = ruleProviders,
-            // TODO: remove when Code.fromSnippet takes a path as parameter in Ktlint 1.1.0.
-            //  Drawback of this method is that it ignores property "root" in '.editorconfig' file.
-            editorConfigDefaults =
-                EditorConfigDefaults.load(
-                    path = psiFile.findEditorConfigDirectoryPath(),
-                    propertyTypes = ruleProviders.propertyTypes(),
-                ),
-        )
-
+    val baselineErrors = project.baselineErrors(filePath)
     val lintErrors = mutableListOf<LintError>()
     try {
         val formattedCode =
-            ktLintRuleEngine.format(
-                // The psiFile may contain unsaved changes. So create a snippet based on content of the psiFile *and*
-                // with the same path as that psiFile so that the correct '.editorconfig' is picked up by ktlint.
-                Code.fromSnippet(
-                    content = psiFile.text,
-                    // TODO: de-comment when parameter is supported in Ktlint 1.1.0
-                    // path = psiFile.virtualFile.toNioPath(),
-                ),
-            ) { error, _ ->
-                when {
-                    // TODO: remove exclusion of rule "standard:filename" as this now results in false positives. When
-                    //  using "Code.fromSnippet" in Ktlint 1.0.0, the filename "File.kt" or "File.kts" is being used
-                    //  instead of the real name of the file. With fix in Ktlint 1.1.0 the filename will be based on
-                    //  parameter "path" and the rule will no longer cause false positives.
-                    error.ruleId.value == "standard:filename" -> {
-                        println("Ignore rule '${error.ruleId.value}'")
+            project
+                .config()
+                .ktlintRuleEngine(psiFile.findEditorConfigDirectoryPath())
+                ?.format(
+                    // The psiFile may contain unsaved changes. So create a snippet based on content of the psiFile *and*
+                    // with the same path as that psiFile so that the correct '.editorconfig' is picked up by ktlint.
+                    Code.fromSnippet(
+                        content = psiFile.text,
+                        // TODO: de-comment when parameter is supported in Ktlint 1.1.0
+                        // path = psiFile.virtualFile.toNioPath(),
+                    ),
+                ) { error, _ ->
+                    when {
+                        // TODO: remove exclusion of rule "standard:filename" as this now results in false positives. When
+                        //  using "Code.fromSnippet" in Ktlint 1.0.0, the filename "File.kt" or "File.kts" is being used
+                        //  instead of the real name of the file. With fix in Ktlint 1.1.0 the filename will be based on
+                        //  parameter "path" and the rule will no longer cause false positives.
+                        error.ruleId.value == "standard:filename" -> {
+                            println("Ignore rule '${error.ruleId.value}'")
+                        }
+
+                        error.isIgnoredInBaseline(baselineErrors) -> Unit
+                        else -> lintErrors.add(error)
                     }
-                    error.isIgnoredInBaseline(baselineErrors) -> Unit
-                    else -> lintErrors.add(error)
                 }
-            }
+                ?: return EMPTY_KTLINT_FORMAT_RESULT
+                    .also { println("Could not create ktlintRuleEngine for path '$filePath'") }
         if (writeFormattedCode) {
             psiFile.viewProvider.document.setText(formattedCode)
         }
+        println("Finished ktlintFormat on file '$virtualFileName' triggered by '$triggeredBy' successfully")
     } catch (pe: KtLintParseException) {
         // TODO: report to rollbar?
         println("ktlintFormat on file '$virtualFileName', KtlintParseException: " + pe.stackTrace)
@@ -150,17 +140,11 @@ private fun PsiFile.findEditorConfigDirectoryPath(): Path? {
     return directory
 }
 
-private fun loadBaseline(
-    project: Project,
-    filePath: String,
-) = project
-    .config()
-    .baselinePath
-    ?.let {
-        val relativeFilePath = filePath.pathRelativeTo(project.basePath)
-        loadBaseline(it).lintErrorsPerFile[relativeFilePath]
-    }
-    ?: emptyList()
+private fun Project.baselineErrors(filePath: String) =
+    config()
+        .baseline
+        .lintErrorsPerFile[filePath.pathRelativeTo(basePath)]
+        .orEmpty()
 
 private fun String.pathRelativeTo(projectBasePath: String?): String =
     if (projectBasePath.isNullOrBlank()) {
