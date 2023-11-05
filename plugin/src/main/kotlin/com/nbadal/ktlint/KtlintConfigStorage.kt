@@ -66,10 +66,10 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     private var ktlintRuleEngine: KtLintRuleEngine? = null
 
     /**
-     * Gets the [KtlintRuleEngine] for given [filePath].
+     * Gets the KtlintRuleEngine for given [filePath].
      *
      * TODO: Make independent of [filePath] in Ktlint 1.1.0 as editor config defaults no longer have to be loaded in the KtLintRuleEngine
-     *  when it becomes possible to create [KtLintRuleEngine.Code.fromSnippet] with a path.
+     *  when it becomes possible to create code snippet with a path.
      */
     fun ktlintRuleEngine(filePath: Path?) =
         ktlintRuleEngine
