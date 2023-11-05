@@ -88,7 +88,6 @@ jobs:
         shell: bash
         run: |
           cd ${{ github.workspace }}/plugin/build/distributions
-          echo "ls -aslh *.zip" >> $GITHUB_OUTPUT
           FILENAME=`ls *.zip`
           unzip "$FILENAME" -d content
 
