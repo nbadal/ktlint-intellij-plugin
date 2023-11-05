@@ -101,10 +101,6 @@ tasks {
         kotlinOptions.jvmTarget = "11"
     }
 
-    withType<Detekt> {
-        jvmTarget = "11"
-    }
-
     named<Test>("test") {
         useJUnitPlatform()
     }
