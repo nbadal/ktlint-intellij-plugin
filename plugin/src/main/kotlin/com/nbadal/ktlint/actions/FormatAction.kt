@@ -7,9 +7,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ContentIterator
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiManager
 import com.nbadal.ktlint.ktlintEnabled
 import com.nbadal.ktlint.ktlintFormat
-import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 class FormatAction : AnAction() {
     override fun update(event: AnActionEvent) {
@@ -35,7 +35,7 @@ class FormatAction : AnAction() {
         override fun processFile(fileOrDir: VirtualFile): Boolean {
             fileOrDir
                 .takeUnless { it.isDirectory }
-                ?.toPsiFile(project)
+                ?.let { PsiManager.getInstance(project).findFile(fileOrDir) }
                 ?.let { ktlintFormat(it, "FormatAction") }
             return true
         }

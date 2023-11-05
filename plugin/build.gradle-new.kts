@@ -46,20 +46,8 @@ repositories {
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
 //    implementation(libs.annotations)
-
-    // Shadow lib (see: ../lib/README.md)
-    compileOnly(project(":lib")) // Required for IDE
-    implementation(project(":lib", "shadow"))
-
-    implementation("com.rollbar:rollbar-java:1.10.0") {
-        exclude(group = "org.slf4j") // Duplicated in IDE environment
-    }
-
-    // Tests:
-    testImplementation(project(":lib"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("org.junit.platform:junit-platform-launcher:1.10.0")
-    testImplementation("io.mockk:mockk:1.13.8")
 }
 
 // Set the JVM language level used to build the project. Use Java 11 for 2020.3+, and Java 17 for 2022.2+.
@@ -83,10 +71,10 @@ intellij {
 
     // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
     plugins =
-        // Replace due to multi-module setup
-        //   properties("platformPlugins")
-        //      .map { it.split(',').map(String::trim).filter(String::isNotEmpty) }
-        // with
+            // Replace due to multi-module setup
+            //   properties("platformPlugins")
+            //      .map { it.split(',').map(String::trim).filter(String::isNotEmpty) }
+            // with
         platformPlugins.split(',').map(String::trim).filter(String::isNotEmpty)
 }
 
@@ -137,7 +125,7 @@ tasks {
     //   }
     // Replace with JavaCompile and KotlintCompile tasks
 
-    // Set the compatibility versions to 11
+    // Set the compatibility versions to 17
     withType<JavaCompile> {
         sourceCompatibility = "11"
         targetCompatibility = "11"
@@ -177,9 +165,9 @@ tasks {
         val changelog = project.changelog // local variable for configuration cache compatibility
         // Get the latest available change notes from the changelog file
         changeNotes =
-            // Replace due to multi-module setup
-            //   properties("pluginVersion")
-            //      .map { pluginVersion ->
+                // Replace due to multi-module setup
+                //   properties("pluginVersion")
+                //      .map { pluginVersion ->
             with(changelog) {
                 renderItem(
                     (getOrNull(pluginVersion) ?: getUnreleased())
@@ -212,8 +200,8 @@ tasks {
         // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
         channels =
-            // Replace due to multi-module setup
-            // properties("pluginVersion").map {
+                // Replace due to multi-module setup
+                // properties("pluginVersion").map {
             listOf(pluginVersion.split('-').getOrElse(1) { "default" }.split('.').first())
     }
 }

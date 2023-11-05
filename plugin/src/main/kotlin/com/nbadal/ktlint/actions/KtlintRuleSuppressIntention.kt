@@ -7,12 +7,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.util.nextLeaf
+import com.intellij.psi.util.prevLeaf
 import com.nbadal.ktlint.ktlintFormat
 import com.pinterest.ktlint.rule.engine.api.LintError
-import org.jetbrains.kotlin.lexer.KtTokens.EOL_COMMENT
-import org.jetbrains.kotlin.psi.KtPsiFactory
-import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 
 class KtlintRuleSuppressIntention(private val lintError: LintError) : BaseIntentionAction(), HighPriorityAction {
     override fun getFamilyName() = "KtLint"
@@ -25,13 +25,17 @@ class KtlintRuleSuppressIntention(private val lintError: LintError) : BaseIntent
         psiFile: PsiFile,
     ): Boolean {
         // Skip if there's an existing EOL comment that isn't a ktlint-disable one
-        val errorEolComment = psiFile.errorEolComment()
-        if (errorEolComment != null && !errorEolComment.text.isKtlintDisableDirective()) {
-            return false
-        }
+        psiFile
+            .newlineWhitespaceAfterErrorOffset()
+            ?.precedingPsiCommentOrNull()
+            ?.let { psiComment ->
+                if (!psiComment.text.isKtlintDisableDirective()) {
+                    return false
+                }
+            }
 
         // Skip if we can't resolve an EOL whitespace to target
-        return psiFile.errorEol() != null
+        return psiFile.newlineWhitespaceAfterErrorOffset() != null
     }
 
     override fun invoke(
@@ -39,36 +43,46 @@ class KtlintRuleSuppressIntention(private val lintError: LintError) : BaseIntent
         editor: Editor?,
         psiFile: PsiFile,
     ) {
+        // At this moment it is not possible to add the 'Suppress' annotation directly into the PsiFile as it does
+        // not contain the Kotlin representation of the file. As of that the KtTokens which are needed to determine
+        // the correct location of the annotation can not be used.
+        // As workaround, the line is suppressed with the deprecated "ktlint-disable" directive. This directive does
+        // not become visible (unless an error occurs) as ktlintFormat is executed afterward. Ktlint rule
+        // `ktlint-suppression' replaces the disable directive with a 'Suppress' annotation at the correct location.
         psiFile.apply {
-            // At this moment it is not possible to add the 'Suppress' annotation directly into the PsiFile as it does
-            // not contain the Kotlin representation of the file. As of that the KtTokens which are needed to determine
-            // the correct location of the annotation can not be used.
-            // As workaround, the line is suppressed with the deprecated "ktlint-disable" directive. This directive does
-            // not become visible (unless an error occurs) as ktlintFormat is executed afterward. Ktlint rule
-            // `ktlint-suppression' replaces the disable directive with a 'Suppress' annotation at the correct location.
-            errorEol()?.let { eol ->
-                val factory = KtPsiFactory(project)
-                errorEolComment()
-                    ?.let { existingComment ->
-                        // Add item to existing comment, if it's a disable comment.
-                        existingComment
-                            .appendToExistingKtlintDisableDirectiveCommentOrNull()
-                            ?.let(factory::createComment)
-                            ?.let(existingComment::replace)
-                            ?: {
-                                // If we can't add our ID, do nothing.
-                            }
-                    }
-                    ?: factory.createComment("// ktlint-disable ${lintError.ruleId.value}")
-                        .let {
-                            // Create new comment.
-                            eol.parent.addBefore(factory.createWhiteSpace(" "), eol)
-                            eol.parent.addBefore(it, eol)
+            newlineWhitespaceAfterErrorOffset()
+                ?.let { whitespaceAfterErrorOffset ->
+                    whitespaceAfterErrorOffset
+                        .precedingPsiCommentOrNull()
+                        ?.takeIf { it.text.isKtlintDisableDirective() }
+                        ?.takeUnless { it.text.contains(lintError.ruleId.value) }
+                        ?.let { existingKtlintDisableDirective ->
+                            // Add rule to existing ktlint-disable directive
+                            psiFile
+                                .createPsiComment("${existingKtlintDisableDirective.text} ${lintError.ruleId.value}")
+                                .let(existingKtlintDisableDirective::replace)
                         }
-            }
+                        ?: psiFile
+                            .createPsiComment("// ktlint-disable ${lintError.ruleId.value}")
+                            .let {
+                                whitespaceAfterErrorOffset.parent.addBefore(it, whitespaceAfterErrorOffset)
+                            }
+                    println("After adding ktlint-disable-directive:\n${psiFile.text}")
+                }
             ktlintFormat(psiFile, "KtlintRuleSuppressIntention")
         }
     }
+
+    private fun PsiFile.createPsiComment(comment: String) =
+        PsiFileFactory
+            .getInstance(project)
+            .createFileFromText(language, comment)
+            .firstChild
+            .nextSibling
+            .nextSibling
+            .firstChild
+            .firstChild
+            .let { it as PsiComment }
 
     /** @return the element specified by the error */
     private fun PsiFile.findElementAtLintErrorOffset(): PsiElement? =
@@ -79,26 +93,11 @@ class KtlintRuleSuppressIntention(private val lintError: LintError) : BaseIntent
                 return findElementAt(doc.getLineStartOffset(lintError.line - 1) + lintError.col - 1)
             }
 
-    /** @return the EOL whitespace after this error, if found */
-    private fun PsiFile.errorEol(): PsiWhiteSpace? =
+    private fun PsiFile.newlineWhitespaceAfterErrorOffset(): PsiWhiteSpace? =
         findElementAtLintErrorOffset()
-            ?.let { err ->
-                err.nextLeaf { it is PsiWhiteSpace && it.textContains('\n') } as PsiWhiteSpace?
-            }
+            ?.nextLeaf { it is PsiWhiteSpace && it.textContains('\n') } as PsiWhiteSpace?
 
-    /** @return the EOL comment on the line with this error, if present */
-    private fun PsiFile.errorEolComment(): PsiComment? =
-        errorEol()?.let { eol ->
-            val prev = eol.prevSibling
-            return if (prev is PsiComment && prev.tokenType == EOL_COMMENT) prev else null
-        }
-
-    private fun PsiComment.appendToExistingKtlintDisableDirectiveCommentOrNull(): String? =
-        this
-            .text
-            ?.takeIf { it.isKtlintDisableDirective() }
-            ?.takeIf { !it.contains(lintError.ruleId.value) }
-            ?.let { "// ${this.text} ${lintError.ruleId.value}" }
+    private fun PsiWhiteSpace.precedingPsiCommentOrNull(): PsiComment? = prevLeaf() as? PsiComment?
 
     private fun String.isKtlintDisableDirective() =
         this

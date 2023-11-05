@@ -4,7 +4,7 @@ import com.intellij.ide.actionsOnSave.impl.ActionsOnSaveFileDocumentManagerListe
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
-import org.jetbrains.kotlin.idea.core.util.toPsiFile
+import com.intellij.psi.PsiManager
 
 class KtlintActionOnSave : ActionOnSave() {
     override fun isEnabledForProject(project: Project): Boolean {
@@ -17,7 +17,8 @@ class KtlintActionOnSave : ActionOnSave() {
     ) {
         with(FileDocumentManager.getInstance()) {
             documents
-                .mapNotNull { getFile(it)?.toPsiFile(project) }
+                .mapNotNull { getFile(it) }
+                .mapNotNull { PsiManager.getInstance(project).findFile(it) }
                 .forEach { psiFile -> ktlintFormat(psiFile, "KtlintActionOnSave") }
         }
     }
