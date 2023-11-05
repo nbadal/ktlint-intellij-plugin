@@ -1,4 +1,4 @@
-<img src='/plugin/src/main/resources/META-INF/pluginIcon.svg?raw=true' alt="plugin icon" width='128' />  
+<img src='/META-INF/pluginIcon.svg?raw=true' alt="plugin icon" width='128' />  
 
 # ktlint-intellij-plugin
 
@@ -9,11 +9,13 @@
 [![GitHub license](https://img.shields.io/github/license/nbadal/ktlint-intellij-plugin.svg)](https://github.com/nbadal/ktlint-intellij-plugin/blob/master/LICENSE.md)
 
 <!-- Plugin description -->
-[KtLint](https://pinterest.github.io/ktlint/) is an anti bikeshedding linter/formatter for Kotlin code.
+Formats code with [KtLint](https://pinterest.github.io/ktlint/) after IntelliJ IDEA formatting or on save of file.
 
-This plugin applies KtLint formatting after IntelliJ IDEA formatting. Formatting is also applied on save of file. Lint violations that can not be fixed by KtLint are highlighted as error for manual resolving. KtLint should be configured via ".editorconfig". See [KtLint configuration](https://pinterest.github.io/ktlint/latest/rules/configuration-ktlint/).
+Ktlint is an anti bikeshedding linter/formatter for Kotlin code based on the [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html), [Androids Kotlin Style guide](https://developer.android.com/kotlin/style-guide), and other best practices.
 
-This plugin was formerly known as the "Ktlint (unofficial)" plugin, developed by Nick Badal. In collaboration with KtLint maintainer Paul Dingemans, the plugin has now been reworked and rebranded as (official) "KtLint" Plugin. The plugin now puts more focus on the automatic formatting of Kotlin code. This results in more consistent code, better performance in IntelliJ IDEA, and developers spending less time on fixing errors which can be autocorrected. Finally, the plugin will be updated in same release cycle as KtLint itself.
+Violations will be autocorrected when possible based on your configuration in the `.editorconfig` file (see [KtLint configuration](https://pinterest.github.io/ktlint/latest/rules/configuration-ktlint/)). Lint violations that can not be fixed by KtLint are highlighted as error for manual resolving.
+
+This plugin was formerly known as the "Ktlint (unofficial)" plugin, developed by [Nick Badal](https://github.com/nbadal). In collaboration with KtLint maintainer [Paul Dingemans](https://github.com/paul-dingemans), the plugin has now been reworked and rebranded as (official) "KtLint" Plugin. The plugin now puts more focus on the automatic formatting of Kotlin code. This results in more consistent code, better performance in IntelliJ IDEA, and developers spending less time on fixing errors which can be autocorrected. Finally, the plugin will be updated in same release cycle as KtLint itself.
 
 Enable and configure in `Preferences` > `Tools` > `KtLint Format`.
 <!-- Plugin description end -->
