@@ -86,7 +86,10 @@ private fun executeKtlintFormat(
                     // The psiFile may contain unsaved changes. So create a snippet based on content of the psiFile *and*
                     // with the same path as that psiFile so that the correct '.editorconfig' is picked up by ktlint.
                     Code.fromSnippet(
-                        content = psiFile.text,
+                        // Get the content via the PsiDocumentManager instead of from "psiFile.text" directly. In case
+                        // the content of an active editor window is changed via a global find and replace, the document
+                        // text is updated but the Psi (and PsiFile) have not yet been changed.
+                        content = PsiDocumentManager.getInstance(project).getDocument(psiFile)!!.text,
                         // TODO: de-comment when parameter is supported in Ktlint 1.1.0
                         // path = psiFile.virtualFile.toNioPath(),
                     ),
