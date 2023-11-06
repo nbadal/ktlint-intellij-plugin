@@ -2,9 +2,9 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm")
-    `java-library`
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("java") // Java support
+    alias(libs.plugins.kotlin) // Kotlin support
+    alias(libs.plugins.shadow)
 }
 
 repositories {
@@ -12,11 +12,11 @@ repositories {
 }
 
 dependencies {
-    api("com.pinterest.ktlint:ktlint-rule-engine:1.0.1")
-    api("com.pinterest.ktlint:ktlint-cli-ruleset-core:1.0.1")
-    api("com.pinterest.ktlint:ktlint-cli-reporter-core:1.0.1")
-    api("com.pinterest.ktlint:ktlint-cli-reporter-baseline:1.0.1")
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.0.1")
+    api(libs.ktlintRuleEngine)
+    api(libs.ktlintCliRulesetCore)
+    api(libs.ktlintCliReporterCore)
+    api(libs.ktlintCliReporterBaselineCore)
+    implementation(libs.ktlintRulesetStandard)
 }
 
 tasks {
