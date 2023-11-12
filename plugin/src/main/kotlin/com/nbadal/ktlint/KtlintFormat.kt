@@ -69,8 +69,12 @@ private fun executeKtlintFormat(
             KtlintNotifier
                 .notifyErrorWithSettings(
                     project = project,
-                    subtitle = "Error in external ruleset JAR",
-                    content = project.config().ruleSetProviders.error.orEmpty(),
+                    title = "Error in external ruleset JAR",
+                    message =
+                        """
+                        One or more of the external rule set JAR's defined in the ktlint settings, can not be loaded.
+                        Error: ${project.config().ruleSetProviders.error.orEmpty()}
+                        """.trimMargin(),
                 )
             return EMPTY_KTLINT_FORMAT_RESULT
         }
@@ -113,13 +117,30 @@ private fun executeKtlintFormat(
             psiFile.viewProvider.document.setText(formattedCode)
         }
         println("Finished ktlintFormat on file '$virtualFileName' triggered by '$triggeredBy' successfully")
-    } catch (pe: KtLintParseException) {
-        // TODO: report to rollbar?
-        println("ktlintFormat on file '$virtualFileName', KtlintParseException: " + pe.stackTrace)
+    } catch (ktLintParseException: KtLintParseException) {
+        // Most likely the file contains a compilation error which prevents it from being parsed. The user should resolve those errors.
+        // The stacktrace is excluded from the message as it would distract from resolving the error.
+        KtlintNotifier.notifyWarning(
+            project = project,
+            title = "Parsing error",
+            message =
+                """
+                This file can not be parsed by ktlint. Please resolve all (compilation) errors first.
+                Error: ${ktLintParseException.message}
+                """.trimIndent(),
+        )
         return EMPTY_KTLINT_FORMAT_RESULT
-    } catch (re: KtLintRuleException) {
-        // No valid rules were passed
-        println("ktlintFormat on file '$virtualFileName', KtLintRuleException: " + re.stackTrace)
+    } catch (ktLintRuleException: KtLintRuleException) {
+        KtlintNotifier.notifyError(
+            project = project,
+            title = "KtLintRuleException",
+            message =
+                """
+                An error occurred in a rule. Please see stacktrace below for rule that caused the problem and contact maintainer of the
+                rule when the error can be reproduced.
+                ${ktLintRuleException.stackTraceToString()}
+                """.trimIndent(),
+        )
         return EMPTY_KTLINT_FORMAT_RESULT
     }
 

@@ -12,7 +12,7 @@
         <projectConfigurable groupId="tools" displayName="KtLint" id="preferences.ktlint-plugin"
                              instance="com.nbadal.ktlint.KtlintConfig"/>
         <errorHandler implementation="com.nbadal.ktlint.KtlintErrorHandler" />
-        <notificationGroup id="ktlint Notifications" displayType="BALLOON"/>
+        <notificationGroup id="Ktlint Notifications" displayType="BALLOON"/>
         <actionOnSaveInfoProvider implementation="com.nbadal.ktlint.KtlintActionOnSaveInfoProvider"
                                   order="after FormatOnSaveInfoProvider"/>
         <actionOnSave implementation="com.nbadal.ktlint.KtlintActionOnSave" order="after FormatOnSaveAction"/>

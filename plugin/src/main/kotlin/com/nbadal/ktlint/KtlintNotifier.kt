@@ -9,18 +9,36 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 
 object KtlintNotifier {
+    private const val KTLINT_NOTIFICATION_GROUP = "Ktlint Notifications"
+
+    fun notifyWarning(
+        project: Project,
+        title: String,
+        message: String,
+    ) = createNotification(title, message, NotificationType.WARNING).notify(project)
+
+    fun notifyError(
+        project: Project,
+        title: String,
+        message: String,
+    ) = createNotification(title, message, NotificationType.ERROR).notify(project)
+
     fun notifyErrorWithSettings(
         project: Project,
-        subtitle: String,
-        content: String,
-    ) = NotificationGroupManager.getInstance()
-        .getNotificationGroup("ktlint Notifications")
-        .createNotification("KtLint error", NotificationType.ERROR).apply {
-            setSubtitle(subtitle)
-            setContent(content)
-            addAction(OpenSettingsAction(project))
-            notify(project)
-        }
+        title: String,
+        message: String,
+    ) = createNotification(title, message, NotificationType.ERROR)
+        .addAction(OpenSettingsAction(project))
+        .notify(project)
+
+    private fun createNotification(
+        title: String,
+        message: String,
+        notificationType: NotificationType,
+    ) = NotificationGroupManager
+        .getInstance()
+        .getNotificationGroup(KTLINT_NOTIFICATION_GROUP)
+        .createNotification(title, message, notificationType)
 
     private class OpenSettingsAction(val project: Project) : NotificationAction("Open ktlint settings...") {
         override fun actionPerformed(
