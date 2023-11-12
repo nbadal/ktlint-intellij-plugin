@@ -88,7 +88,12 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
                                 propertyTypes = ruleProviders.propertyTypes(),
                             ),
                     )
-                }
+                }.also { ktlintRuleEngine = it }
+
+    /**
+     * Clears the ".editorconfig" cache so that it gets reloaded.
+     */
+    fun resetKtlintRuleEngine() = ktlintRuleEngine?.trimMemory()
 
     override fun getState(): KtlintConfigStorage = this
 
