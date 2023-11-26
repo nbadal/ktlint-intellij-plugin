@@ -35,38 +35,37 @@ class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
         errors: List<LintError>?,
         holder: AnnotationHolder,
     ) {
-        when (file.project.config().ktlintMode) {
-            NOT_INITIALIZED -> {
-                errors?.forEach { lintError ->
-                    holder
-                        .newAnnotation(HighlightSeverity.WARNING, lintError.errorMessage())
-                        .range(errorTextRange(file, lintError))
-                        .withFix(KtlintModeIntention(ENABLED))
-                        .withFix(KtlintModeIntention(DISABLED))
-                        .create()
-                }
-            }
+        errors?.forEach { lintError ->
+            errorTextRange(file, lintError)
+                ?.let { errorTextRange ->
+                    when (file.project.config().ktlintMode) {
+                        NOT_INITIALIZED -> {
+                            holder
+                                .newAnnotation(HighlightSeverity.WARNING, lintError.errorMessage())
+                                .range(errorTextRange)
+                                .withFix(KtlintModeIntention(ENABLED))
+                                .withFix(KtlintModeIntention(DISABLED))
+                                .create()
+                        }
 
-            ENABLED -> {
-                errors?.forEach { lintError ->
-                    holder
-                        .newAnnotation(HighlightSeverity.ERROR, lintError.errorMessage())
-                        .range(errorTextRange(file, lintError))
-                        .withFix(KtlintRuleSuppressIntention(lintError))
-                        .withFix(KtlintModeIntention(DISABLED))
-                        .create()
-                }
-            }
+                        ENABLED -> {
+                            holder
+                                .newAnnotation(HighlightSeverity.ERROR, lintError.errorMessage())
+                                .range(errorTextRange)
+                                .withFix(KtlintRuleSuppressIntention(lintError))
+                                .withFix(KtlintModeIntention(DISABLED))
+                                .create()
+                        }
 
-            DISABLED -> {
-                errors?.forEach { lintError ->
-                    holder
-                        .newAnnotation(HighlightSeverity.WEAK_WARNING, lintError.errorMessage())
-                        .range(errorTextRange(file, lintError))
-                        .withFix(KtlintModeIntention(ENABLED))
-                        .create()
+                        DISABLED -> {
+                            holder
+                                .newAnnotation(HighlightSeverity.WEAK_WARNING, lintError.errorMessage())
+                                .range(errorTextRange)
+                                .withFix(KtlintModeIntention(ENABLED))
+                                .create()
+                        }
+                    }
                 }
-            }
         }
     }
 
@@ -75,12 +74,17 @@ class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
     private fun errorTextRange(
         psiFile: PsiFile,
         lintError: LintError,
-    ): TextRange {
+    ): TextRange? {
         val document = psiFile.viewProvider.document!!
-        return psiFile
-            .findElementAt(lintError.offsetFromStartOf(document))
-            ?.let { TextRange.from(it.startOffset, it.textLength) }
-            ?: TextRange(lintError.lineStartOffset(document), lintError.getLineEndOffset(document))
+        return if (document.textLength == 0) {
+            // It is not possible to draw an annotation on empty file
+            null
+        } else {
+            psiFile
+                .findElementAt(lintError.offsetFromStartOf(document))
+                ?.let { TextRange.from(it.startOffset, it.textLength) }
+                ?: TextRange(lintError.lineStartOffset(document), lintError.getLineEndOffset(document))
+        }
     }
 
     private fun LintError.offsetFromStartOf(document: Document) =
