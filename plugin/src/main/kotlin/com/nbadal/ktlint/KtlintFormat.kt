@@ -17,50 +17,43 @@ import java.nio.file.Path
 internal fun ktlintLint(
     psiFile: PsiFile,
     triggeredBy: String,
-) = executeKtlintFormat(psiFile, triggeredBy, false)
+) = if (psiFile.canBeProcessed()) {
+    executeKtlintFormat(psiFile, triggeredBy, false)
+} else {
+    EMPTY_LINT_ERRORS
+}
 
 internal fun ktlintFormat(
     psiFile: PsiFile,
     triggeredBy: String,
 ) {
-    val project = psiFile.project
-    val document = psiFile.viewProvider.document
-    PsiDocumentManager
-        .getInstance(project)
-        .doPostponedOperationsAndUnblockDocument(document)
-    WriteCommandAction.runWriteCommandAction(project) {
-        executeKtlintFormat(psiFile, triggeredBy, true)
+    if (psiFile.canBeProcessed()) {
+        val project = psiFile.project
+        val document = psiFile.viewProvider.document
+        PsiDocumentManager
+            .getInstance(project)
+            .doPostponedOperationsAndUnblockDocument(document)
+        WriteCommandAction.runWriteCommandAction(project) {
+            executeKtlintFormat(psiFile, triggeredBy, true)
+        }
+        FileDocumentManager.getInstance().saveDocument(document)
+        DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
+        PsiDocumentManager
+            .getInstance(project)
+            .doPostponedOperationsAndUnblockDocument(document)
     }
-    FileDocumentManager.getInstance().saveDocument(document)
-    DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
-    PsiDocumentManager
-        .getInstance(project)
-        .doPostponedOperationsAndUnblockDocument(document)
 }
+
+private fun PsiFile.canBeProcessed() = virtualFile.extension in setOf("kt", "kts") && virtualFile.path != "/fragment.kt"
 
 private fun executeKtlintFormat(
     psiFile: PsiFile,
     triggeredBy: String,
     writeFormattedCode: Boolean = false,
 ): List<LintError> {
-    if (psiFile.virtualFile.extension !in setOf("kt", "kts")) {
-        // Not a file which can be processed by ktlint
-        return EMPTY_KTLINT_FORMAT_RESULT
-    }
-
-    val virtualFileName = psiFile.virtualFile.name
+    println("Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'")
 
     val project = psiFile.project
-
-    println("Start ktlintFormat on file '$virtualFileName' triggered by '$triggeredBy'")
-
-    // KtLint wants the full file path in order to search for .editorconfig files
-    val filePath = psiFile.virtualFile.path
-
-    if (filePath == "/fragment.kt") {
-        return EMPTY_KTLINT_FORMAT_RESULT
-    }
-
     project
         .config()
         .ruleSetProviders
@@ -76,10 +69,12 @@ private fun executeKtlintFormat(
                         Error: ${project.config().ruleSetProviders.error.orEmpty()}
                         """.trimMargin(),
                 )
-            return EMPTY_KTLINT_FORMAT_RESULT
+            return EMPTY_LINT_ERRORS
         }
 
-    val baselineErrors = project.baselineErrors(filePath)
+    // KtLint wants the full file path in order to search for .editorconfig files
+    val baselineErrors = project.baselineErrors(psiFile.virtualFile.path)
+
     val lintErrors = mutableListOf<LintError>()
     try {
         val formattedCode =
@@ -111,12 +106,12 @@ private fun executeKtlintFormat(
                         else -> lintErrors.add(error)
                     }
                 }
-                ?: return EMPTY_KTLINT_FORMAT_RESULT
-                    .also { println("Could not create ktlintRuleEngine for path '$filePath'") }
+                ?: return EMPTY_LINT_ERRORS
+                    .also { println("Could not create ktlintRuleEngine for path '${psiFile.virtualFile.path}'") }
         if (writeFormattedCode) {
             psiFile.viewProvider.document.setText(formattedCode)
         }
-        println("Finished ktlintFormat on file '$virtualFileName' triggered by '$triggeredBy' successfully")
+        println("Finished ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy' successfully")
     } catch (ktLintParseException: KtLintParseException) {
         // Most likely the file contains a compilation error which prevents it from being parsed. The user should resolve those errors.
         // The stacktrace is excluded from the message as it would distract from resolving the error.
@@ -129,7 +124,7 @@ private fun executeKtlintFormat(
                 Error: ${ktLintParseException.message}
                 """.trimIndent(),
         )
-        return EMPTY_KTLINT_FORMAT_RESULT
+        return EMPTY_LINT_ERRORS
     } catch (ktLintRuleException: KtLintRuleException) {
         KtlintNotifier.notifyError(
             project = project,
@@ -141,7 +136,7 @@ private fun executeKtlintFormat(
                 ${ktLintRuleException.stackTraceToString()}
                 """.trimIndent(),
         )
-        return EMPTY_KTLINT_FORMAT_RESULT
+        return EMPTY_LINT_ERRORS
     }
 
     return lintErrors
@@ -177,4 +172,4 @@ private fun String.pathRelativeTo(projectBasePath: String?): String =
         removePrefix(projectBasePath).removePrefix("/")
     }
 
-private val EMPTY_KTLINT_FORMAT_RESULT = emptyList<LintError>()
+private val EMPTY_LINT_ERRORS = emptyList<LintError>()
