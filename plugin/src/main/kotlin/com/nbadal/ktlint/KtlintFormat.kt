@@ -44,7 +44,15 @@ internal fun ktlintFormat(
     }
 }
 
-private fun PsiFile.canBeProcessed() = virtualFile.extension in setOf("kt", "kts") && virtualFile.path != "/fragment.kt"
+private fun PsiFile.canBeProcessed() =
+    if (virtualFile == null) {
+        println("prevent NPE")
+        false
+    } else {
+        virtualFile != null &&
+            virtualFile.extension in setOf("kt", "kts") &&
+            virtualFile.path != "/fragment.kt"
+    }
 
 private fun executeKtlintFormat(
     psiFile: PsiFile,
