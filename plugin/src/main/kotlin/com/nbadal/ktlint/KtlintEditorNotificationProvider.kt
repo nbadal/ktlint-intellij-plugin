@@ -16,11 +16,11 @@ class KtlintEditorNotificationProvider : EditorNotifications.Provider<EditorNoti
     override fun getKey(): Key<EditorNotificationPanel> = key
 
     override fun createNotificationPanel(
-        file: VirtualFile,
+        virtualFile: VirtualFile,
         fileEditor: FileEditor,
         project: Project,
     ): EditorNotificationPanel? =
-        if (project.ktlintNotInitialized()) {
+        if (virtualFile.isKotlinFile() && project.ktlintNotInitialized()) {
             val panel = EditorNotificationPanel(fileEditor, LightColors.YELLOW)
             panel.text = "Ktlint is not yet configured for this project"
             panel.createActionLabel("Enable") {
