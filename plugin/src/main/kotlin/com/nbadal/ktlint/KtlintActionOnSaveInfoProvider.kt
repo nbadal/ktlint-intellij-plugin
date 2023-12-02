@@ -17,8 +17,9 @@ class KtlintActionOnSaveInfoProvider : ActionOnSaveInfoProvider() {
     }
 }
 
-private class KtlintOnSaveActionInfo(actionOnSaveContext: ActionOnSaveContext) :
-    ActionOnSaveBackedByOwnConfigurable<KtlintConfig>(
+private class KtlintOnSaveActionInfo(
+    actionOnSaveContext: ActionOnSaveContext,
+) : ActionOnSaveBackedByOwnConfigurable<KtlintConfig>(
         actionOnSaveContext,
         KTLINT_FORMAT_CONFIGURABLE_ID,
         KtlintConfig::class.java,

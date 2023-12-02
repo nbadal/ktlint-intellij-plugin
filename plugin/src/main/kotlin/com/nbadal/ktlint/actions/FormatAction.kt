@@ -31,7 +31,9 @@ class FormatAction : AnAction() {
         }
     }
 
-    class KtlintFormatContentIterator(val project: Project) : ContentIterator {
+    class KtlintFormatContentIterator(
+        val project: Project,
+    ) : ContentIterator {
         override fun processFile(fileOrDir: VirtualFile): Boolean {
             fileOrDir
                 .takeUnless { it.isDirectory }

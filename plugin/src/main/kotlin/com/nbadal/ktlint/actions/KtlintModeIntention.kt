@@ -11,7 +11,10 @@ import com.nbadal.ktlint.KtlintConfigStorage
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.ENABLED
 import com.nbadal.ktlint.config
 
-class KtlintModeIntention(private val ktlintMode: KtlintConfigStorage.KtlintMode) : BaseIntentionAction(), LowPriorityAction {
+class KtlintModeIntention(
+    private val ktlintMode: KtlintConfigStorage.KtlintMode,
+) : BaseIntentionAction(),
+    LowPriorityAction {
     override fun getFamilyName() = "KtLint"
 
     override fun getText() =

@@ -11,9 +11,9 @@ import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.api.LintError
+import org.ec4j.core.parser.ParseException
 import java.nio.file.Files
 import java.nio.file.Path
-import org.ec4j.core.parser.ParseException
 
 internal fun ktlintLint(
     psiFile: PsiFile,
@@ -138,7 +138,7 @@ private fun executeKtlintFormat(
             project = project,
             title = "KtLintRuleException",
             message =
-            """
+                """
                 An error occurred in a rule. Please see stacktrace below for rule that caused the problem and contact maintainer of the
                 rule when the error can be reproduced.
                 ${ktLintRuleException.stackTraceToString()}
