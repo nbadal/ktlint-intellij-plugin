@@ -6,6 +6,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
+import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.ENABLED
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
@@ -59,9 +60,13 @@ private fun executeKtlintFormat(
     triggeredBy: String,
     writeFormattedCode: Boolean = false,
 ): List<LintError> {
+    val project = psiFile.project
+    if (project.config().ktlintMode != ENABLED) {
+        return EMPTY_LINT_ERRORS
+    }
+
     println("Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'")
 
-    val project = psiFile.project
     project
         .config()
         .ruleSetProviders
