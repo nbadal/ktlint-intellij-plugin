@@ -17,7 +17,7 @@ import java.nio.file.Path
 internal fun ktlintLint(
     psiFile: PsiFile,
     triggeredBy: String,
-) = if (psiFile.canBeProcessed()) {
+) = if (psiFile.virtualFile.isKotlinFile()) {
     executeKtlintFormat(psiFile, triggeredBy, false)
 } else {
     EMPTY_LINT_ERRORS
@@ -27,7 +27,7 @@ internal fun ktlintFormat(
     psiFile: PsiFile,
     triggeredBy: String,
 ) {
-    if (psiFile.canBeProcessed()) {
+    if (psiFile.virtualFile.isKotlinFile()) {
         val project = psiFile.project
         val document = psiFile.viewProvider.document
         PsiDocumentManager
@@ -43,16 +43,6 @@ internal fun ktlintFormat(
             .doPostponedOperationsAndUnblockDocument(document)
     }
 }
-
-private fun PsiFile.canBeProcessed() =
-    if (virtualFile == null) {
-        println("prevent NPE")
-        false
-    } else {
-        virtualFile != null &&
-            virtualFile.extension in setOf("kt", "kts") &&
-            virtualFile.path != "/fragment.kt"
-    }
 
 private fun executeKtlintFormat(
     psiFile: PsiFile,
