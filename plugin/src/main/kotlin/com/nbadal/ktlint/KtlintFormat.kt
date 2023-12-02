@@ -28,6 +28,7 @@ internal fun ktlintLint(
 internal fun ktlintFormat(
     psiFile: PsiFile,
     triggeredBy: String,
+    forceFormat: Boolean = false,
 ) {
     if (psiFile.virtualFile.isKotlinFile()) {
         val project = psiFile.project
@@ -36,7 +37,7 @@ internal fun ktlintFormat(
             .getInstance(project)
             .doPostponedOperationsAndUnblockDocument(document)
         WriteCommandAction.runWriteCommandAction(project) {
-            executeKtlintFormat(psiFile, triggeredBy, true)
+            executeKtlintFormat(psiFile, triggeredBy, true, forceFormat)
         }
         FileDocumentManager.getInstance().saveDocument(document)
         DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
@@ -50,9 +51,10 @@ private fun executeKtlintFormat(
     psiFile: PsiFile,
     triggeredBy: String,
     writeFormattedCode: Boolean = false,
+    forceFormat: Boolean = false,
 ): List<LintError> {
     val project = psiFile.project
-    if (project.config().ktlintMode != ENABLED) {
+    if (project.config().ktlintMode != ENABLED && !forceFormat) {
         return EMPTY_LINT_ERRORS
     }
 
@@ -93,6 +95,7 @@ private fun executeKtlintFormat(
                         // the content of an active editor window is changed via a global find and replace, the document
                         // text is updated but the Psi (and PsiFile) have not yet been changed.
                         content = PsiDocumentManager.getInstance(project).getDocument(psiFile)!!.text,
+                        script = psiFile.virtualFile.path.endsWith(".kts"),
                         // TODO: de-comment when parameter is supported in Ktlint 1.1.0
                         // path = psiFile.virtualFile.toNioPath(),
                     ),

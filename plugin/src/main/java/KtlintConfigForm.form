@@ -14,7 +14,7 @@
         </constraints>
         <properties>
           <selected value="true"/>
-          <text resource-bundle="strings" key="enableKtlintText"/>
+          <text resource-bundle="strings" key="enableKtlintLabel"/>
           <toolTipText resource-bundle="strings" key="enableKtlintToolTip"/>
         </properties>
       </component>
@@ -29,6 +29,7 @@
         </constraints>
         <properties>
           <text resource-bundle="strings" key="rulesetLabel"/>
+          <toolTipText resource-bundle="strings" key="rulesetToolTip"/>
         </properties>
       </component>
       <component id="c98b6" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="externalJarPaths">
@@ -61,6 +62,7 @@
         </constraints>
         <properties>
           <text resource-bundle="strings" key="baselineLabel"/>
+          <toolTipText resource-bundle="strings" key="baselineToolTip"/>
         </properties>
       </component>
       <component id="147a1" class="javax.swing.JCheckBox" binding="formatOnSave">
@@ -69,7 +71,8 @@
         </constraints>
         <properties>
           <enabled value="true"/>
-          <text value="Format on save"/>
+          <text resource-bundle="strings" key="formatOnSaveLabel"/>
+          <toolTipText resource-bundle="strings" key="formatOnSaveToolTip"/>
         </properties>
       </component>
     </children>
