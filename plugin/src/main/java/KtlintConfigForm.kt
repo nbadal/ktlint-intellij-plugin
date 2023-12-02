@@ -16,7 +16,10 @@ import javax.swing.JCheckBox
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-class KtlintConfigForm(private val project: Project, private val ktlintConfigStorage: KtlintConfigStorage) {
+class KtlintConfigForm(
+    private val project: Project,
+    private val ktlintConfigStorage: KtlintConfigStorage,
+) {
     private lateinit var mainPanel: JPanel
     private var ktlintMode = NOT_INITIALIZED
     lateinit var enableKtlint: JCheckBox
@@ -74,12 +77,14 @@ class KtlintConfigForm(private val project: Project, private val ktlintConfigSto
                 DISABLED
             }
         ktlintConfigStorage.externalJarPaths =
-            externalJarPaths.text
+            externalJarPaths
+                .text
                 .split(",")
                 .map { it.trim() }
                 .filter { it.isNotBlank() }
         ktlintConfigStorage.baselinePath =
-            baselinePath.text
+            baselinePath
+                .text
                 .trim()
                 .let { it.ifBlank { null } }
     }

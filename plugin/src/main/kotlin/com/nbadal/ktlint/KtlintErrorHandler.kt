@@ -21,11 +21,12 @@ class KtlintErrorHandler : ErrorReportSubmitter() {
         consumer: Consumer<in SubmittedReportInfo>,
     ): Boolean {
         val config =
-            withAccessToken(BuildConfig.ROLLBAR_ACCESS_TOKEN).apply {
-                environment("production")
-                appPackages(listOf(BuildConfig.NAME))
-                codeVersion(BuildConfig.VERSION)
-            }.build()
+            withAccessToken(BuildConfig.ROLLBAR_ACCESS_TOKEN)
+                .apply {
+                    environment("production")
+                    appPackages(listOf(BuildConfig.NAME))
+                    codeVersion(BuildConfig.VERSION)
+                }.build()
 
         val rollbar = Rollbar.init(config)
         events.forEach { event ->

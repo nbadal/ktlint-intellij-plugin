@@ -8,9 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
 
 class KtlintActionOnSave : ActionOnSave() {
-    override fun isEnabledForProject(project: Project): Boolean {
-        return project.ktlintEnabled()
-    }
+    override fun isEnabledForProject(project: Project): Boolean = project.ktlintEnabled()
 
     override fun processDocuments(
         project: Project,
