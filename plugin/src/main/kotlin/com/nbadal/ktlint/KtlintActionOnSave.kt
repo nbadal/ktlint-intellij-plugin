@@ -14,24 +14,26 @@ class KtlintActionOnSave : ActionOnSave() {
         project: Project,
         documents: Array<out Document>,
     ) {
-        val psiFiles =
-            with(FileDocumentManager.getInstance()) {
-                documents
-                    .mapNotNull { getFile(it) }
-                    .mapNotNull { PsiManager.getInstance(project).findFile(it) }
-            }
+        if (project.config().formatOnSave) {
+            val psiFiles =
+                with(FileDocumentManager.getInstance()) {
+                    documents
+                        .mapNotNull { getFile(it) }
+                        .mapNotNull { PsiManager.getInstance(project).findFile(it) }
+                }
 
-        // If an any ".editorconfig" file is saved, then complete saving of that file and reset the KtlintRuleEngine before processing the
-        // other changed documents so the change ".editorconfig" is taken into account while processing those documents
-        psiFiles
-            .firstOrNull { it.language == EDITOR_CONFIG_LANGUAGE }
-            ?.let {
-                // Complete the saving of the ".editorconfig" before processing
-                FileDocumentManager.getInstance().saveDocument(it.viewProvider.document)
-                project.config().resetKtlintRuleEngine()
-            }
+            // If an any ".editorconfig" file is saved, then complete saving of that file and reset the KtlintRuleEngine before processing the
+            // other changed documents so the change ".editorconfig" is taken into account while processing those documents
+            psiFiles
+                .firstOrNull { it.language == EDITOR_CONFIG_LANGUAGE }
+                ?.let {
+                    // Complete the saving of the ".editorconfig" before processing
+                    FileDocumentManager.getInstance().saveDocument(it.viewProvider.document)
+                    project.config().resetKtlintRuleEngine()
+                }
 
-        psiFiles.forEach { psiFile -> ktlintFormat(psiFile, "KtlintActionOnSave") }
+            psiFiles.forEach { psiFile -> ktlintFormat(psiFile, "KtlintActionOnSave") }
+        }
     }
 }
 

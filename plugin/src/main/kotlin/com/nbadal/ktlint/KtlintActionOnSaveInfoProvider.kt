@@ -40,15 +40,15 @@ private class KtlintOnSaveActionInfo(
         return null
     }
 
-    override fun isActionOnSaveEnabledAccordingToStoredState() = project.ktlintEnabled()
+    override fun isActionOnSaveEnabledAccordingToStoredState() = project.config().formatOnSave
 
-    override fun isActionOnSaveEnabledAccordingToUiState(configurable: KtlintConfig) = configurable.enableKtlintCheckbox.isSelected
+    override fun isActionOnSaveEnabledAccordingToUiState(ktlintConfig: KtlintConfig) = ktlintConfig.formatOnSaveCheckbox.isSelected
 
     override fun setActionOnSaveEnabled(
         configurable: KtlintConfig,
         enabled: Boolean,
     ) {
-        configurable.enableKtlintCheckbox.isSelected = enabled
+        configurable.formatOnSaveCheckbox.isSelected = enabled
     }
 
     override fun getActionLinks() = listOf(createGoToPageInSettingsLink(KTLINT_FORMAT_CONFIGURABLE_ID))

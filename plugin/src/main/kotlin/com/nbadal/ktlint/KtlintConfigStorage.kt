@@ -32,6 +32,9 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     var ktlintMode: KtlintMode = NOT_INITIALIZED
 
     @Tag
+    var formatOnSave: Boolean = true
+
+    @Tag
     var baselinePath: String? = null
 
     @Tag
@@ -99,6 +102,7 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
 
     override fun loadState(state: KtlintConfigStorage) {
         this.ktlintMode = state.ktlintMode
+        this.formatOnSave = state.formatOnSave
         this.baselinePath = state.baselinePath
         this.externalJarPaths = state.externalJarPaths
     }

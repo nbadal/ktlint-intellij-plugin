@@ -13,6 +13,8 @@ class KtlintConfig(
 
     val enableKtlintCheckbox by form::enableKtlint
 
+    val formatOnSaveCheckbox by form::formatOnSave
+
     override fun createComponent(): JComponent = form.createComponent()
 
     override fun isModified() = form.isModified

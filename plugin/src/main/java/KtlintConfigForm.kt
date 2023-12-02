@@ -24,6 +24,8 @@ class KtlintConfigForm(
     private var ktlintMode = NOT_INITIALIZED
     lateinit var enableKtlint: JCheckBox
         private set
+    lateinit var formatOnSave: JCheckBox
+        private set
     private lateinit var externalJarPaths: TextFieldWithBrowseButton
     private lateinit var baselinePath: TextFieldWithBrowseButton
     private lateinit var githubButton: JButton
@@ -38,6 +40,7 @@ class KtlintConfigForm(
         // Disable fields when plugin disabled
         val fieldsToDisable =
             listOf(
+                formatOnSave,
                 externalJarPaths,
                 baselinePath,
             )
@@ -76,6 +79,7 @@ class KtlintConfigForm(
             } else {
                 DISABLED
             }
+        ktlintConfigStorage.formatOnSave = formatOnSave.isSelected
         ktlintConfigStorage.externalJarPaths =
             externalJarPaths
                 .text
@@ -92,6 +96,7 @@ class KtlintConfigForm(
     fun reset() {
         ktlintMode = ktlintConfigStorage.ktlintMode
         enableKtlint.isSelected = (ktlintConfigStorage.ktlintMode != DISABLED)
+        formatOnSave.isSelected = ktlintConfigStorage.formatOnSave
         baselinePath.text = ktlintConfigStorage.baselinePath.orEmpty()
         externalJarPaths.text = ktlintConfigStorage.externalJarPaths.joinToString(", ")
     }
@@ -100,6 +105,7 @@ class KtlintConfigForm(
         get() =
             !(
                 Objects.equals(ktlintConfigStorage.ktlintMode, ktlintMode) &&
+                    Objects.equals(ktlintConfigStorage.formatOnSave, formatOnSave.isSelected) &&
                     Objects.equals(ktlintConfigStorage.baselinePath, baselinePath.text) &&
                     Objects.equals(ktlintConfigStorage.externalJarPaths, externalJarPaths.text)
             )
