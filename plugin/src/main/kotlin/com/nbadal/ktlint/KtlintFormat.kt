@@ -11,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.api.LintError
+import org.ec4j.core.parser.ParseException
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -46,7 +47,6 @@ internal fun ktlintFormat(
 
 private fun PsiFile.canBeProcessed() =
     if (virtualFile == null) {
-        println("prevent NPE")
         false
     } else {
         virtualFile != null &&
@@ -142,6 +142,28 @@ private fun executeKtlintFormat(
                 An error occurred in a rule. Please see stacktrace below for rule that caused the problem and contact maintainer of the
                 rule when the error can be reproduced.
                 ${ktLintRuleException.stackTraceToString()}
+                """.trimIndent(),
+        )
+        return EMPTY_LINT_ERRORS
+    } catch (parseException: ParseException) {
+        KtlintNotifier.notifyError(
+            project = project,
+            title = "Invalid editorconfig",
+            message =
+                """
+                An error occurred while reading the '.editorconfig':
+                ${parseException.message}
+                """.trimIndent(),
+        )
+        return EMPTY_LINT_ERRORS
+    } catch (exception: Exception) {
+        KtlintNotifier.notifyError(
+            project = project,
+            title = "Invalid editorconfig",
+            message =
+                """
+                An error occurred while processing file '${psiFile.virtualFile.path}':
+                ${exception.printStackTrace()}
                 """.trimIndent(),
         )
         return EMPTY_LINT_ERRORS

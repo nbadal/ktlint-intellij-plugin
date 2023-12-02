@@ -40,7 +40,9 @@ object KtlintNotifier {
         .getNotificationGroup(KTLINT_NOTIFICATION_GROUP)
         .createNotification(title, message, notificationType)
 
-    private class OpenSettingsAction(val project: Project) : NotificationAction("Open ktlint settings...") {
+    private class OpenSettingsAction(
+        val project: Project,
+    ) : NotificationAction("Open ktlint settings...") {
         override fun actionPerformed(
             e: AnActionEvent,
             notification: Notification,

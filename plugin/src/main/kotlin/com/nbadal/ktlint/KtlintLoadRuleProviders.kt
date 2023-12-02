@@ -31,8 +31,7 @@ private fun <T> Class<T>.loadFromJarFiles(
                     .also { providers -> println("Loaded ${providers.size} providers from $url") }
                     .filterNot { providerIdsFromKtlintJars.contains(providerId(it)) }
                     .filterNotNull()
-            }
-            .toSet()
+            }.toSet()
     return providersFromKtlintJars
         .plus(providersFromCustomJars)
         .filterNotNull()

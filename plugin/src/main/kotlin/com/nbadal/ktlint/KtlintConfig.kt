@@ -6,7 +6,9 @@ import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.project.Project
 import javax.swing.JComponent
 
-class KtlintConfig(private val project: Project) : SearchableConfigurable {
+class KtlintConfig(
+    private val project: Project,
+) : SearchableConfigurable {
     private val form = KtlintConfigForm(project, project.config())
 
     val enableKtlintCheckbox by form::enableKtlint

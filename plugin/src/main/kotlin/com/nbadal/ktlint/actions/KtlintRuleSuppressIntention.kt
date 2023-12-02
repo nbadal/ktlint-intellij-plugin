@@ -24,7 +24,10 @@ import com.nbadal.ktlint.elementTypeName
 import com.nbadal.ktlint.findElementType
 import com.pinterest.ktlint.rule.engine.api.LintError
 
-class KtlintRuleSuppressIntention(private val lintError: LintError) : BaseIntentionAction(), HighPriorityAction {
+class KtlintRuleSuppressIntention(
+    private val lintError: LintError,
+) : BaseIntentionAction(),
+    HighPriorityAction {
     override fun getFamilyName() = "KtLint"
 
     override fun getText() = "Suppress '${lintError.ruleId.value}'"

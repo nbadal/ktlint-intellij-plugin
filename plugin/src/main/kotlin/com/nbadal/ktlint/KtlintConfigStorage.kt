@@ -121,7 +121,9 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
         DISABLED,
     }
 
-    data class RuleSetProviders(val externalJarPaths: List<String>) {
+    data class RuleSetProviders(
+        val externalJarPaths: List<String>,
+    ) {
         private var _error: String? = null
 
         val error: String?
@@ -146,7 +148,9 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
             }
     }
 
-    data class Baseline(val baselinePath: String?) {
+    data class Baseline(
+        val baselinePath: String?,
+    ) {
         val lintErrorsPerFile: Map<String, List<KtlintCliError>> =
             baselinePath
                 ?.let { path ->
