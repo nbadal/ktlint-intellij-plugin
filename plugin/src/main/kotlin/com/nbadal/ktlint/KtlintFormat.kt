@@ -93,6 +93,7 @@ private fun executeKtlintFormat(
                         // the content of an active editor window is changed via a global find and replace, the document
                         // text is updated but the Psi (and PsiFile) have not yet been changed.
                         content = PsiDocumentManager.getInstance(project).getDocument(psiFile)!!.text,
+                        script = psiFile.virtualFile.name.endsWith(".kts"),
                         // TODO: de-comment when parameter is supported in Ktlint 1.1.0
                         // path = psiFile.virtualFile.toNioPath(),
                     ),
@@ -124,7 +125,7 @@ private fun executeKtlintFormat(
             title = "Parsing error",
             message =
                 """
-                This file can not be parsed by ktlint. Please resolve all (compilation) errors first.
+                File '${psiFile.virtualFile.path}' can not be parsed by ktlint. Please resolve all (compilation) errors first.
                 Error: ${ktLintParseException.message}
                 """.trimIndent(),
         )
