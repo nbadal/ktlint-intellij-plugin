@@ -31,6 +31,14 @@ object KtlintNotifier {
         .addAction(OpenSettingsAction(project))
         .notify(project)
 
+    fun notifyInformationWithSettings(
+        project: Project,
+        title: String,
+        message: String,
+    ) = createNotification(title, message, NotificationType.INFORMATION)
+        .addAction(OpenSettingsAction(project))
+        .notify(project)
+
     private fun createNotification(
         title: String,
         message: String,

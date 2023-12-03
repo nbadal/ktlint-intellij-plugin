@@ -8,6 +8,7 @@ import com.intellij.openapi.roots.ContentIterator
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
+import com.nbadal.ktlint.KtlintNotifier
 import com.nbadal.ktlint.ktlintEnabled
 import com.nbadal.ktlint.ktlintFormat
 
@@ -17,7 +18,7 @@ class FormatAction : AnAction() {
         val project = event.getData(CommonDataKeys.PROJECT) ?: return
 
         event.presentation.apply {
-            isEnabledAndVisible = files.isNotEmpty() && project.ktlintEnabled()
+            isEnabledAndVisible = files.isNotEmpty()
         }
     }
 
@@ -29,6 +30,13 @@ class FormatAction : AnAction() {
         files.forEach {
             VfsUtilCore.iterateChildrenRecursively(it, null, ktlintFormatContentIterator)
         }
+        if (!project.ktlintEnabled()) {
+            KtlintNotifier.notifyInformationWithSettings(
+                project,
+                "Format with Ktlint",
+                "Formatting is completed. Get more value out of ktlint by enabling automatic formatting.",
+            )
+        }
     }
 
     class KtlintFormatContentIterator(
@@ -38,7 +46,7 @@ class FormatAction : AnAction() {
             fileOrDir
                 .takeUnless { it.isDirectory }
                 ?.let { PsiManager.getInstance(project).findFile(fileOrDir) }
-                ?.let { ktlintFormat(it, "FormatAction") }
+                ?.let { ktlintFormat(it, "FormatAction", forceFormat = true) }
             return true
         }
     }
