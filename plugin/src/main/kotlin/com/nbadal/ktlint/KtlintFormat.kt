@@ -127,7 +127,7 @@ private fun executeKtlintFormat(
             title = "Parsing error",
             message =
                 """
-                This file can not be parsed by ktlint. Please resolve all (compilation) errors first.
+                File '${psiFile.virtualFile.path}' can not be parsed by ktlint. Please resolve all (compilation) errors first.
                 Error: ${ktLintParseException.message}
                 """.trimIndent(),
         )
