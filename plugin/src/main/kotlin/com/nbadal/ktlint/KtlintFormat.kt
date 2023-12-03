@@ -20,7 +20,7 @@ internal fun ktlintLint(
     psiFile: PsiFile,
     triggeredBy: String,
 ) = if (psiFile.virtualFile.isKotlinFile()) {
-    executeKtlintFormat(psiFile, triggeredBy, false)
+    executeKtlintFormat(psiFile, triggeredBy, false, force = true)
 } else {
     EMPTY_LINT_ERRORS
 }
@@ -51,10 +51,10 @@ private fun executeKtlintFormat(
     psiFile: PsiFile,
     triggeredBy: String,
     writeFormattedCode: Boolean = false,
-    forceFormat: Boolean = false,
+    force: Boolean = false,
 ): List<LintError> {
     val project = psiFile.project
-    if (project.config().ktlintMode != ENABLED && !forceFormat) {
+    if (project.config().ktlintMode != ENABLED && !force) {
         return EMPTY_LINT_ERRORS
     }
 
