@@ -2,21 +2,19 @@
 
 # ktlint-intellij-plugin Changelog
 
+KtLint maintainer [Paul Dingemans](https://github.com/paul-dingemans) has joined the project.
+
 ## Unreleased
 
-### Added
-
 ### Changed
-- Update ktlint to 1.0.1
-
-### Deprecated
+- Update KtLint to 1.0.1
+- KtLint violations which can not be autocorrected are marked as error as they need to be fixed manually by the developer.
+- KtLint violations which can be autocorrected are no longer shown individually but grouped as a single warning.
+- Error handling is improved.
+- Suppress KtLint violations using `@Suppress` annotation instead of `// ktlint-disable`. 
 
 ### Removed
-- Some flags and features no longer supported in ktlint CLI
-
-### Fixed
-
-### Security
+- Removed flags and features no longer supported by KtLint
 
 ## 0.13.0 - 2023-08-23
 
