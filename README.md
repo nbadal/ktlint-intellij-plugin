@@ -12,10 +12,11 @@ Once the plugin has been tested with the `Run Plugin.run.xml` run configuration,
    ```xml
    <name>Ktlint (dev-version YYYY-MM-DD)</name>
    ```
+- Perform a clean build
 - Run the Plugin so that the IDEA sandbox is refreshed
 - Create zip file with development version of plugin from IDEA sandbox
   ```shell
-  (cd plugin/build/idea-sandbox/plugins && zip  -r ../../ktlint-plugin-dev.zip ktlint)
+  ./create-ktlint-plugin-zip.sh
   ```
 - Install the zip file manually using
   <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
