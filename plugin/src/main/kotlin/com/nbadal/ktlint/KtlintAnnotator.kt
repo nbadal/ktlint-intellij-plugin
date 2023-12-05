@@ -18,7 +18,7 @@ import com.nbadal.ktlint.actions.KtlintModeIntention
 import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
 import com.pinterest.ktlint.rule.engine.api.LintError
 
-class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
+internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
     override fun collectInformation(
         psiFile: PsiFile,
         editor: Editor,
@@ -27,7 +27,24 @@ class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
         if (hasErrors) {
             null
         } else {
-            ktlintLint(psiFile, "KtlintAnnotator")
+            if (editor.hasStatus(KtlintAnnotatorUserData.KtlintStatus.FAILURE)) {
+                // Last time ktlint was run for this editor, an error occurred. Rerunning ktlint will have no effect, except that
+                // a duplicate notification would be sent.
+                println("Do not run ktlint as ktlintAnnotatorUserData has not changed on document ${psiFile.virtualFile.name}")
+                null
+            } else {
+                ktlintLint(psiFile, "KtlintAnnotator")
+                    .also { ktlintResult ->
+                        editor.updateKtlintStatus(ktlintResult.ktlintStatus())
+                    }.lintErrors
+            }
+        }
+
+    private fun KtlintResult.ktlintStatus() =
+        if (status == KtlintResult.Status.SUCCESS) {
+            KtlintAnnotatorUserData.KtlintStatus.SUCCESS
+        } else {
+            KtlintAnnotatorUserData.KtlintStatus.FAILURE
         }
 
     override fun doAnnotate(collectedInfo: List<LintError>?): List<LintError>? =
