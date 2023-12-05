@@ -7,7 +7,6 @@ import com.intellij.lang.annotation.HighlightSeverity.WARNING
 import com.intellij.lang.annotation.HighlightSeverity.WEAK_WARNING
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import com.intellij.refactoring.suggested.startOffset
@@ -19,14 +18,7 @@ import com.nbadal.ktlint.actions.KtlintModeIntention
 import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
 import com.pinterest.ktlint.rule.engine.api.LintError
 
-class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
-    private val ktlint = Key<FileEditorReference>("ktlint")
-
-    private data class FileEditorReference(
-        val editorHashCode: Int,
-        val modificationTimestamp: Long,
-    )
-
+internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
     override fun collectInformation(
         psiFile: PsiFile,
         editor: Editor,
@@ -35,31 +27,24 @@ class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
         if (hasErrors) {
             null
         } else {
-            editor
-                .document
-                .getUserData(ktlint)
-                .let { fileEditorReference ->
-                    if (fileEditorReference?.editorHashCode == editor.hashCode() &&
-                        fileEditorReference.modificationTimestamp == editor.document.modificationStamp
-                    ) {
-                        // If ktlint resulted in an error, last time that the document was processed, then do not repeat that unless the
-                        // file is opened into another editor panel, or when the document is changed. This prevents the same error
-                        // notification from being displayed multiple times.
-                        null
-                    } else {
-                        ktlintLint(psiFile, "KtlintAnnotator")
-                            .also { ktlintResult ->
-                                if (ktlintResult.status != KtlintResult.Status.SUCCESS) {
-                                    // On error, store some state in the user data as it does not make sense to restart ktlint on the
-                                    // document.
-                                    editor.document.putUserData(
-                                        ktlint,
-                                        FileEditorReference(editor.hashCode(), editor.document.modificationStamp),
-                                    )
-                                }
-                            }.lintErrors
-                    }
-                }
+            if (editor.hasStatus(KtlintAnnotatorUserData.KtlintStatus.FAILURE)) {
+                // Last time ktlint was run for this editor, an error occurred. Rerunning ktlint will have no effect, except that
+                // a duplicate notification would be sent.
+                println("Do not run ktlint as ktlintAnnotatorUserData has not changed on document ${psiFile.virtualFile.name}")
+                null
+            } else {
+                ktlintLint(psiFile, "KtlintAnnotator")
+                    .also { ktlintResult ->
+                        editor.updateKtlintStatus(ktlintResult.ktlintStatus())
+                    }.lintErrors
+            }
+        }
+
+    private fun KtlintResult.ktlintStatus() =
+        if (status == KtlintResult.Status.SUCCESS) {
+            KtlintAnnotatorUserData.KtlintStatus.SUCCESS
+        } else {
+            KtlintAnnotatorUserData.KtlintStatus.FAILURE
         }
 
     override fun doAnnotate(collectedInfo: List<LintError>?): List<LintError>? =
