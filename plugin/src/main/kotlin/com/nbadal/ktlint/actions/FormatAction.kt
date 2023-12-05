@@ -8,14 +8,20 @@ import com.intellij.openapi.roots.ContentIterator
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
-import com.nbadal.ktlint.KtlintNotifier
+import com.nbadal.ktlint.KtlintNotifier.notifyInformation
+import com.nbadal.ktlint.KtlintNotifier.notifyInformationWithSettings
+import com.nbadal.ktlint.KtlintNotifier.notifyWarning
+import com.nbadal.ktlint.KtlintNotifier.notifyWarningWithSettings
+import com.nbadal.ktlint.KtlintResult
+import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.FILE_RELATED_ERROR
+import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.PLUGIN_CONFIGURATION_ERROR
+import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.SUCCESS
 import com.nbadal.ktlint.ktlintEnabled
 import com.nbadal.ktlint.ktlintFormat
 
 class FormatAction : AnAction() {
     override fun update(event: AnActionEvent) {
         val files = event.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: return
-        val project = event.getData(CommonDataKeys.PROJECT) ?: return
 
         event.presentation.apply {
             isEnabledAndVisible = files.isNotEmpty()
@@ -30,24 +36,105 @@ class FormatAction : AnAction() {
         files.forEach {
             VfsUtilCore.iterateChildrenRecursively(it, null, ktlintFormatContentIterator)
         }
-        if (!project.ktlintEnabled()) {
-            KtlintNotifier.notifyInformationWithSettings(
-                project,
-                "Format with Ktlint",
-                "Formatting is completed. Get more value out of ktlint by enabling automatic formatting.",
-            )
+
+        val message =
+            listOfNotNull(
+                "Formatting is completed.",
+                "${ktlintFormatContentIterator.filesNotProcessedDueToError} files have not been formatted due to an error."
+                    .takeIf { ktlintFormatContentIterator.filesNotProcessedDueToError > 0 },
+                "${ktlintFormatContentIterator.filesChangedByFormat} files have been formatted."
+                    .takeIf { ktlintFormatContentIterator.filesChangedByFormat > 0 },
+                "Files might still contain ktlint violations which can not be autocorrected."
+                    .takeIf { ktlintFormatContentIterator.filesFormatted > 0 },
+                "Get more value out of ktlint by enabling automatic formatting.".takeUnless { project.ktlintEnabled() },
+            ).joinToString(separator = " ")
+        when (ktlintFormatContentIterator.status) {
+            SUCCESS -> {
+                if (project.ktlintEnabled()) {
+                    notifyInformation(
+                        project = project,
+                        title = "Format with Ktlint",
+                        message = message,
+                    )
+                } else {
+                    notifyInformationWithSettings(
+                        project = project,
+                        title = "Format with Ktlint",
+                        message = message,
+                    )
+                }
+            }
+
+            FILE_RELATED_ERROR -> {
+                if (project.ktlintEnabled()) {
+                    notifyWarning(
+                        project = project,
+                        title = "Format with Ktlint",
+                        message = message,
+                    )
+                } else {
+                    notifyWarningWithSettings(
+                        project = project,
+                        title = "Format with Ktlint",
+                        message = message,
+                    )
+                }
+            }
+
+            PLUGIN_CONFIGURATION_ERROR -> {
+                // Notification is already sent by plugin
+            }
         }
     }
 
-    class KtlintFormatContentIterator(
+    private class KtlintFormatContentIterator(
         val project: Project,
     ) : ContentIterator {
+        var status = SUCCESS
+        var filesChangedByFormat = 0
+        var filesFormatted = 0
+        var filesNotProcessedDueToError = 0
+
         override fun processFile(fileOrDir: VirtualFile): Boolean {
-            fileOrDir
-                .takeUnless { it.isDirectory }
-                ?.let { PsiManager.getInstance(project).findFile(fileOrDir) }
-                ?.let { ktlintFormat(it, "FormatAction", forceFormat = true) }
-            return true
+            if (fileOrDir.isDirectory) {
+                return true
+            }
+
+            val ktlintResult =
+                PsiManager
+                    .getInstance(project)
+                    .findFile(fileOrDir)
+                    ?.let { ktlintFormat(it, "FormatAction", forceFormat = true) }
+            // In case an error occurs, a notification has already been sent by ktlintFormat above
+            when (ktlintResult?.status) {
+                KtlintResult.Status.SUCCESS -> {
+                    // Status of iterator is not changed as it should only be SUCCESS when all files have been processed successful
+                    if (ktlintResult.fileChangedByFormat) {
+                        filesChangedByFormat += 1
+                    }
+                    filesFormatted += 1
+                    return true
+                }
+
+                KtlintResult.Status.PLUGIN_CONFIGURATION_ERROR -> {
+                    status = PLUGIN_CONFIGURATION_ERROR
+                    // As the same error will occur for every file, stop processing
+                    return false
+                }
+
+                null, KtlintResult.Status.NOT_STARTED -> {
+                    // File is not a kotlin file
+                    return true
+                }
+
+                KtlintResult.Status.FILE_RELATED_ERROR -> {
+                    status = FILE_RELATED_ERROR
+                    filesNotProcessedDueToError += 1
+                    return true
+                }
+            }
         }
+
+        enum class BatchStatus { SUCCESS, PLUGIN_CONFIGURATION_ERROR, FILE_RELATED_ERROR }
     }
 }

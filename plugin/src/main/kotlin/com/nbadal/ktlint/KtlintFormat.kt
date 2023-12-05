@@ -7,6 +7,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.ENABLED
+import com.nbadal.ktlint.KtlintResult.Status.FILE_RELATED_ERROR
+import com.nbadal.ktlint.KtlintResult.Status.NOT_STARTED
+import com.nbadal.ktlint.KtlintResult.Status.PLUGIN_CONFIGURATION_ERROR
+import com.nbadal.ktlint.KtlintResult.Status.SUCCESS
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
@@ -22,14 +26,15 @@ internal fun ktlintLint(
 ) = if (psiFile.virtualFile.isKotlinFile()) {
     executeKtlintFormat(psiFile, triggeredBy, false, force = true)
 } else {
-    EMPTY_LINT_ERRORS
+    KtlintResult(NOT_STARTED)
 }
 
 internal fun ktlintFormat(
     psiFile: PsiFile,
     triggeredBy: String,
     forceFormat: Boolean = false,
-) {
+): KtlintResult {
+    var ktlintResult = KtlintResult(NOT_STARTED)
     if (psiFile.virtualFile.isKotlinFile()) {
         val project = psiFile.project
         val document = psiFile.viewProvider.document
@@ -37,7 +42,7 @@ internal fun ktlintFormat(
             .getInstance(project)
             .doPostponedOperationsAndUnblockDocument(document)
         WriteCommandAction.runWriteCommandAction(project) {
-            executeKtlintFormat(psiFile, triggeredBy, true, forceFormat)
+            ktlintResult = executeKtlintFormat(psiFile, triggeredBy, true, forceFormat)
         }
         FileDocumentManager.getInstance().saveDocument(document)
         DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
@@ -45,6 +50,7 @@ internal fun ktlintFormat(
             .getInstance(project)
             .doPostponedOperationsAndUnblockDocument(document)
     }
+    return ktlintResult
 }
 
 private fun executeKtlintFormat(
@@ -52,10 +58,10 @@ private fun executeKtlintFormat(
     triggeredBy: String,
     writeFormattedCode: Boolean = false,
     force: Boolean = false,
-): List<LintError> {
+): KtlintResult {
     val project = psiFile.project
     if (project.config().ktlintMode != ENABLED && !force) {
-        return EMPTY_LINT_ERRORS
+        return KtlintResult(NOT_STARTED)
     }
 
     println("Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'")
@@ -75,31 +81,33 @@ private fun executeKtlintFormat(
                         Error: ${project.config().ruleSetProviders.error.orEmpty()}
                         """.trimMargin(),
                 )
-            return EMPTY_LINT_ERRORS
+            return KtlintResult(PLUGIN_CONFIGURATION_ERROR)
         }
 
     // KtLint wants the full file path in order to search for .editorconfig files
     val baselineErrors = project.baselineErrors(psiFile.virtualFile.path)
 
     val lintErrors = mutableListOf<LintError>()
+    var fileChangedByFormat = false
+    // The psiFile may contain unsaved changes. So create a snippet based on content of the psiFile *and*
+    // with the same path as that psiFile so that the correct '.editorconfig' is picked up by ktlint.
+    val code =
+        Code.fromSnippet(
+            // Get the content via the PsiDocumentManager instead of from "psiFile.text" directly. In case
+            // the content of an active editor window is changed via a global find and replace, the document
+            // text is updated but the Psi (and PsiFile) have not yet been changed.
+            content = PsiDocumentManager.getInstance(project).getDocument(psiFile)!!.text,
+            script = psiFile.virtualFile.path.endsWith(".kts"),
+            // TODO: de-comment when parameter is supported in Ktlint 1.1.0
+            // path = psiFile.virtualFile.toNioPath(),
+        )
+
     try {
         val formattedCode =
             project
                 .config()
                 .ktlintRuleEngine(psiFile.findEditorConfigDirectoryPath())
-                ?.format(
-                    // The psiFile may contain unsaved changes. So create a snippet based on content of the psiFile *and*
-                    // with the same path as that psiFile so that the correct '.editorconfig' is picked up by ktlint.
-                    Code.fromSnippet(
-                        // Get the content via the PsiDocumentManager instead of from "psiFile.text" directly. In case
-                        // the content of an active editor window is changed via a global find and replace, the document
-                        // text is updated but the Psi (and PsiFile) have not yet been changed.
-                        content = PsiDocumentManager.getInstance(project).getDocument(psiFile)!!.text,
-                        script = psiFile.virtualFile.path.endsWith(".kts"),
-                        // TODO: de-comment when parameter is supported in Ktlint 1.1.0
-                        // path = psiFile.virtualFile.toNioPath(),
-                    ),
-                ) { error, _ ->
+                ?.format(code) { error, _ ->
                     when {
                         // TODO: remove exclusion of rule "standard:filename" as this now results in false positives. When
                         //  using "Code.fromSnippet" in Ktlint 1.0.0, the filename "File.kt" or "File.kts" is being used
@@ -113,12 +121,14 @@ private fun executeKtlintFormat(
                         else -> lintErrors.add(error)
                     }
                 }
-                ?: return EMPTY_LINT_ERRORS
+                ?: return KtlintResult(FILE_RELATED_ERROR)
                     .also { println("Could not create ktlintRuleEngine for path '${psiFile.virtualFile.path}'") }
-        if (writeFormattedCode) {
+        if (writeFormattedCode && formattedCode != code.content) {
             psiFile.viewProvider.document.setText(formattedCode)
+            fileChangedByFormat = true
         }
         println("Finished ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy' successfully")
+        return KtlintResult(SUCCESS, lintErrors, fileChangedByFormat)
     } catch (ktLintParseException: KtLintParseException) {
         // Most likely the file contains a compilation error which prevents it from being parsed. The user should resolve those errors.
         // The stacktrace is excluded from the message as it would distract from resolving the error.
@@ -131,7 +141,7 @@ private fun executeKtlintFormat(
                 Error: ${ktLintParseException.message}
                 """.trimIndent(),
         )
-        return EMPTY_LINT_ERRORS
+        return KtlintResult(FILE_RELATED_ERROR)
     } catch (ktLintRuleException: KtLintRuleException) {
         KtlintNotifier.notifyError(
             project = project,
@@ -143,18 +153,19 @@ private fun executeKtlintFormat(
                 ${ktLintRuleException.stackTraceToString()}
                 """.trimIndent(),
         )
-        return EMPTY_LINT_ERRORS
+        return KtlintResult(FILE_RELATED_ERROR)
     } catch (parseException: ParseException) {
         KtlintNotifier.notifyError(
             project = project,
             title = "Invalid editorconfig",
+            // The exception message already contains the path to the file, so don't repeat it
             message =
                 """
                 An error occurred while reading the '.editorconfig':
                 ${parseException.message}
                 """.trimIndent(),
         )
-        return EMPTY_LINT_ERRORS
+        return KtlintResult(FILE_RELATED_ERROR)
     } catch (exception: Exception) {
         KtlintNotifier.notifyError(
             project = project,
@@ -165,10 +176,36 @@ private fun executeKtlintFormat(
                 ${exception.printStackTrace()}
                 """.trimIndent(),
         )
-        return EMPTY_LINT_ERRORS
+        return KtlintResult(FILE_RELATED_ERROR)
     }
+}
 
-    return lintErrors
+internal data class KtlintResult(
+    val status: Status,
+    val lintErrors: List<LintError> = emptyList(),
+    val fileChangedByFormat: Boolean = false,
+) {
+    enum class Status {
+        /**
+         * Ktlint was not (yet) executed
+         */
+        NOT_STARTED,
+
+        /**
+         * Ktlint ran successfully.
+         */
+        SUCCESS,
+
+        /**
+         * Ktlint can not run due to error in plugin configuration.
+         */
+        PLUGIN_CONFIGURATION_ERROR,
+
+        /**
+         * Ktlint can not run due to error related to the file.
+         */
+        FILE_RELATED_ERROR,
+    }
 }
 
 private fun LintError.isIgnoredInBaseline(baselineErrors: List<KtlintCliError>) =

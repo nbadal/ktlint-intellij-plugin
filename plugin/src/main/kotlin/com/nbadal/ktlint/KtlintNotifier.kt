@@ -11,17 +11,12 @@ import com.intellij.openapi.project.Project
 object KtlintNotifier {
     private const val KTLINT_NOTIFICATION_GROUP = "Ktlint Notifications"
 
-    fun notifyWarning(
-        project: Project,
-        title: String,
-        message: String,
-    ) = createNotification(title, message, NotificationType.WARNING).notify(project)
-
     fun notifyError(
         project: Project,
         title: String,
         message: String,
-    ) = createNotification(title, message, NotificationType.ERROR).notify(project)
+    ) = createNotification(title, message, NotificationType.ERROR)
+        .notify(project)
 
     fun notifyErrorWithSettings(
         project: Project,
@@ -29,6 +24,28 @@ object KtlintNotifier {
         message: String,
     ) = createNotification(title, message, NotificationType.ERROR)
         .addAction(OpenSettingsAction(project))
+        .notify(project)
+
+    fun notifyWarning(
+        project: Project,
+        title: String,
+        message: String,
+    ) = createNotification(title, message, NotificationType.WARNING)
+        .notify(project)
+
+    fun notifyWarningWithSettings(
+        project: Project,
+        title: String,
+        message: String,
+    ) = createNotification(title, message, NotificationType.WARNING)
+        .addAction(OpenSettingsAction(project))
+        .notify(project)
+
+    fun notifyInformation(
+        project: Project,
+        title: String,
+        message: String,
+    ) = createNotification(title, message, NotificationType.INFORMATION)
         .notify(project)
 
     fun notifyInformationWithSettings(
