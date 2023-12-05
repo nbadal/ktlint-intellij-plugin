@@ -173,7 +173,7 @@ private fun executeKtlintFormat(
             message =
                 """
                 An error occurred while processing file '${psiFile.virtualFile.path}':
-                ${exception.printStackTrace()}
+                ${exception.stackTraceToString()}
                 """.trimIndent(),
         )
         return KtlintResult(FILE_RELATED_ERROR)
