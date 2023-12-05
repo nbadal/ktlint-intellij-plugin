@@ -4,6 +4,7 @@ import com.intellij.ide.actionsOnSave.impl.ActionsOnSaveFileDocumentManagerListe
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
 
@@ -22,17 +23,32 @@ class KtlintActionOnSave : ActionOnSave() {
                         .mapNotNull { PsiManager.getInstance(project).findFile(it) }
                 }
 
-            // If an any ".editorconfig" file is saved, then complete saving of that file and reset the KtlintRuleEngine before processing the
-            // other changed documents so the change ".editorconfig" is taken into account while processing those documents
-            psiFiles
-                .firstOrNull { it.language == EDITOR_CONFIG_LANGUAGE }
-                ?.let {
-                    // Complete the saving of the ".editorconfig" before processing
-                    FileDocumentManager.getInstance().saveDocument(it.viewProvider.document)
-                    project.config().resetKtlintRuleEngine()
-                }
+            if (psiFiles.any { it.language == EDITOR_CONFIG_LANGUAGE }) {
+                // Save all ".editorconfig" files before processing other changed documents so the changed ".editorconfig" files are taken
+                // into account while processing those documents.
+                psiFiles
+                    .filter { it.language == EDITOR_CONFIG_LANGUAGE }
+                    .forEach {
+                        FileDocumentManager.getInstance().saveDocument(it.viewProvider.document)
+                    }
 
-            psiFiles.forEach { psiFile -> ktlintFormat(psiFile, "KtlintActionOnSave") }
+                // Reset KtlintRuleEngine as it has cached the '.editorconfig'
+                project.config().resetKtlintRuleEngine()
+
+                // Format all files in open editors
+                FileEditorManager
+                    .getInstance(project)
+                    .openFiles
+                    .forEach { virtualFile ->
+                        PsiManager
+                            .getInstance(project)
+                            .findFile(virtualFile)
+                            ?.let { psiFile -> ktlintFormat(psiFile, "KtlintActionOnSave") }
+                    }
+            } else {
+                // Only format files which were modified
+                psiFiles.forEach { psiFile -> ktlintFormat(psiFile, "KtlintActionOnSave") }
+            }
         }
     }
 }
