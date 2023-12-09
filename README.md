@@ -20,3 +20,22 @@ Once the plugin has been tested with the `Run Plugin.run.xml` run configuration,
   ```
 - Install the zip file manually using
   <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+
+
+## Building with local ktlint SNAPSHOT
+
+In case you need to build the plugin based on a SNAPSHOT version of ktlint on your local machine, then follow procedure below:
+
+* In the "ktlint" project execute `./gradlew publishMavenPublicationToMavenLocal` to publish the SNAPSHOT artifacts to your local maven repository.
+* In the "ktlint-intellij-plugin" project:
+  * Change the ktlint version in `libs.version.toml`  
+  * Include `mavenLocal()` repository in *all* `build.gradle.kts` files as follows:
+    ```kotlin
+     repositories {
+         mavenCentral()
+         mavenLocal()
+     }
+    ```
+  * Build the `lib` module
+  * Build the `plugin` module
+  * Run the plugin
