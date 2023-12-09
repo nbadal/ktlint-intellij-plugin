@@ -113,7 +113,7 @@ private fun executeKtlint(
                 .config()
                 .ktlintRuleEngine(psiFile.findEditorConfigDirectoryPath())
                 ?: return KtlintResult(FILE_RELATED_ERROR)
-                    .also { println("Could not create ktlintRuleEngine for path '${psiFile.virtualFile.path}'") }
+                    .also { logger.debug { "Could not create ktlintRuleEngine for path '${psiFile.virtualFile.path}'" } }
         val errorHandler = { error: LintError ->
             when {
                 // TODO: remove exclusion of rule "standard:filename" as this now results in false positives. When
