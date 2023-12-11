@@ -10,8 +10,9 @@ import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.config
 import com.nbadal.ktlint.ktlintFormat
 import com.pinterest.ktlint.rule.engine.api.Code
+import com.pinterest.ktlint.rule.engine.api.KtlintSuppressionAtOffset
 import com.pinterest.ktlint.rule.engine.api.LintError
-import com.pinterest.ktlint.rule.engine.api.insertSuppressionForLintError
+import com.pinterest.ktlint.rule.engine.api.insertSuppression
 
 class KtlintRuleSuppressIntention(
     private val lintError: LintError,
@@ -62,7 +63,7 @@ class KtlintRuleSuppressIntention(
                 project
                     .config()
                     .ktlintRuleEngine(null)
-                    ?.insertSuppressionForLintError(code, lintError)
+                    ?.insertSuppression(code, lintError.toKtlintSuppressionAtOffset())
                     ?.let { updatedCode ->
                         if (updatedCode != code.content) {
                             document.setText(updatedCode)
@@ -71,4 +72,11 @@ class KtlintRuleSuppressIntention(
                     }
             }
     }
+
+    private fun LintError.toKtlintSuppressionAtOffset() =
+        KtlintSuppressionAtOffset(
+            line = line,
+            col = col,
+            ruleId = ruleId,
+        )
 }
