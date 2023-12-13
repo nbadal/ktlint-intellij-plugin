@@ -1,17 +1,15 @@
 package com.nbadal.ktlint
 
 import com.intellij.openapi.editor.Document
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Key
 import com.nbadal.ktlint.KtlintAnnotatorUserData.KtlintStatus.SUCCESS
 
 private val ktlintAnnotatorUserDataKey = Key<KtlintAnnotatorUserData>("ktlint-annotator")
 
 /**
- *
+ * Metadata for displaying the Ktlint Annotator. The metadata is stored as user data on the document.
  */
 internal data class KtlintAnnotatorUserData(
-    val editorHashCode: Int,
     val modificationTimestamp: Long,
     val ktlintStatus: KtlintStatus,
     val displayAllKtlintViolations: Boolean,
@@ -19,41 +17,31 @@ internal data class KtlintAnnotatorUserData(
     enum class KtlintStatus { FAILURE, SUCCESS }
 }
 
-internal fun Editor.hasStatus(ktlintStatus: KtlintAnnotatorUserData.KtlintStatus) =
-    getKtlintAnnotatorUserData()
-        .takeIf { ktlintAnnotatorUserData ->
-            ktlintAnnotatorUserData?.hashCode() == hashCode() &&
-                ktlintAnnotatorUserData.modificationTimestamp == document.modificationStamp
-        }?.ktlintStatus == ktlintStatus
+internal val Document.ktlintAnnotatorUserData
+    get() = getUserData(ktlintAnnotatorUserDataKey)
 
-private fun Editor.getKtlintAnnotatorUserData() = document.getKtlintAnnotatorUserData()
+internal fun Document.removeKtlintAnnotatorUserData() = putUserData(ktlintAnnotatorUserDataKey, null)
 
-internal fun Document.getKtlintAnnotatorUserData() = getUserData(ktlintAnnotatorUserDataKey)
+internal fun Document.setKtlintStatus(ktlintStatus: KtlintAnnotatorUserData.KtlintStatus) {
+    val currentUserData = getUserData(ktlintAnnotatorUserDataKey)
+    putUserData(
+        ktlintAnnotatorUserDataKey,
+        KtlintAnnotatorUserData(
+            modificationTimestamp = modificationStamp,
+            ktlintStatus = ktlintStatus,
+            displayAllKtlintViolations = currentUserData?.displayAllKtlintViolations ?: false,
+        ),
+    )
+}
 
-internal fun Editor.updateKtlintStatus(ktlintStatus: KtlintAnnotatorUserData.KtlintStatus) =
-    with(document) {
-        val currentUserData = getUserData(ktlintAnnotatorUserDataKey)
-        putUserData(
-            ktlintAnnotatorUserDataKey,
-            KtlintAnnotatorUserData(
-                editorHashCode = hashCode(),
-                modificationTimestamp = document.modificationStamp,
-                ktlintStatus = ktlintStatus,
-                displayAllKtlintViolations = currentUserData?.displayAllKtlintViolations ?: false,
-            ),
-        )
-    }
-
-internal fun Editor.displayAllKtlintViolations(displayAll: Boolean) =
-    with(document) {
-        val currentUserData = getUserData(ktlintAnnotatorUserDataKey)
-        putUserData(
-            ktlintAnnotatorUserDataKey,
-            KtlintAnnotatorUserData(
-                editorHashCode = hashCode(),
-                modificationTimestamp = document.modificationStamp,
-                ktlintStatus = currentUserData?.ktlintStatus ?: SUCCESS,
-                displayAllKtlintViolations = displayAll,
-            ),
-        )
-    }
+internal fun Document.setDisplayAllKtlintViolations() {
+    val currentUserData = getUserData(ktlintAnnotatorUserDataKey)
+    putUserData(
+        ktlintAnnotatorUserDataKey,
+        KtlintAnnotatorUserData(
+            modificationTimestamp = modificationStamp,
+            ktlintStatus = currentUserData?.ktlintStatus ?: SUCCESS,
+            displayAllKtlintViolations = true,
+        ),
+    )
+}
