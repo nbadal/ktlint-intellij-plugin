@@ -20,6 +20,23 @@ This plugin was formerly known as the "Ktlint (unofficial)" plugin, developed by
 Enable and configure in `Preferences` > `Tools` > `KtLint Format`.
 <!-- Plugin description end -->
 
+## Feature set
+
+| Feature                                                                                       | Stealth mode (recommended) | Manual mode | Disabled mode |
+|-----------------------------------------------------------------------------------------------|----------------------------|-------------|-------------|
+| Highlight problems which cannot be autocorrected [automatically]                              | *yes                       | *yes        | *no         |
+| Highlight problems which can be autocorrected [automatically]                                 | *no                        | *yes        | *no         |
+| Highlight problems which can be autocorrected (in open editor window) [manually]              | *yes                       | *no         | *yes        |
+| Format with ktlint after normal format [automatically]                                        | *yes                       | *no         | no         |
+| Format with ktlint on save [automatically]                                                    | *yes                       | *no         | no         |
+| Format file (in open editor window) with ktlint when at least 1 violation is found [manually] | *no                        | *yes        | yes         |
+| Format selected file(s) with ktlint [manually]                                                | *yes                       | *yes        | yes         |
+| Suppress ktlint violation [manually]                                                          | *yes                       | *yes        | no          |
+| Display number of problems that can be found by ktlint [automatically]                        | *no                        | *yes        | yes         |
+| Display banner when ktlint plugin not configured [automatically]                              | *no                        | *no         | yes         |
+
+
+
 ## Installation
 
 - Using IDE built-in plugin system:

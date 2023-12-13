@@ -20,6 +20,10 @@
     </extensions>
 
     <actions>
+        <action id="Ktlint.Lint" class="com.nbadal.ktlint.actions.LintAction"
+                text="Show All Ktlint Violations" description="Show all Ktlint violations for the file">
+            <add-to-group group-id="RefactoringMenu" />
+        </action>
         <action id="Ktlint.Format" class="com.nbadal.ktlint.actions.FormatAction"
                 text="Format With Ktlint" description="Apply ktlint formatting to file">
             <add-to-group group-id="RefactoringMenu" />

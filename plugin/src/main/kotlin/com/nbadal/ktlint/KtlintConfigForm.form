@@ -71,6 +71,8 @@
         </constraints>
         <properties>
           <enabled value="true"/>
+          <hideActionText value="false"/>
+          <selected value="true"/>
           <text resource-bundle="strings" key="formatOnSaveLabel"/>
           <toolTipText resource-bundle="strings" key="formatOnSaveToolTip"/>
         </properties>
