@@ -21,3 +21,18 @@ fun Project.ktlintEnabled(): Boolean = getService(KtlintConfigStorage::class.jav
  * Checks if ktlint is explicitly disabled for the project. If so, lint and format may never run.
  */
 fun Project.ktlintDisabled(): Boolean = getService(KtlintConfigStorage::class.java).ktlintMode == DISABLED
+
+fun Project.isEnabled(ktlintFeature: KtlintFeature) =
+    when (config().ktlintMode) {
+        ENABLED -> {
+            KtlintFeatureProfile.DISTRACT_FREE.isEnabled(ktlintFeature)
+        }
+
+        DISABLED -> {
+            KtlintFeatureProfile.MANUAL.isEnabled(ktlintFeature)
+        }
+
+        NOT_INITIALIZED -> {
+            KtlintFeatureProfile.NOT_YET_CONFIGURED.isEnabled(ktlintFeature)
+        }
+    }

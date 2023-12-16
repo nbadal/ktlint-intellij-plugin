@@ -8,6 +8,7 @@ import com.intellij.openapi.roots.ContentIterator
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
+import com.nbadal.ktlint.KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT
 import com.nbadal.ktlint.KtlintNotifier.notifyInformation
 import com.nbadal.ktlint.KtlintNotifier.notifyInformationWithSettings
 import com.nbadal.ktlint.KtlintNotifier.notifyWarning
@@ -16,15 +17,17 @@ import com.nbadal.ktlint.KtlintResult
 import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.FILE_RELATED_ERROR
 import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.PLUGIN_CONFIGURATION_ERROR
 import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.SUCCESS
+import com.nbadal.ktlint.isEnabled
 import com.nbadal.ktlint.ktlintEnabled
 import com.nbadal.ktlint.ktlintFormat
 
 class FormatAction : AnAction() {
     override fun update(event: AnActionEvent) {
+        val project = event.getData(CommonDataKeys.PROJECT) ?: return
         val files = event.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: return
 
         event.presentation.apply {
-            isEnabledAndVisible = files.isNotEmpty()
+            isEnabledAndVisible = project.isEnabled(SHOW_MENU_OPTION_FORMAT_WITH_KTLINT) && files.isNotEmpty()
         }
     }
 

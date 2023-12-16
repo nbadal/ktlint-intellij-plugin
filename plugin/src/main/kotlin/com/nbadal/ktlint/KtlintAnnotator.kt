@@ -139,7 +139,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                     .withFix(ShowAllKtlintViolationsIntention())
                     .withFix(ForceFormatIntention())
                     .withFix(KtlintModeIntention(ENABLED))
-            if (psiFile.project.config().ktlintMode == KtlintConfigStorage.KtlintMode.NOT_INITIALIZED) {
+            if (psiFile.project.isEnabled(KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND)) {
                 annotationBuilder
                     .fileLevel()
                     .withFix(KtlintModeIntention(DISABLED))
