@@ -6,6 +6,8 @@ import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import com.nbadal.ktlint.KtlintFeature
+import com.nbadal.ktlint.isEnabled
 import com.nbadal.ktlint.ktlintFormat
 
 /**
@@ -22,7 +24,7 @@ class ForceFormatIntention :
         project: Project,
         editor: Editor?,
         psiFile: PsiFile,
-    ): Boolean = true
+    ): Boolean = project.isEnabled(KtlintFeature.SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT)
 
     /**
      * As [isAvailable] return true always, the [invoke] is also called when previewing the result of the intention unless this function

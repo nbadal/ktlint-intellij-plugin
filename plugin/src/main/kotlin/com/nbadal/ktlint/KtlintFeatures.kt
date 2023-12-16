@@ -54,7 +54,11 @@ enum class KtlintFeature {
      */
     FORMAT_WITH_KTLINT_ON_SAVE,
 
-    // | Format with Ktlint [manually]                                                        | *no                              | *yes        | yes           |
+    /**
+     * Shows an intention to force formatting of the file with ktlint manually.
+     */
+    SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT,
+
     // | Format file (in open editor window) [manually]                                       | *no                              | *yes        | yes           |
 
     /**
