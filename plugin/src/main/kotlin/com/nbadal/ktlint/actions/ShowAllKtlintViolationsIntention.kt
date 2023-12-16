@@ -7,6 +7,8 @@ import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS
+import com.nbadal.ktlint.isEnabled
 import com.nbadal.ktlint.setDisplayAllKtlintViolations
 
 /**
@@ -23,7 +25,7 @@ class ShowAllKtlintViolationsIntention :
         project: Project,
         editor: Editor?,
         psiFile: PsiFile,
-    ): Boolean = true
+    ): Boolean = project.isEnabled(SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS)
 
     /**
      * As [isAvailable] return true always, the [invoke] is also called when previewing the result of the intention unless this function
