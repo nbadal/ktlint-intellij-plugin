@@ -6,7 +6,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.ENABLED
+import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintResult.Status.FILE_RELATED_ERROR
 import com.nbadal.ktlint.KtlintResult.Status.NOT_STARTED
 import com.nbadal.ktlint.KtlintResult.Status.PLUGIN_CONFIGURATION_ERROR
@@ -60,7 +60,7 @@ private fun executeKtlintFormat(
     force: Boolean = false,
 ): KtlintResult {
     val project = psiFile.project
-    if (project.config().ktlintMode != ENABLED && !force) {
+    if (project.config().ktlintMode != DISTRACT_FREE && !force) {
         return KtlintResult(NOT_STARTED)
     }
 

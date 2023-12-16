@@ -8,7 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintConfigStorage
-import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.ENABLED
+import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.config
 
 class KtlintModeIntention(
@@ -18,7 +18,7 @@ class KtlintModeIntention(
     override fun getFamilyName() = "KtLint"
 
     override fun getText() =
-        if (ktlintMode == ENABLED) {
+        if (ktlintMode == DISTRACT_FREE) {
             "Enable ktlint for project"
         } else {
             "Disable ktlint for project"

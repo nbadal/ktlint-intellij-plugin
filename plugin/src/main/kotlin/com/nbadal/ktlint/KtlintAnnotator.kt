@@ -10,8 +10,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import com.intellij.refactoring.suggested.startOffset
-import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISABLED
-import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.ENABLED
+import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISTRACT_FREE
+import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.MANUAL
 import com.nbadal.ktlint.actions.ForceFormatIntention
 import com.nbadal.ktlint.actions.KtlintModeIntention
 import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
@@ -47,7 +47,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
         errors: List<LintError>?,
         annotationHolder: AnnotationHolder,
     ) {
-        if (psiFile.project.config().ktlintMode == ENABLED) {
+        if (psiFile.project.config().ktlintMode == DISTRACT_FREE) {
             applyWhenPluginIsEnabled(psiFile, errors, annotationHolder)
         } else {
             applyWhenPluginIsNotEnabled(psiFile, errors, annotationHolder)
@@ -85,7 +85,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                             .newAnnotation(ERROR, lintError.errorMessage())
                             .range(errorTextRange)
                             .withFix(KtlintRuleSuppressIntention(lintError))
-                            .withFix(KtlintModeIntention(DISABLED))
+                            .withFix(KtlintModeIntention(MANUAL))
                             .create()
                     }
             }
@@ -105,7 +105,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                                 .newAnnotation(ERROR, lintError.errorMessage())
                                 .range(errorTextRange)
                                 .withFix(KtlintRuleSuppressIntention(lintError))
-                                .withFix(KtlintModeIntention(DISABLED))
+                                .withFix(KtlintModeIntention(MANUAL))
                                 .create()
                         }
                 }
@@ -138,11 +138,11 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                     .range(TextRange(0, 0))
                     .withFix(ShowAllKtlintViolationsIntention())
                     .withFix(ForceFormatIntention())
-                    .withFix(KtlintModeIntention(ENABLED))
+                    .withFix(KtlintModeIntention(DISTRACT_FREE))
             if (psiFile.project.isEnabled(KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND)) {
                 annotationBuilder
                     .fileLevel()
-                    .withFix(KtlintModeIntention(DISABLED))
+                    .withFix(KtlintModeIntention(MANUAL))
             }
             annotationBuilder.create()
         }

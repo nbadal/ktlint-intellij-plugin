@@ -26,13 +26,13 @@ private class KtlintOnSaveActionInfo(
     ) {
     override fun getActionOnSaveName() = ACTION_ON_SAVE_NAME
 
-    override fun getCommentAccordingToStoredState() = getComment(project.ktlintEnabled())
+    override fun getCommentAccordingToStoredState() = getComment(project.ktlintMode() == KtlintConfigStorage.KtlintMode.DISTRACT_FREE)
 
-    override fun getCommentAccordingToUiState(configurable: KtlintConfig) = getComment(configurable.enableKtlintCheckbox.isSelected)
+    override fun getCommentAccordingToUiState(configurable: KtlintConfig) = getComment(configurable.distractFreeMode.isSelected)
 
     private fun getComment(ktlintEnabled: Boolean): ActionOnSaveComment? {
         if (!ktlintEnabled) {
-            val message = "Ktlint plugin is not enabled"
+            val message = "Distract free mode of Ktlint plugin is not enabled"
             // no need to show warning if save action is disabled
             return if (isActionOnSaveEnabled) ActionOnSaveComment.warning(message) else ActionOnSaveComment.info(message)
         }

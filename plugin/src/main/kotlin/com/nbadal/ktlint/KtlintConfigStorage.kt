@@ -109,14 +109,20 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
 
     enum class KtlintMode {
         /**
-         * Ktlint plugin settings have not yet been saved for this project. Ktlint
-         * may only be run in Lint mode, and it should ask the developer to make a
-         * choice to enable or disable Ktlint.
+         * Ktlint plugin settings have not yet been saved for this project.
          */
         NOT_INITIALIZED,
 
-        /** Ktlint is fully enabled for the project. Source code will be formatted. */
-        ENABLED,
+        /**
+         *  Ktlint is fully enabled for the project. Source code will be formatted automatically. Violations which can be autocorrected,
+         * are not displayed.
+         */
+        DISTRACT_FREE,
+
+        /**
+         * Ktlint is enabled for the project. All lint violations will be shown. User has to trigger format with ktlint manually.
+         */
+        MANUAL,
 
         /**
          * Ktlint is fully disabled for the project. Neither lint nor format will
