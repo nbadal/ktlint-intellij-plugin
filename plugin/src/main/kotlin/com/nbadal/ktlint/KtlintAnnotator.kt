@@ -1,5 +1,6 @@
 package com.nbadal.ktlint
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.ExternalAnnotator
 import com.intellij.lang.annotation.HighlightSeverity.ERROR
@@ -7,6 +8,9 @@ import com.intellij.lang.annotation.HighlightSeverity.WARNING
 import com.intellij.lang.annotation.HighlightSeverity.WEAK_WARNING
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import com.intellij.refactoring.suggested.startOffset
@@ -193,4 +197,23 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
             getLineEndOffset((line - 1).coerceIn(0, lineCount - 1))
                 .coerceIn(0, textLength)
         }
+}
+
+fun Project.resetKtlintAnnotator() {
+    // Reset KtlintRuleEngine as it has cached the '.editorconfig'
+    config().resetKtlintRuleEngine()
+
+    // Remove user data from all open documents
+    FileEditorManager
+        .getInstance(this)
+        .openFiles
+        .forEach { virtualFile ->
+            FileDocumentManager
+                .getInstance()
+                .getDocument(virtualFile)
+                ?.removeKtlintAnnotatorUserData()
+        }
+
+    // Restart code analyzer so that open files are scanned again
+    DaemonCodeAnalyzer.getInstance(this).restart()
 }

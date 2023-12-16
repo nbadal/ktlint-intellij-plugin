@@ -10,6 +10,7 @@ import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.MANUAL
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.NOT_INITIALIZED
 import com.nbadal.ktlint.isEnabled
+import com.nbadal.ktlint.resetKtlintAnnotator
 import java.awt.Desktop
 import java.net.URI
 import java.util.Objects
@@ -87,6 +88,8 @@ class KtlintConfigForm(
     }
 
     fun apply() {
+        project.resetKtlintAnnotator()
+
         ktlintConfigStorage.ktlintMode = ktlintMode
         ktlintConfigStorage.formatOnSave = formatOnSave.isSelected
         ktlintConfigStorage.externalJarPaths =

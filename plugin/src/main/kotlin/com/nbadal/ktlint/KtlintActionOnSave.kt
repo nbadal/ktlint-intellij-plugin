@@ -26,19 +26,7 @@ class KtlintActionOnSave : ActionOnSave() {
         // If ktlint is not disabled, then always respond on saving the '.editorconfig' to ensure that KtlintAnnotator will pick up changes
         // in violations due to change settings.
         if (psiFiles.any { it.language == EDITOR_CONFIG_LANGUAGE }) {
-            // Reset KtlintRuleEngine as it has cached the '.editorconfig'
-            project.config().resetKtlintRuleEngine()
-
-            // Reset ktlint annotator user data
-            FileEditorManager
-                .getInstance(project)
-                .openFiles
-                .forEach { virtualFile ->
-                    FileDocumentManager
-                        .getInstance()
-                        .getDocument(virtualFile)
-                        ?.removeKtlintAnnotatorUserData()
-                }
+            project.resetKtlintAnnotator()
         }
 
         if (project.isEnabled(FORMAT_WITH_KTLINT_ON_SAVE) && project.config().formatOnSave) {
