@@ -2,7 +2,7 @@ package com.nbadal.ktlint
 
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.Key
-import com.nbadal.ktlint.KtlintAnnotatorUserData.KtlintStatus.SUCCESS
+import com.pinterest.ktlint.rule.engine.api.LintError
 
 private val ktlintAnnotatorUserDataKey = Key<KtlintAnnotatorUserData>("ktlint-annotator")
 
@@ -11,24 +11,22 @@ private val ktlintAnnotatorUserDataKey = Key<KtlintAnnotatorUserData>("ktlint-an
  */
 internal data class KtlintAnnotatorUserData(
     val modificationTimestamp: Long,
-    val ktlintStatus: KtlintStatus,
+    val lintErrors: List<LintError>,
     val displayAllKtlintViolations: Boolean,
-) {
-    enum class KtlintStatus { FAILURE, SUCCESS }
-}
+)
 
 internal val Document.ktlintAnnotatorUserData
     get() = getUserData(ktlintAnnotatorUserDataKey)
 
 internal fun Document.removeKtlintAnnotatorUserData() = putUserData(ktlintAnnotatorUserDataKey, null)
 
-internal fun Document.setKtlintStatus(ktlintStatus: KtlintAnnotatorUserData.KtlintStatus) {
+internal fun Document.setKtlintResult(ktlintResult: KtlintResult) {
     val currentUserData = getUserData(ktlintAnnotatorUserDataKey)
     putUserData(
         ktlintAnnotatorUserDataKey,
         KtlintAnnotatorUserData(
             modificationTimestamp = modificationStamp,
-            ktlintStatus = ktlintStatus,
+            lintErrors = ktlintResult.lintErrors,
             displayAllKtlintViolations = currentUserData?.displayAllKtlintViolations ?: false,
         ),
     )
@@ -40,7 +38,7 @@ internal fun Document.setDisplayAllKtlintViolations() {
         ktlintAnnotatorUserDataKey,
         KtlintAnnotatorUserData(
             modificationTimestamp = modificationStamp,
-            ktlintStatus = currentUserData?.ktlintStatus ?: SUCCESS,
+            lintErrors = currentUserData?.lintErrors ?: emptyList(),
             displayAllKtlintViolations = true,
         ),
     )

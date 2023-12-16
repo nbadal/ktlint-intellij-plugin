@@ -10,10 +10,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import com.intellij.refactoring.suggested.startOffset
-import com.nbadal.ktlint.KtlintAnnotatorUserData.KtlintStatus.FAILURE
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISABLED
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.ENABLED
-import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.NOT_INITIALIZED
 import com.nbadal.ktlint.actions.ForceFormatIntention
 import com.nbadal.ktlint.actions.KtlintModeIntention
 import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
@@ -29,30 +27,16 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
         if (hasErrors) {
             null
         } else {
-            val previousStatus =
-                editor
-                    .document
-                    .ktlintAnnotatorUserData
-                    .takeIf { it?.modificationTimestamp == editor.document.modificationStamp }
-                    ?.ktlintStatus
-            if (previousStatus == FAILURE) {
-                // Last time ktlint was run for this editor, an error occurred. Rerunning ktlint will have no effect, except that
-                // a duplicate notification would be sent.
+            if (editor.document.ktlintAnnotatorUserData?.modificationTimestamp == editor.document.modificationStamp) {
+                // Document is unchanged since last time ktlint has run. Reuse lint errors from user data. It also has the advantage that
+                // a notification from the lint/format process in case on error is not displayed again.
                 println("Do not run ktlint as ktlintAnnotatorUserData has not changed on document ${psiFile.virtualFile.name}")
-                null
+                editor.document.ktlintAnnotatorUserData?.lintErrors
             } else {
                 ktlintLint(psiFile, "KtlintAnnotator")
-                    .also { ktlintResult ->
-                        editor.document.setKtlintStatus(ktlintResult.ktlintStatus())
-                    }.lintErrors
+                    .also { ktlintResult -> editor.document.setKtlintResult(ktlintResult) }
+                    .lintErrors
             }
-        }
-
-    private fun KtlintResult.ktlintStatus() =
-        if (status == KtlintResult.Status.SUCCESS) {
-            KtlintAnnotatorUserData.KtlintStatus.SUCCESS
-        } else {
-            FAILURE
         }
 
     override fun doAnnotate(collectedInfo: List<LintError>?): List<LintError>? =
@@ -155,7 +139,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                     .withFix(ShowAllKtlintViolationsIntention())
                     .withFix(ForceFormatIntention())
                     .withFix(KtlintModeIntention(ENABLED))
-            if (psiFile.project.config().ktlintMode == NOT_INITIALIZED) {
+            if (psiFile.project.config().ktlintMode == KtlintConfigStorage.KtlintMode.NOT_INITIALIZED) {
                 annotationBuilder
                     .fileLevel()
                     .withFix(KtlintModeIntention(DISABLED))
