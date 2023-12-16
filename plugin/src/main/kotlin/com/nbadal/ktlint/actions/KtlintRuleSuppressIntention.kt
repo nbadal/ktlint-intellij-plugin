@@ -17,11 +17,13 @@ import com.nbadal.ktlint.FILE
 import com.nbadal.ktlint.FILE_ANNOTATION_LIST
 import com.nbadal.ktlint.FUN
 import com.nbadal.ktlint.IMPORT_KEYWORD
+import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION
 import com.nbadal.ktlint.MODIFIER_LIST
 import com.nbadal.ktlint.SCRIPT
 import com.nbadal.ktlint.VALUE_ARGUMENT_LIST
 import com.nbadal.ktlint.elementTypeName
 import com.nbadal.ktlint.findElementType
+import com.nbadal.ktlint.isEnabled
 import com.pinterest.ktlint.rule.engine.api.LintError
 
 class KtlintRuleSuppressIntention(
@@ -38,7 +40,7 @@ class KtlintRuleSuppressIntention(
         psiFile: PsiFile,
     ): Boolean {
         // Skip if no error element can be located for the error offset
-        return psiFile.findElementAtLintErrorOffset() != null
+        return psiFile.project.isEnabled(SHOW_INTENTION_TO_SUPPRESS_VIOLATION) && psiFile.findElementAtLintErrorOffset() != null
     }
 
     private fun PsiFile.findElementAtLintErrorOffset(): PsiElement? =

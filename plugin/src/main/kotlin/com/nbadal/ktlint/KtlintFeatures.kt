@@ -4,6 +4,8 @@ import com.nbadal.ktlint.KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_
 import com.nbadal.ktlint.KtlintFeature.AUTOMATICALLY_DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND
 import com.nbadal.ktlint.KtlintFeature.FORMAT_WITH_KTLINT_ON_SAVE
 import com.nbadal.ktlint.KtlintFeature.POST_FORMAT_WITH_KTLINT
+import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT
+import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION
 import com.nbadal.ktlint.KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT
 
 /**
@@ -16,6 +18,7 @@ enum class KtlintFeatureProfile(
     NOT_YET_CONFIGURED(
         setOf(
             SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
+            SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT,
             AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND,
         ),
     ),
@@ -23,6 +26,7 @@ enum class KtlintFeatureProfile(
         setOf(
             FORMAT_WITH_KTLINT_ON_SAVE,
             POST_FORMAT_WITH_KTLINT,
+            SHOW_INTENTION_TO_SUPPRESS_VIOLATION,
             // Although Ktlint is executed automatically on files being edited, this option is still useful for mass formatting on files
             // without having the need to edit each file individually.
             SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
@@ -31,6 +35,8 @@ enum class KtlintFeatureProfile(
     MANUAL(
         setOf(
             SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
+            SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT,
+            SHOW_INTENTION_TO_SUPPRESS_VIOLATION,
             AUTOMATICALLY_DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
         ),
     ),
@@ -41,8 +47,6 @@ enum class KtlintFeatureProfile(
 }
 
 enum class KtlintFeature {
-    TBD,
-
     // | Highlight problems which cannot be autocorrected [automatically]                     | *yes                             | *no         | no            |
     // | Highlight problems for all Ktlint violations (in open editor window) [automatically] | *no                              | *yes        | no            |
     // | Highlight problems for all Ktlint violations (in open editor window) [manually]      | *yes                             | *no         | yes           |
@@ -67,6 +71,7 @@ enum class KtlintFeature {
     SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
 
     // | Suppress ktlint violation [manually]                                                 | *yes                             | *yes        | no            |
+    SHOW_INTENTION_TO_SUPPRESS_VIOLATION,
 
     // | Display problem with number of problems found by ktlint [automatically]              | *no                              | *yes        | no            |
     AUTOMATICALLY_DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
