@@ -2,6 +2,7 @@ package com.nbadal.ktlint
 
 import com.nbadal.ktlint.KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND
 import com.nbadal.ktlint.KtlintFeature.AUTOMATICALLY_DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND
+import com.nbadal.ktlint.KtlintFeature.FORMAT_WITH_KTLINT_ON_SAVE
 import com.nbadal.ktlint.KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT
 
 /**
@@ -19,6 +20,7 @@ enum class KtlintFeatureProfile(
     ),
     DISTRACT_FREE(
         setOf(
+            FORMAT_WITH_KTLINT_ON_SAVE,
             // Although Ktlint is executed automatically on files being edited, this option is still useful for mass formatting on files
             // without having the need to edit each file individually.
             SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
@@ -43,7 +45,12 @@ enum class KtlintFeature {
     // | Highlight problems for all Ktlint violations (in open editor window) [automatically] | *no                              | *yes        | no            |
     // | Highlight problems for all Ktlint violations (in open editor window) [manually]      | *yes                             | *no         | yes           |
     // | Format with ktlint after normal format [automatically]                               | *yes                             | *no         | no            |
-    // | Format with ktlint on save [automatically]                                           | *yes                             | *no         | no            |
+
+    /**
+     * On save of a kotlin file, apply Ktlint formatting to the file if the corresponding on-save-action is enabled.
+     */
+    FORMAT_WITH_KTLINT_ON_SAVE,
+
     // | Format with Ktlint [manually]                                                        | *no                              | *yes        | yes           |
     // | Format file (in open editor window) [manually]                                       | *no                              | *yes        | yes           |
 

@@ -9,6 +9,7 @@ import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISABLED
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.MANUAL
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.NOT_INITIALIZED
+import com.nbadal.ktlint.isEnabled
 import java.awt.Desktop
 import java.net.URI
 import java.util.Objects
@@ -45,10 +46,13 @@ class KtlintConfigForm(
     fun createComponent(): JComponent {
         mainPanel.border = IdeBorderFactory.createTitledBorder("Ktlint Format Settings")
 
+        formatLabel.isVisible = distractFreeMode.isSelected
+        formatOnSave.isVisible = distractFreeMode.isSelected
         distractFreeMode.addChangeListener {
             formatLabel.isVisible = distractFreeMode.isSelected
             formatOnSave.isVisible = distractFreeMode.isSelected
         }
+
         disabledMode.addChangeListener {
             val isNotDisabledMode = !disabledMode.isSelected
             formatOnSave.isEnabled = isNotDisabledMode
