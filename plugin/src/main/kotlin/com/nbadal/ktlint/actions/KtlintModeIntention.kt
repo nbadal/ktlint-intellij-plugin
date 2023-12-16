@@ -8,8 +8,11 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintConfigStorage
+import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISABLED
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISTRACT_FREE
+import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.MANUAL
 import com.nbadal.ktlint.config
+import com.nbadal.ktlint.ktlintMode
 
 class KtlintModeIntention(
     private val ktlintMode: KtlintConfigStorage.KtlintMode,
@@ -18,17 +21,18 @@ class KtlintModeIntention(
     override fun getFamilyName() = "KtLint"
 
     override fun getText() =
-        if (ktlintMode == DISTRACT_FREE) {
-            "Enable ktlint for project"
-        } else {
-            "Disable ktlint for project"
+        when (ktlintMode) {
+            DISTRACT_FREE -> "Enable ktlint distract free mode for project"
+            MANUAL -> "Enable ktlint manual mode for project"
+            DISABLED -> "Disable ktlint for project"
+            else -> throw UnsupportedOperationException("KtlintMode $ktlintMode can not be set via KtlintModeIntention")
         }
 
     override fun isAvailable(
         project: Project,
         editor: Editor?,
         psiFile: PsiFile,
-    ): Boolean = true
+    ): Boolean = project.ktlintMode() != ktlintMode
 
     /**
      * As [isAvailable] return true always, the [invoke] is also called when previewing the result of the intention unless this function

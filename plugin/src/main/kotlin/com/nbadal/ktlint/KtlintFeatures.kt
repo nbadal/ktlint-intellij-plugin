@@ -92,7 +92,9 @@ enum class KtlintFeature {
      */
     SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS,
 
-    // | Display problem with number of problems found by ktlint [automatically]              | *no                              | *yes        | no            |
+    /**
+     * Displays one single problem containing a summary of the number of violations that are ignored (e.g. not displayed individually).
+     */
     AUTOMATICALLY_DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
 
     /**
