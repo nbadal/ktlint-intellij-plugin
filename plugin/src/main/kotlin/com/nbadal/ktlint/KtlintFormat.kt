@@ -238,5 +238,3 @@ private fun String.pathRelativeTo(projectBasePath: String?): String =
     } else {
         removePrefix(projectBasePath).removePrefix("/")
     }
-
-private val EMPTY_LINT_ERRORS = emptyList<LintError>()
