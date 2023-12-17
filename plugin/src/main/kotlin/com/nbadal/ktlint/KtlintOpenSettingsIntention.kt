@@ -36,4 +36,6 @@ class KtlintOpenSettingsIntention :
             .getInstance()
             .showSettingsDialog(project, KtlintConfig::class.java)
     }
+
+    override fun startInWriteAction() = false
 }
