@@ -101,7 +101,11 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     override fun getState(): KtlintConfigStorage = this
 
     override fun loadState(state: KtlintConfigStorage) {
-        this.ktlintMode = state.ktlintMode
+        // If the ktlint mode which is actually stored is not a valid enum value, the field 'state.ktlintMode' contains a null value
+        // although the field is not nullable.
+        @Suppress("USELESS_ELVIS")
+        this.ktlintMode = state.ktlintMode ?: NOT_INITIALIZED
+
         this.formatOnSave = state.formatOnSave
         this.baselinePath = state.baselinePath
         this.externalJarPaths = state.externalJarPaths
