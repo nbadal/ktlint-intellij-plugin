@@ -28,15 +28,20 @@ private fun <T> Class<T>.loadFromJarFiles(
             .distinct()
             .flatMap { url ->
                 loadProvidersFromJars(url)
-                    .also { providers -> println("Loaded ${providers.size} providers from $url") }
-                    .filterNot { providerIdsFromKtlintJars.contains(providerId(it)) }
+                    .filterNot { providerId(it) in providerIdsFromKtlintJars }
+                    .also { providers -> println("Loaded ${providers.size} custom ruleset providers from $url") }
                     .filterNotNull()
+                    .ifEmpty { throw EmptyRuleSetJarException("Custom rule set '$url' does not contain a custom ktlint rule set provider") }
             }.toSet()
     return providersFromKtlintJars
         .plus(providersFromCustomJars)
         .filterNotNull()
         .toSet()
 }
+
+class EmptyRuleSetJarException(
+    message: String,
+) : RuntimeException(message)
 
 private fun <T> Class<T>.loadProvidersFromJars(url: URL?): Set<T> {
     // See: https://plugins.jetbrains.com/docs/intellij/plugin-class-loaders.html#classes-from-plugin-dependencies

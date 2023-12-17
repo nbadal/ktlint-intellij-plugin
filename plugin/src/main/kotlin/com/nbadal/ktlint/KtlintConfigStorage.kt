@@ -41,8 +41,8 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     var externalJarPaths: List<String> = emptyList()
 
     /**
-     * Keeps the state of the last loaded set of rule set jars. It serves as a cache so that the rule set providers do
-     * not need to be reloaded from the file system on each invocation of ktlint format.
+     * Keeps the state of the last loaded set of rule set jars. It serves as a cache so that the rule set providers do not need to be
+     * reloaded from the file system on each invocation of ktlint format.
      */
     private var _ruleSetProviders: RuleSetProviders? = null
 
