@@ -14,8 +14,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import com.intellij.refactoring.suggested.startOffset
-import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISABLED
-import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.MANUAL
 import com.nbadal.ktlint.KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND
 import com.nbadal.ktlint.KtlintFeature.DISPLAY_ALL_VIOLATIONS
@@ -143,9 +141,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
             annotationHolder
                 .newAnnotation(INFORMATION, message)
                 .fileLevel()
-                .withFix(KtlintModeIntention(DISTRACT_FREE))
-                .withFix(KtlintModeIntention(MANUAL))
-                .withFix(KtlintModeIntention(DISABLED))
+                .withFix(KtlintOpenSettingsIntention())
                 .create()
         } else {
             annotationHolder

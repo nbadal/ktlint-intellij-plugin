@@ -7,6 +7,7 @@ import com.nbadal.ktlint.KtlintFeature.DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOC
 import com.nbadal.ktlint.KtlintFeature.FORMAT_WITH_KTLINT_ON_SAVE
 import com.nbadal.ktlint.KtlintFeature.POST_FORMAT_WITH_KTLINT
 import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT
+import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_SETTINGS_DIALOG
 import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS
 import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION
 import com.nbadal.ktlint.KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT
@@ -23,6 +24,7 @@ enum class KtlintFeatureProfile(
             SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
             SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT,
             SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS,
+            SHOW_INTENTION_SETTINGS_DIALOG,
             AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND,
         ),
     ),
@@ -85,6 +87,11 @@ enum class KtlintFeature {
      * Allows the developer to manually format the files or directories selected in the project explorer.
      */
     SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
+
+    /**
+     * Shows the intention to open the settings dialog.
+     */
+    SHOW_INTENTION_SETTINGS_DIALOG,
 
     /**
      * Shows the intention to suppress an individual violation.
