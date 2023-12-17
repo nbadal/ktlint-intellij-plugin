@@ -10,9 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.nbadal.ktlint.KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT
 import com.nbadal.ktlint.KtlintNotifier.notifyInformation
-import com.nbadal.ktlint.KtlintNotifier.notifyInformationWithSettings
 import com.nbadal.ktlint.KtlintNotifier.notifyWarning
-import com.nbadal.ktlint.KtlintNotifier.notifyWarningWithSettings
 import com.nbadal.ktlint.KtlintResult
 import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.FILE_RELATED_ERROR
 import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.PLUGIN_CONFIGURATION_ERROR
@@ -53,35 +51,19 @@ class FormatAction : AnAction() {
             ).joinToString(separator = " ")
         when (ktlintFormatContentIterator.status) {
             SUCCESS -> {
-                if (project.ktlintEnabled()) {
-                    notifyInformation(
-                        project = project,
-                        title = "Format with Ktlint",
-                        message = message,
-                    )
-                } else {
-                    notifyInformationWithSettings(
-                        project = project,
-                        title = "Format with Ktlint",
-                        message = message,
-                    )
-                }
+                notifyInformation(
+                    project = project,
+                    title = "Format with Ktlint",
+                    message = message,
+                )
             }
 
             FILE_RELATED_ERROR -> {
-                if (project.ktlintEnabled()) {
-                    notifyWarning(
-                        project = project,
-                        title = "Format with Ktlint",
-                        message = message,
-                    )
-                } else {
-                    notifyWarningWithSettings(
-                        project = project,
-                        title = "Format with Ktlint",
-                        message = message,
-                    )
-                }
+                notifyWarning(
+                    project = project,
+                    title = "Format with Ktlint",
+                    message = message,
+                )
             }
 
             PLUGIN_CONFIGURATION_ERROR -> {

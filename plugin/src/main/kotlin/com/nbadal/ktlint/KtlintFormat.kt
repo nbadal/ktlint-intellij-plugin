@@ -72,7 +72,7 @@ private fun executeKtlintFormat(
         .takeIf { !it.isLoaded }
         ?.let {
             KtlintNotifier
-                .notifyErrorWithSettings(
+                .notifyError(
                     project = project,
                     title = "Error in external ruleset JAR",
                     message =
@@ -80,6 +80,7 @@ private fun executeKtlintFormat(
                         One or more of the external rule set JAR's defined in the ktlint settings, can not be loaded.
                         Error: ${project.config().ruleSetProviders.error.orEmpty()}
                         """.trimMargin(),
+                    forceSettingsDialog = true,
                 )
             return KtlintResult(PLUGIN_CONFIGURATION_ERROR)
         }
