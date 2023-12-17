@@ -66,10 +66,9 @@ enum class KtlintFeature {
      */
     DISPLAY_ALL_VIOLATIONS,
 
-    // | Highlight problems for all Ktlint violations (in open editor window) [manually]      | *yes                             | *no         | yes           |
-    SHOW_MENU_OPTION_TO_DISPLAY_ALL_VIOLATIONS,
-
-    // | Format with ktlint after normal format [automatically]                               | *yes                             | *no         | no            |
+    /**
+     * Runs ktlint formatting after normal IDEA formatting.
+     */
     POST_FORMAT_WITH_KTLINT,
 
     /**
@@ -82,14 +81,14 @@ enum class KtlintFeature {
      */
     SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT,
 
-    // | Format file (in open editor window) [manually]                                       | *no                              | *yes        | yes           |
-
     /**
      * Allows the developer to manually format the files or directories selected in the project explorer.
      */
     SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
 
-    // | Suppress ktlint violation [manually]                                                 | *yes                             | *yes        | no            |
+    /**
+     * Shows the intention to suppress an individual violation.
+     */
     SHOW_INTENTION_TO_SUPPRESS_VIOLATION,
 
     /**
