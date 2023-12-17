@@ -1,56 +1,56 @@
 package com.nbadal.ktlint
 
-import com.nbadal.ktlint.KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND
-import com.nbadal.ktlint.KtlintFeature.DISPLAY_ALL_VIOLATIONS
-import com.nbadal.ktlint.KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND
-import com.nbadal.ktlint.KtlintFeature.DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOCORRECTED
-import com.nbadal.ktlint.KtlintFeature.FORMAT_WITH_KTLINT_ON_SAVE
-import com.nbadal.ktlint.KtlintFeature.POST_FORMAT_WITH_KTLINT
-import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT
-import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_SETTINGS_DIALOG
-import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS
-import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION
-import com.nbadal.ktlint.KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT
-
-/**
- * A feature is a single basic functionality provided by ktlint. Features are grouped into profiles. A user can activate only a single
- * profile.
- */
-enum class KtlintFeatureProfile(
+enum class KtlintMode(
     private val ktlintFeatures: Set<KtlintFeature>,
 ) {
-    NOT_YET_CONFIGURED(
+    /**
+     * Ktlint plugin settings have not yet been saved for this project.
+     */
+    NOT_INITIALIZED(
         setOf(
-            SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
-            SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT,
-            SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS,
-            SHOW_INTENTION_SETTINGS_DIALOG,
-            AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND,
+            KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
+            KtlintFeature.SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT,
+            KtlintFeature.SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS,
+            KtlintFeature.SHOW_INTENTION_SETTINGS_DIALOG,
+            KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND,
         ),
     ),
+
+    /**
+     *  Ktlint is fully enabled for the project. Source code will be formatted automatically. Violations which can be autocorrected,
+     * are not displayed.
+     */
     DISTRACT_FREE(
         setOf(
-            FORMAT_WITH_KTLINT_ON_SAVE,
-            POST_FORMAT_WITH_KTLINT,
-            SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS,
-            SHOW_INTENTION_TO_SUPPRESS_VIOLATION,
+            KtlintFeature.FORMAT_WITH_KTLINT_ON_SAVE,
+            KtlintFeature.POST_FORMAT_WITH_KTLINT,
+            KtlintFeature.SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS,
+            KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION,
             // Although Ktlint is executed automatically on files being edited, this option is still useful for mass formatting on files
             // without having the need to edit each file individually.
-            SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
-            DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOCORRECTED,
-            DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
+            KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
+            KtlintFeature.DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOCORRECTED,
+            KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
         ),
     ),
+
+    /**
+     * Ktlint is enabled for the project. All lint violations will be shown. User has to trigger format with ktlint manually.
+     */
     MANUAL(
         setOf(
-            DISPLAY_ALL_VIOLATIONS,
-            SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
-            SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT,
-            SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS,
-            SHOW_INTENTION_TO_SUPPRESS_VIOLATION,
-            DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
+            KtlintFeature.DISPLAY_ALL_VIOLATIONS,
+            KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
+            KtlintFeature.SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT,
+            KtlintFeature.SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS,
+            KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION,
+            KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
         ),
     ),
+
+    /**
+     * Ktlint is fully disabled for the project. Neither lint nor format will run.
+     */
     DISABLED(emptySet()),
     ;
 

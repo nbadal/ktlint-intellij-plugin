@@ -5,7 +5,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.util.xmlb.annotations.Tag
-import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.NOT_INITIALIZED
+import com.nbadal.ktlint.KtlintMode.NOT_INITIALIZED
 import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
@@ -105,30 +105,6 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
         this.formatOnSave = state.formatOnSave
         this.baselinePath = state.baselinePath
         this.externalJarPaths = state.externalJarPaths
-    }
-
-    enum class KtlintMode {
-        /**
-         * Ktlint plugin settings have not yet been saved for this project.
-         */
-        NOT_INITIALIZED,
-
-        /**
-         *  Ktlint is fully enabled for the project. Source code will be formatted automatically. Violations which can be autocorrected,
-         * are not displayed.
-         */
-        DISTRACT_FREE,
-
-        /**
-         * Ktlint is enabled for the project. All lint violations will be shown. User has to trigger format with ktlint manually.
-         */
-        MANUAL,
-
-        /**
-         * Ktlint is fully disabled for the project. Neither lint nor format will
-         * run.
-         */
-        DISABLED,
     }
 
     data class RuleSetProviders(

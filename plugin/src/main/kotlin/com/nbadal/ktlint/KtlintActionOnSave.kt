@@ -13,7 +13,7 @@ class KtlintActionOnSave : ActionOnSave() {
     override fun isEnabledForProject(project: Project): Boolean =
         // As ktlint is configured by the '.editorconfig', it needs to respond on any save on that file for any mode in which ktlint is
         // actually executed. ActionOnSave for '.editorconfig' can not be disabled using configuration.
-        project.ktlintMode() != KtlintConfigStorage.KtlintMode.DISABLED
+        project.ktlintMode() != KtlintMode.DISABLED
 
     override fun processDocuments(
         project: Project,

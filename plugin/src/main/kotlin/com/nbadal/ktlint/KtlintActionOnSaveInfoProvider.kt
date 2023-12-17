@@ -26,7 +26,7 @@ private class KtlintOnSaveActionInfo(
     ) {
     override fun getActionOnSaveName() = ACTION_ON_SAVE_NAME
 
-    override fun getCommentAccordingToStoredState() = getComment(project.ktlintMode() == KtlintConfigStorage.KtlintMode.DISTRACT_FREE)
+    override fun getCommentAccordingToStoredState() = getComment(project.ktlintMode() == KtlintMode.DISTRACT_FREE)
 
     override fun getCommentAccordingToUiState(configurable: KtlintConfig) = getComment(configurable.distractFreeMode.isSelected)
 

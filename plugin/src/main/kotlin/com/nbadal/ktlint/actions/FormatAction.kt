@@ -8,7 +8,7 @@ import com.intellij.openapi.roots.ContentIterator
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
-import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISTRACT_FREE
+import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT
 import com.nbadal.ktlint.KtlintNotifier.notifyInformation
 import com.nbadal.ktlint.KtlintNotifier.notifyWarning
