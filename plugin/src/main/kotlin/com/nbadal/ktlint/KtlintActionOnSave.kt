@@ -10,7 +10,10 @@ import com.intellij.psi.PsiManager
 import com.nbadal.ktlint.KtlintFeature.FORMAT_WITH_KTLINT_ON_SAVE
 
 class KtlintActionOnSave : ActionOnSave() {
-    override fun isEnabledForProject(project: Project): Boolean = project.ktlintMode() != KtlintConfigStorage.KtlintMode.DISABLED
+    override fun isEnabledForProject(project: Project): Boolean =
+        // As ktlint is configured by the '.editorconfig', it needs to respond on any save on that file for any mode in which ktlint is
+        // actually executed. ActionOnSave for '.editorconfig' can not be disabled using configuration.
+        project.ktlintMode() != KtlintConfigStorage.KtlintMode.DISABLED
 
     override fun processDocuments(
         project: Project,

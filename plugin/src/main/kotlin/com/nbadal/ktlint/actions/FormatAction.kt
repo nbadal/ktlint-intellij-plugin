@@ -8,6 +8,7 @@ import com.intellij.openapi.roots.ContentIterator
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
+import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT
 import com.nbadal.ktlint.KtlintNotifier.notifyInformation
 import com.nbadal.ktlint.KtlintNotifier.notifyWarning
@@ -16,8 +17,8 @@ import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchS
 import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.PLUGIN_CONFIGURATION_ERROR
 import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.SUCCESS
 import com.nbadal.ktlint.isEnabled
-import com.nbadal.ktlint.ktlintEnabled
 import com.nbadal.ktlint.ktlintFormat
+import com.nbadal.ktlint.ktlintMode
 
 class FormatAction : AnAction() {
     override fun update(event: AnActionEvent) {
@@ -47,7 +48,8 @@ class FormatAction : AnAction() {
                     .takeIf { ktlintFormatContentIterator.filesChangedByFormat > 0 },
                 "Files might still contain ktlint violations which can not be autocorrected."
                     .takeIf { ktlintFormatContentIterator.filesFormatted > 0 },
-                "Get more value out of ktlint by enabling automatic formatting.".takeUnless { project.ktlintEnabled() },
+                "Get more value out of ktlint by enabling automatic formatting by using the 'distract free' mode."
+                    .takeUnless { project.ktlintMode() == DISTRACT_FREE },
             ).joinToString(separator = " ")
         when (ktlintFormatContentIterator.status) {
             SUCCESS -> {
