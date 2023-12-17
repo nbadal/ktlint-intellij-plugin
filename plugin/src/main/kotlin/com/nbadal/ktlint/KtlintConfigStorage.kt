@@ -5,7 +5,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.util.xmlb.annotations.Tag
-import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.NOT_INITIALIZED
+import com.nbadal.ktlint.KtlintMode.NOT_INITIALIZED
 import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
@@ -41,8 +41,8 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     var externalJarPaths: List<String> = emptyList()
 
     /**
-     * Keeps the state of the last loaded set of rule set jars. It serves as a cache so that the rule set providers do
-     * not need to be reloaded from the file system on each invocation of ktlint format.
+     * Keeps the state of the last loaded set of rule set jars. It serves as a cache so that the rule set providers do not need to be
+     * reloaded from the file system on each invocation of ktlint format.
      */
     private var _ruleSetProviders: RuleSetProviders? = null
 
@@ -101,28 +101,14 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     override fun getState(): KtlintConfigStorage = this
 
     override fun loadState(state: KtlintConfigStorage) {
-        this.ktlintMode = state.ktlintMode
+        // If the ktlint mode which is actually stored is not a valid enum value, the field 'state.ktlintMode' contains a null value
+        // although the field is not nullable.
+        @Suppress("USELESS_ELVIS")
+        this.ktlintMode = state.ktlintMode ?: NOT_INITIALIZED
+
         this.formatOnSave = state.formatOnSave
         this.baselinePath = state.baselinePath
         this.externalJarPaths = state.externalJarPaths
-    }
-
-    enum class KtlintMode {
-        /**
-         * Ktlint plugin settings have not yet been saved for this project. Ktlint
-         * may only be run in Lint mode, and it should ask the developer to make a
-         * choice to enable or disable Ktlint.
-         */
-        NOT_INITIALIZED,
-
-        /** Ktlint is fully enabled for the project. Source code will be formatted. */
-        ENABLED,
-
-        /**
-         * Ktlint is fully disabled for the project. Neither lint nor format will
-         * run.
-         */
-        DISABLED,
     }
 
     data class RuleSetProviders(

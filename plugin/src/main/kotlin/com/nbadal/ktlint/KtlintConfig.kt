@@ -11,7 +11,9 @@ class KtlintConfig(
 ) : SearchableConfigurable {
     private val form = KtlintConfigForm(project, project.config())
 
-    val enableKtlintCheckbox by form::enableKtlint
+    val distractFreeMode by form::distractFreeMode
+    val manualMode by form::manualMode
+    val disabledMode by form::disabledMode
 
     val formatOnSaveCheckbox by form::formatOnSave
 

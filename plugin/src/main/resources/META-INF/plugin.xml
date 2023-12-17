@@ -16,13 +16,20 @@
         <actionOnSaveInfoProvider implementation="com.nbadal.ktlint.KtlintActionOnSaveInfoProvider"
                                   order="after FormatOnSaveInfoProvider"/>
         <actionOnSave implementation="com.nbadal.ktlint.KtlintActionOnSave" order="after FormatOnSaveAction"/>
-        <editorNotificationProvider implementation="com.nbadal.ktlint.KtlintEditorNotificationProvider"/>
     </extensions>
 
     <actions>
+        <action id="Ktlint.Lint" class="com.nbadal.ktlint.actions.LintAction"
+                text="Show All Ktlint Violations In File" description="Show all Ktlint violations in the current file">
+            <add-to-group group-id="RefactoringMenu" />
+        </action>
         <action id="Ktlint.Format" class="com.nbadal.ktlint.actions.FormatAction"
                 text="Format With Ktlint" description="Apply ktlint formatting to file">
             <add-to-group group-id="RefactoringMenu" />
         </action>
     </actions>
+
+    <projectListeners>
+        <listener class="com.nbadal.ktlint.KtlintFileEditorManagerListener" topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" />
+    </projectListeners>
 </idea-plugin>

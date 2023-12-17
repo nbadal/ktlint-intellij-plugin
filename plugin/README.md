@@ -20,6 +20,28 @@ This plugin was formerly known as the "Ktlint (unofficial)" plugin, developed by
 Enable and configure in `Preferences` > `Tools` > `KtLint Format`.
 <!-- Plugin description end -->
 
+## Feature set
+
+When the plugin is not yet configured for a project, the basic functionalities (lint and format) can be triggered manually. Also, the user is invited via  banner and notification to configure the plugin.
+
+The "Distract free" mode of the plugin supports users that have already configured ktlint to their liking. Violations that can be autocorrected by Ktlint will not be shown as they will be fixed automatically when invoking the IDEA formatting, or on save of a file.
+
+The "Manual" mode of the plugin supports users that want to decide per lint violation how it should be resolved. It displays all ktlint violations, and never runs ktlint format automatically. Ktlint format can still be triggered manually.
+
+| Feature                                                                              | Distract free mode (recommended) | Manual mode | Disabled mode |
+|--------------------------------------------------------------------------------------|----------------------------------|-------------|---------------|
+| Highlight problems which cannot be autocorrected [automatically]                     | *yes                             | *no         | no            |
+| Highlight problems for all Ktlint violations (in open editor window) [automatically] | *no                              | *yes        | no            |
+| Highlight problems for all Ktlint violations (in open editor window) [manually]      | *yes                             | *no         | yes           |
+| Format with ktlint after normal format [automatically]                               | *yes                             | *no         | no            |
+| Format with ktlint on save [automatically]                                           | *yes                             | *no         | no            |
+| Format with Ktlint [manually]                                                        | *no                              | *yes        | yes           |
+| Format file (in open editor window) [manually]                                       | *no                              | *yes        | yes           |
+| Format selected file(s) with ktlint [manually]                                       | *yes                             | *yes        | yes           |
+| Suppress ktlint violation [manually]                                                 | *yes                             | *yes        | no            |
+| Display problem with number of problems found by ktlint [automatically]              | *no                              | *yes        | no            |
+| Display banner with number of problems found by ktlint [automatically]               | *no                              | *no         | yes           |
+
 ## Installation
 
 - Using IDE built-in plugin system:

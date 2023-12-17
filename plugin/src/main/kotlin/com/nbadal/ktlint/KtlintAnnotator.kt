@@ -1,21 +1,26 @@
 package com.nbadal.ktlint
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.ExternalAnnotator
 import com.intellij.lang.annotation.HighlightSeverity.ERROR
+import com.intellij.lang.annotation.HighlightSeverity.INFORMATION
 import com.intellij.lang.annotation.HighlightSeverity.WARNING
-import com.intellij.lang.annotation.HighlightSeverity.WEAK_WARNING
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import com.intellij.refactoring.suggested.startOffset
-import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISABLED
-import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.ENABLED
-import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.NOT_INITIALIZED
+import com.nbadal.ktlint.KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND
+import com.nbadal.ktlint.KtlintFeature.DISPLAY_ALL_VIOLATIONS
+import com.nbadal.ktlint.KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND
+import com.nbadal.ktlint.KtlintFeature.DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOCORRECTED
 import com.nbadal.ktlint.actions.ForceFormatIntention
-import com.nbadal.ktlint.actions.KtlintModeIntention
 import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
+import com.nbadal.ktlint.actions.ShowAllKtlintViolationsIntention
 import com.pinterest.ktlint.rule.engine.api.LintError
 
 internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
@@ -24,27 +29,30 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
         editor: Editor,
         hasErrors: Boolean,
     ): List<LintError>? =
-        if (hasErrors) {
-            null
-        } else {
-            if (editor.hasStatus(KtlintAnnotatorUserData.KtlintStatus.FAILURE)) {
-                // Last time ktlint was run for this editor, an error occurred. Rerunning ktlint will have no effect, except that
-                // a duplicate notification would be sent.
-                println("Do not run ktlint as ktlintAnnotatorUserData has not changed on document ${psiFile.virtualFile.name}")
+        when {
+            hasErrors -> {
+                // Ignore ktlint when other errors (for example compilation errors) are found
                 null
-            } else {
-                ktlintLint(psiFile, "KtlintAnnotator")
-                    .also { ktlintResult ->
-                        editor.updateKtlintStatus(ktlintResult.ktlintStatus())
-                    }.lintErrors
             }
-        }
 
-    private fun KtlintResult.ktlintStatus() =
-        if (status == KtlintResult.Status.SUCCESS) {
-            KtlintAnnotatorUserData.KtlintStatus.SUCCESS
-        } else {
-            KtlintAnnotatorUserData.KtlintStatus.FAILURE
+            psiFile.project.isEnabled(DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOCORRECTED) ||
+                psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) ||
+                psiFile.project.isEnabled(DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND) ||
+                psiFile.project.isEnabled(AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND)
+            -> {
+                if (editor.document.ktlintAnnotatorUserData?.modificationTimestamp == editor.document.modificationStamp) {
+                    // Document is unchanged since last time ktlint has run. Reuse lint errors from user data. It also has the advantage that
+                    // a notification from the lint/format process in case on error is not displayed again.
+                    println("Do not run ktlint as ktlintAnnotatorUserData has not changed on document ${psiFile.virtualFile.name}")
+                    editor.document.ktlintAnnotatorUserData?.lintErrors
+                } else {
+                    ktlintLint(psiFile, "KtlintAnnotator")
+                        .also { ktlintResult -> editor.document.setKtlintResult(ktlintResult) }
+                        .lintErrors
+                }
+            }
+
+            else -> null
         }
 
     override fun doAnnotate(collectedInfo: List<LintError>?): List<LintError>? =
@@ -53,85 +61,72 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
     override fun apply(
         psiFile: PsiFile,
         errors: List<LintError>?,
-        holder: AnnotationHolder,
+        annotationHolder: AnnotationHolder,
     ) {
-        if (psiFile.project.config().ktlintMode == ENABLED) {
-            applyWhenPluginIsEnabled(psiFile, errors, holder)
-        } else {
-            applyWhenPluginIsNotEnabled(psiFile, errors, holder)
-        }
-    }
-
-    private fun applyWhenPluginIsEnabled(
-        psiFile: PsiFile,
-        errors: List<LintError>?,
-        holder: AnnotationHolder,
-    ) {
-        // Showing all errors which can be autocorrected is distracting, and can lead to waste of developer time in case the developer
-        // starts fixing the errors manually. So display a warning with the number of errors that can be autocorrected.
-        errors
-            ?.count { it.canBeAutoCorrected }
-            ?.takeIf { it > 0 }
-            ?.let { count ->
-                holder
-                    .newAnnotation(WARNING, "This file contains $count lint violations which can be autocorrected by ktlint")
-                    .range(TextRange(0, 0))
-                    .withFix(ForceFormatIntention())
-                    .create()
+        val displayAllKtlintViolations = psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) || psiFile.displayAllKtlintViolations
+        val ignoreViolationsPredicate: (LintError) -> Boolean =
+            if (psiFile.project.isEnabled(DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOCORRECTED) &&
+                !psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS)
+            ) {
+                // By default, hide all violations which can be autocorrected unless the current editor is configured to display all
+                // violations. Hiding aims to distract the developer as little as possible as those violations can be resolved by using
+                // ktlint format. Showing all violations supports the developer in suppressing violations which may not be autocorrected.
+                { lintError -> lintError.canBeAutoCorrected && !displayAllKtlintViolations }
+            } else {
+                { !displayAllKtlintViolations }
             }
 
+        createAnnotationPerViolation(psiFile, errors, annotationHolder, ignoreViolationsPredicate)
+        createAnnotationSummaryForIgnoredViolations(psiFile, errors, annotationHolder, ignoreViolationsPredicate)
+    }
+
+    private fun createAnnotationPerViolation(
+        psiFile: PsiFile,
+        errors: List<LintError>?,
+        annotationHolder: AnnotationHolder,
+        shouldIgnore: (LintError) -> Boolean,
+    ) {
         errors
-            ?.filter {
-                // Showing all errors which can be autocorrected is distracting, and can lead to waste of developer time in case the
-                // developer starts fixing the errors manually.
-                !it.canBeAutoCorrected
-            }?.forEach { lintError ->
+            ?.filterNot { shouldIgnore(it) }
+            ?.forEach { lintError ->
                 errorTextRange(psiFile, lintError)
                     ?.let { errorTextRange ->
-                        holder
+                        annotationHolder
                             .newAnnotation(ERROR, lintError.errorMessage())
                             .range(errorTextRange)
                             .withFix(KtlintRuleSuppressIntention(lintError))
-                            .withFix(KtlintModeIntention(DISABLED))
                             .create()
                     }
             }
     }
 
-    private fun applyWhenPluginIsNotEnabled(
+    private fun createAnnotationSummaryForIgnoredViolations(
         psiFile: PsiFile,
         errors: List<LintError>?,
-        holder: AnnotationHolder,
+        annotationHolder: AnnotationHolder,
+        shouldIgnore: (LintError) -> Boolean,
     ) {
-        val countCanBeAutoCorrected = errors?.count { it.canBeAutoCorrected } ?: 0
-        val countCanNotBeAutoCorrected = errors?.count { !it.canBeAutoCorrected } ?: 0
-
-        val annotationBuilder =
+        val countCanBeAutoCorrected =
+            errors
+                ?.filter { shouldIgnore(it) }
+                ?.count { it.canBeAutoCorrected } ?: 0
+        val countCanNotBeAutoCorrected =
+            errors
+                ?.filter { shouldIgnore(it) }
+                ?.count { !it.canBeAutoCorrected } ?: 0
+        val message =
             when {
                 countCanBeAutoCorrected > 0 && countCanNotBeAutoCorrected > 0 -> {
-                    holder
-                        .newAnnotation(
-                            WEAK_WARNING,
-                            "This file contains $countCanBeAutoCorrected lint violations which can be autocorrected by ktlint and " +
-                                "$countCanNotBeAutoCorrected lint violations that should be corrected manually",
-                        ).range(TextRange(0, 0))
-                        .withFix(ForceFormatIntention())
+                    "Ktlint found ${countCanBeAutoCorrected + countCanNotBeAutoCorrected} lint violations of which " +
+                        "$countCanBeAutoCorrected can be autocorrected"
                 }
+
                 countCanBeAutoCorrected > 0 -> {
-                    holder
-                        .newAnnotation(
-                            WEAK_WARNING,
-                            "This file contains $countCanBeAutoCorrected lint violations which can be autocorrected by ktlint",
-                        ).range(TextRange(0, 0))
-                        .withFix(ForceFormatIntention())
+                    "Ktlint found $countCanBeAutoCorrected violations which can be autocorrected"
                 }
+
                 countCanNotBeAutoCorrected > 0 -> {
-                    holder
-                        .newAnnotation(
-                            WEAK_WARNING,
-                            "This file contains $countCanNotBeAutoCorrected ktlint violations that should be corrected manually",
-                        ).range(TextRange(0, 0))
-                        .withFix(ForceFormatIntention())
+                    "Ktlint found $countCanNotBeAutoCorrected violations that should be corrected manually"
                 }
 
                 else -> {
@@ -139,12 +134,30 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 }
             }
 
-        annotationBuilder.withFix(KtlintModeIntention(ENABLED))
-        if (psiFile.project.config().ktlintMode == NOT_INITIALIZED) {
-            annotationBuilder.withFix(KtlintModeIntention(DISABLED))
+        if (psiFile.project.isEnabled(AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND)) {
+            annotationHolder
+                .newAnnotation(INFORMATION, message)
+                .fileLevel()
+                .withFix(KtlintOpenSettingsIntention())
+                .create()
+        } else {
+            annotationHolder
+                .newAnnotation(WARNING, message)
+                .range(TextRange(0, 0))
+                .withFix(ShowAllKtlintViolationsIntention())
+                .withFix(ForceFormatIntention())
+                .create()
         }
-        annotationBuilder.create()
     }
+
+    private val PsiFile.displayAllKtlintViolations
+        get() =
+            viewProvider
+                .document
+                .ktlintAnnotatorUserData
+                .also {
+                    println("Annotator: $it")
+                }?.displayAllKtlintViolations ?: false
 
     private fun LintError.errorMessage(): String = "$detail (${ruleId.value})"
 
@@ -182,4 +195,23 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
             getLineEndOffset((line - 1).coerceIn(0, lineCount - 1))
                 .coerceIn(0, textLength)
         }
+}
+
+fun Project.resetKtlintAnnotator() {
+    // Reset KtlintRuleEngine as it has cached the '.editorconfig'
+    config().resetKtlintRuleEngine()
+
+    // Remove user data from all open documents
+    FileEditorManager
+        .getInstance(this)
+        .openFiles
+        .forEach { virtualFile ->
+            FileDocumentManager
+                .getInstance()
+                .getDocument(virtualFile)
+                ?.removeKtlintAnnotatorUserData()
+        }
+
+    // Restart code analyzer so that open files are scanned again
+    DaemonCodeAnalyzer.getInstance(this).restart()
 }

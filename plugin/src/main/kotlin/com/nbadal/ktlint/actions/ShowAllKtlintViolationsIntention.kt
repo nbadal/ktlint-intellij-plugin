@@ -7,32 +7,29 @@ import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import com.nbadal.ktlint.KtlintConfigStorage
-import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.ENABLED
-import com.nbadal.ktlint.config
+import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS
+import com.nbadal.ktlint.isEnabled
+import com.nbadal.ktlint.setDisplayAllKtlintViolations
 
-class KtlintModeIntention(
-    private val ktlintMode: KtlintConfigStorage.KtlintMode,
-) : BaseIntentionAction(),
+/**
+ * Intention to format the code with ktlint, regardless whether the plugin is enabled/disabled.
+ */
+class ShowAllKtlintViolationsIntention :
+    BaseIntentionAction(),
     LowPriorityAction {
     override fun getFamilyName() = "KtLint"
 
-    override fun getText() =
-        if (ktlintMode == ENABLED) {
-            "Enable ktlint for project"
-        } else {
-            "Disable ktlint for project"
-        }
+    override fun getText() = "Show all Ktlint violations in file"
 
     override fun isAvailable(
         project: Project,
         editor: Editor?,
         psiFile: PsiFile,
-    ): Boolean = true
+    ): Boolean = project.isEnabled(SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS)
 
     /**
      * As [isAvailable] return true always, the [invoke] is also called when previewing the result of the intention unless this function
-     * returns null. This prevents that the plugin is either enabled/disabled unintentionally.
+     * returns null. This prevents that the code if formatted unintentionally.
      */
     override fun getFileModifierForPreview(target: PsiFile): FileModifier? = null
 
@@ -41,7 +38,7 @@ class KtlintModeIntention(
         editor: Editor?,
         psiFile: PsiFile,
     ) {
-        project.config().ktlintMode = ktlintMode
+        editor?.document?.setDisplayAllKtlintViolations()
         DaemonCodeAnalyzer.getInstance(project).restart()
     }
 }

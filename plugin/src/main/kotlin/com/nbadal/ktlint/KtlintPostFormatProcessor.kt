@@ -17,7 +17,9 @@ class KtlintPostFormatProcessor : PostFormatProcessor {
         rangeToReformat: TextRange,
         settings: CodeStyleSettings,
     ): TextRange {
-        ktlintFormat(psiFile, "KtlintPostFormatProcessor")
+        if (psiFile.project.isEnabled(KtlintFeature.POST_FORMAT_WITH_KTLINT)) {
+            ktlintFormat(psiFile, "KtlintPostFormatProcessor")
+        }
         return rangeToReformat
     }
 }

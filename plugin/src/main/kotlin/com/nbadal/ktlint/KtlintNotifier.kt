@@ -4,9 +4,13 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
+import com.intellij.notification.NotificationType.ERROR
+import com.intellij.notification.NotificationType.INFORMATION
+import com.intellij.notification.NotificationType.WARNING
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
+import com.intellij.util.applyIf
 
 object KtlintNotifier {
     private const val KTLINT_NOTIFICATION_GROUP = "Ktlint Notifications"
@@ -15,55 +19,36 @@ object KtlintNotifier {
         project: Project,
         title: String,
         message: String,
-    ) = createNotification(title, message, NotificationType.ERROR)
-        .notify(project)
-
-    fun notifyErrorWithSettings(
-        project: Project,
-        title: String,
-        message: String,
-    ) = createNotification(title, message, NotificationType.ERROR)
-        .addAction(OpenSettingsAction(project))
-        .notify(project)
+        forceSettingsDialog: Boolean = false,
+    ) = notify(project, title, message, ERROR, forceSettingsDialog)
 
     fun notifyWarning(
         project: Project,
         title: String,
         message: String,
-    ) = createNotification(title, message, NotificationType.WARNING)
-        .notify(project)
-
-    fun notifyWarningWithSettings(
-        project: Project,
-        title: String,
-        message: String,
-    ) = createNotification(title, message, NotificationType.WARNING)
-        .addAction(OpenSettingsAction(project))
-        .notify(project)
+        forceSettingsDialog: Boolean = false,
+    ) = notify(project, title, message, WARNING, forceSettingsDialog)
 
     fun notifyInformation(
         project: Project,
         title: String,
         message: String,
-    ) = createNotification(title, message, NotificationType.INFORMATION)
-        .notify(project)
+        forceSettingsDialog: Boolean = false,
+    ) = notify(project, title, message, INFORMATION, forceSettingsDialog)
 
-    fun notifyInformationWithSettings(
+    private fun notify(
         project: Project,
         title: String,
         message: String,
-    ) = createNotification(title, message, NotificationType.INFORMATION)
-        .addAction(OpenSettingsAction(project))
-        .notify(project)
-
-    private fun createNotification(
-        title: String,
-        message: String,
         notificationType: NotificationType,
+        forceSettingsDialog: Boolean = false,
     ) = NotificationGroupManager
         .getInstance()
         .getNotificationGroup(KTLINT_NOTIFICATION_GROUP)
         .createNotification(title, message, notificationType)
+        .applyIf(forceSettingsDialog || project.isEnabled(KtlintFeature.SHOW_INTENTION_SETTINGS_DIALOG)) {
+            addAction(OpenSettingsAction(project))
+        }.notify(project)
 
     private class OpenSettingsAction(
         val project: Project,

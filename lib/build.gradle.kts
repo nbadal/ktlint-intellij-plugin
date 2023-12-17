@@ -38,7 +38,8 @@ tasks {
         // Expose all ruleset implementations:
         mergeServiceFiles()
 
-        relocate("org.jetbrains.kotlin.psi.KtPsiFactory", "shadow.org.jetbrains.kotlin.psi.KtPsiFactory")
-        relocate("org.jetbrains.kotlin.psi.psiUtil", "shadow.org.jetbrains.kotlin.psi.psiUtil")
+        // Relocate PSI classes to avoid conflicts and linkage errors. PSI class provided by the internal compiler of the Intellij IDEA are
+        // not always identical/compatible with the PSI classes provided by the embeddable kotlin compiler used by ktlint.
+        relocate("org.jetbrains.kotlin.psi", "shadow.org.jetbrains.kotlin.psi")
     }
 }
