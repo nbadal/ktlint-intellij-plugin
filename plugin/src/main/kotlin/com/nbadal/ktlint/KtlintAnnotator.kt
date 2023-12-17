@@ -17,7 +17,10 @@ import com.intellij.refactoring.suggested.startOffset
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISABLED
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintConfigStorage.KtlintMode.MANUAL
+import com.nbadal.ktlint.KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND
 import com.nbadal.ktlint.KtlintFeature.DISPLAY_ALL_VIOLATIONS
+import com.nbadal.ktlint.KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND
+import com.nbadal.ktlint.KtlintFeature.DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOCORRECTED
 import com.nbadal.ktlint.actions.ForceFormatIntention
 import com.nbadal.ktlint.actions.KtlintModeIntention
 import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
@@ -36,11 +39,11 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 null
             }
 
-            psiFile.project.ktlintMode() == DISABLED -> {
-                null
-            }
-
-            else -> {
+            psiFile.project.isEnabled(DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOCORRECTED) ||
+                psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) ||
+                psiFile.project.isEnabled(DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND) ||
+                psiFile.project.isEnabled(AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND)
+            -> {
                 if (editor.document.ktlintAnnotatorUserData?.modificationTimestamp == editor.document.modificationStamp) {
                     // Document is unchanged since last time ktlint has run. Reuse lint errors from user data. It also has the advantage that
                     // a notification from the lint/format process in case on error is not displayed again.
@@ -52,6 +55,8 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                         .lintErrors
                 }
             }
+
+            else -> null
         }
 
     override fun doAnnotate(collectedInfo: List<LintError>?): List<LintError>? =
@@ -64,7 +69,9 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
     ) {
         val displayAllKtlintViolations = psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) || psiFile.displayAllKtlintViolations
         val ignoreViolationsPredicate: (LintError) -> Boolean =
-            if (psiFile.project.config().ktlintMode == DISTRACT_FREE) {
+            if (psiFile.project.isEnabled(DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOCORRECTED) &&
+                !psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS)
+            ) {
                 // By default, hide all violations which can be autocorrected unless the current editor is configured to display all
                 // violations. Hiding aims to distract the developer as little as possible as those violations can be resolved by using
                 // ktlint format. Showing all violations supports the developer in suppressing violations which may not be autocorrected.
@@ -132,7 +139,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 }
             }
 
-        if (psiFile.project.isEnabled(KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND)) {
+        if (psiFile.project.isEnabled(AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND)) {
             annotationHolder
                 .newAnnotation(INFORMATION, message)
                 .fileLevel()
