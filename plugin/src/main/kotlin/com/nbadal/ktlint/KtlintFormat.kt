@@ -19,8 +19,6 @@ import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.api.LintError
 import org.ec4j.core.parser.ParseException
-import java.nio.file.Files
-import java.nio.file.Path
 
 internal fun ktlintLint(
     psiFile: PsiFile,
@@ -92,24 +90,21 @@ private fun executeKtlint(
 
     val lintErrors = mutableListOf<LintError>()
     var fileChangedByFormat = false
-    // The psiFile may contain unsaved changes. So create a snippet based on content of the psiFile *and*
-    // with the same path as that psiFile so that the correct '.editorconfig' is picked up by ktlint.
+    // The psiFile may contain unsaved changes. Get the content via the PsiDocumentManager instead of from "psiFile.text" directly. In case
+    // the content of an active editor window is changed via a global find and replace, the document text is updated but the Psi (and
+    // PsiFile) have not yet been changed. Add the virtual path based on path of the psiFile so that the correct '.editorconfig' is picked
+    // up by ktlint.
     val code =
-        Code.fromSnippet(
-            // Get the content via the PsiDocumentManager instead of from "psiFile.text" directly. In case
-            // the content of an active editor window is changed via a global find and replace, the document
-            // text is updated but the Psi (and PsiFile) have not yet been changed.
+        Code.fromSnippetWithPath(
             content = PsiDocumentManager.getInstance(project).getDocument(psiFile)!!.text,
-            script = psiFile.virtualFile.path.endsWith(".kts"),
-            // TODO: de-comment when parameter is supported in Ktlint 1.1.0
-            // path = psiFile.virtualFile.toNioPath(),
+            virtualPath = psiFile.virtualFile.toNioPath(),
         )
 
     try {
         val ktlintRuleEngine =
             project
                 .config()
-                .ktlintRuleEngine(psiFile.findEditorConfigDirectoryPath())
+                .ktlintRuleEngine()
                 ?: return KtlintResult(FILE_RELATED_ERROR)
                     .also { println("Could not create ktlintRuleEngine for path '${psiFile.virtualFile.path}'") }
         val errorHandler = { error: LintError ->
@@ -227,14 +222,6 @@ private fun LintError.isIgnoredInBaseline(baselineErrors: List<KtlintCliError>) 
                 baselineError.ruleId == ruleId.value &&
                 baselineError.status == KtlintCliError.Status.BASELINE_IGNORED
         }
-
-private fun PsiFile.findEditorConfigDirectoryPath(): Path? {
-    var directory = virtualFile.toNioPath().parent
-    while (Files.notExists(directory.resolve(".editorconfig")) && directory.parent != null) {
-        directory = directory.parent
-    }
-    return directory
-}
 
 private fun Project.baselineErrors(filePath: String) =
     config()
