@@ -61,6 +61,13 @@ jobs:
         with:
           ref: ${{ env.version }}
 
+      # Builds secrets file
+      - name: Build secrets file
+        env:
+          ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
+        shell: bash
+        run: echo "ROLLBAR_ACCESS_TOKEN=$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
+
       # Update Unreleased section with the current version
       - name: Patch Changelog
         run: ./gradlew patchChangelog
