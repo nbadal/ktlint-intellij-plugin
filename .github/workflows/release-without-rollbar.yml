@@ -1,7 +1,7 @@
 # GitHub Actions Workflow created for handling the release process based on the draft release prepared
 # with the Build workflow. Running the publishPlugin task requires the PUBLISH_TOKEN secret provided.
 
-name: Release
+name: Release without rollbar
 on: [ workflow_dispatch ]
 
 jobs:
@@ -28,6 +28,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ env.version }}
+
+      # Builds secrets file
+      - name: Build secrets file
+        env:
+          ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
+        shell: bash
+        run: echo "ROLLBAR_ACCESS_TOKEN=$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
 
       # Publish the plugin to the Marketplace
       - name: Publish Plugin
