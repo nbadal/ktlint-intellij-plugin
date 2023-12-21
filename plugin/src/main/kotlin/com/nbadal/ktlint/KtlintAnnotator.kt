@@ -24,6 +24,8 @@ import com.nbadal.ktlint.actions.ShowAllKtlintViolationsIntention
 import com.pinterest.ktlint.rule.engine.api.LintError
 
 internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
+    private val logger = KtlintLogger(this::class.qualifiedName)
+
     override fun collectInformation(
         psiFile: PsiFile,
         editor: Editor,
@@ -43,7 +45,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 if (editor.document.ktlintAnnotatorUserData?.modificationTimestamp == editor.document.modificationStamp) {
                     // Document is unchanged since last time ktlint has run. Reuse lint errors from user data. It also has the advantage that
                     // a notification from the lint/format process in case on error is not displayed again.
-                    println("Do not run ktlint as ktlintAnnotatorUserData has not changed on document ${psiFile.virtualFile.name}")
+                    logger.debug { "Do not run ktlint as ktlintAnnotatorUserData has not changed on document ${psiFile.virtualFile.name}" }
                     editor.document.ktlintAnnotatorUserData?.lintErrors
                 } else {
                     ktlintLint(psiFile, "KtlintAnnotator")
@@ -156,7 +158,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 .document
                 .ktlintAnnotatorUserData
                 .also {
-                    println("Annotator: $it")
+                    logger.debug { "Annotator: $it" }
                 }?.displayAllKtlintViolations ?: false
 
     private fun LintError.errorMessage(): String = "$detail (${ruleId.value})"
