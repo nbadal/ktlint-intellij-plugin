@@ -8,6 +8,8 @@ import java.net.URLClassLoader
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 
+private val logger = KtlintLogger("com.nbdal.ktlint.KtlintLoadRuleProviders")
+
 // See: LoadRuleProviders.kt
 internal fun List<URL>.loadRuleProviders(): Set<RuleProvider> =
     RuleSetProviderV3::class.java
@@ -21,7 +23,7 @@ private fun <T> Class<T>.loadFromJarFiles(
     providerId: (T) -> String,
 ): Set<T> {
     val providersFromKtlintJars = this.loadProvidersFromJars(null)
-    println("Loaded ${providersFromKtlintJars.size} providers from ktlint jars")
+    logger.debug { "Loaded ${providersFromKtlintJars.size} providers from ktlint jars" }
     val providerIdsFromKtlintJars = providersFromKtlintJars.map { providerId(it) }
     val providersFromCustomJars =
         urls
@@ -29,7 +31,7 @@ private fun <T> Class<T>.loadFromJarFiles(
             .flatMap { url ->
                 loadProvidersFromJars(url)
                     .filterNot { providerId(it) in providerIdsFromKtlintJars }
-                    .also { providers -> println("Loaded ${providers.size} custom ruleset providers from $url") }
+                    .also { providers -> logger.debug { "Loaded ${providers.size} custom ruleset providers from $url" } }
                     .filterNotNull()
                     .ifEmpty { throw EmptyRuleSetJarException("Custom rule set '$url' does not contain a custom ktlint rule set provider") }
             }.toSet()
