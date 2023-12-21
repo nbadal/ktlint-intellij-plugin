@@ -15,6 +15,8 @@ import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import java.io.File
 import java.nio.file.Path
 
+private val logger = KtlintLogger(KtlintConfigStorage::class.qualifiedName)
+
 @State(
     name = "KtLint plugin",
     storages = [Storage("ktlint-plugin.xml")],
@@ -146,8 +148,8 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
                 ?.let { path ->
                     loadBaseline(path)
                         .lintErrorsPerFile
-                        .also { println("Load baseline from file '$path'") }
+                        .also { logger.debug { "Load baseline from file '$path'" } }
                 }
-                ?: emptyMap<String, List<KtlintCliError>>().also { println("Clear baseline") }
+                ?: emptyMap<String, List<KtlintCliError>>().also { logger.debug { "Clear baseline" } }
     }
 }
