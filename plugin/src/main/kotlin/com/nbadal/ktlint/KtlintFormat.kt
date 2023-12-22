@@ -6,6 +6,8 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
+import com.nbadal.ktlint.KtlintExecutionType.FORMAT
+import com.nbadal.ktlint.KtlintExecutionType.LINT
 import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintResult.Status.FILE_RELATED_ERROR
 import com.nbadal.ktlint.KtlintResult.Status.NOT_STARTED
@@ -26,7 +28,7 @@ internal fun ktlintLint(
     psiFile: PsiFile,
     triggeredBy: String,
 ) = if (psiFile.virtualFile.isKotlinFile()) {
-    executeKtlintFormat(psiFile, triggeredBy, false, force = true)
+    executeKtlint(LINT, psiFile, triggeredBy, force = true)
 } else {
     KtlintResult(NOT_STARTED)
 }
@@ -44,7 +46,7 @@ internal fun ktlintFormat(
             .getInstance(project)
             .doPostponedOperationsAndUnblockDocument(document)
         WriteCommandAction.runWriteCommandAction(project) {
-            ktlintResult = executeKtlintFormat(psiFile, triggeredBy, true, forceFormat)
+            ktlintResult = executeKtlint(FORMAT, psiFile, triggeredBy, forceFormat)
         }
         FileDocumentManager.getInstance().saveDocument(document)
         DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
@@ -55,10 +57,10 @@ internal fun ktlintFormat(
     return ktlintResult
 }
 
-private fun executeKtlintFormat(
+private fun executeKtlint(
+    ktlintExecutionType: KtlintExecutionType,
     psiFile: PsiFile,
     triggeredBy: String,
-    writeFormattedCode: Boolean = false,
     force: Boolean = false,
 ): KtlintResult {
     val project = psiFile.project
@@ -106,29 +108,35 @@ private fun executeKtlintFormat(
         )
 
     try {
-        val formattedCode =
+        val ktlintRuleEngine =
             project
                 .config()
                 .ktlintRuleEngine(psiFile.findEditorConfigDirectoryPath())
-                ?.format(code) { error, _ ->
-                    when {
-                        // TODO: remove exclusion of rule "standard:filename" as this now results in false positives. When
-                        //  using "Code.fromSnippet" in Ktlint 1.0.0, the filename "File.kt" or "File.kts" is being used
-                        //  instead of the real name of the file. With fix in Ktlint 1.1.0 the filename will be based on
-                        //  parameter "path" and the rule will no longer cause false positives.
-                        error.ruleId.value == "standard:filename" -> {
-                            logger.debug { "Ignore rule '${error.ruleId.value}'" }
-                        }
-
-                        error.isIgnoredInBaseline(baselineErrors) -> Unit
-                        else -> lintErrors.add(error)
-                    }
-                }
                 ?: return KtlintResult(FILE_RELATED_ERROR)
                     .also { logger.debug { "Could not create ktlintRuleEngine for path '${psiFile.virtualFile.path}'" } }
-        if (writeFormattedCode && formattedCode != code.content) {
-            psiFile.viewProvider.document.setText(formattedCode)
-            fileChangedByFormat = true
+        val errorHandler = { error: LintError ->
+            when {
+                // TODO: remove exclusion of rule "standard:filename" as this now results in false positives. When
+                //  using "Code.fromSnippet" in Ktlint 1.0.0, the filename "File.kt" or "File.kts" is being used
+                //  instead of the real name of the file. With fix in Ktlint 1.1.0 the filename will be based on
+                //  parameter "path" and the rule will no longer cause false positives.
+                error.ruleId.value == "standard:filename" -> {
+                    logger.debug { "Ignore rule '${error.ruleId.value}'" }
+                }
+
+                error.isIgnoredInBaseline(baselineErrors) -> Unit
+
+                else -> lintErrors.add(error)
+            }
+        }
+        if (ktlintExecutionType == LINT) {
+            ktlintRuleEngine.lint(code) { lintError -> errorHandler(lintError) }
+        } else {
+            val formattedCode = ktlintRuleEngine.format(code) { lintError, _ -> errorHandler(lintError) }
+            if (formattedCode != code.content) {
+                psiFile.viewProvider.document.setText(formattedCode)
+                fileChangedByFormat = true
+            }
         }
         logger.debug { "Finished ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy' successfully" }
         return KtlintResult(SUCCESS, lintErrors, fileChangedByFormat)
@@ -182,6 +190,8 @@ private fun executeKtlintFormat(
         return KtlintResult(FILE_RELATED_ERROR)
     }
 }
+
+private enum class KtlintExecutionType { LINT, FORMAT }
 
 internal data class KtlintResult(
     val status: Status,
