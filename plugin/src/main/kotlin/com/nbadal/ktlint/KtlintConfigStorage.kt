@@ -8,10 +8,8 @@ import com.intellij.util.xmlb.annotations.Tag
 import com.nbadal.ktlint.KtlintMode.NOT_INITIALIZED
 import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
-import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import java.io.File
 import java.nio.file.Path
 
@@ -66,37 +64,21 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
                 ?.takeIf { it.baselinePath == baselinePath }
                 ?: Baseline(baselinePath).also { _baseline = it }
 
-    private var filePath: Path? = null
-
     private var ktlintRuleEngine: KtLintRuleEngine? = null
 
-    /**
-     * Gets the KtlintRuleEngine for given [filePath].
-     *
-     * TODO: Make independent of [filePath] in Ktlint 1.1.0 as editor config defaults no longer have to be loaded in the KtLintRuleEngine
-     *  when it becomes possible to create code snippet with a path.
-     */
-    fun ktlintRuleEngine(filePath: Path?) =
+    fun ktlintRuleEngine() =
         ktlintRuleEngine
-            ?.takeIf { this.filePath == filePath && filePath != null }
             ?: ruleSetProviders
                 .ruleProviders
                 ?.let { ruleProviders ->
                     KtLintRuleEngine(
                         editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
                         ruleProviders = ruleProviders,
-                        // TODO: remove when Code.fromSnippet takes a path as parameter in Ktlint 1.1.0.
-                        //  Drawback of this method is that it ignores property "root" in '.editorconfig' file.
-                        editorConfigDefaults =
-                            EditorConfigDefaults.load(
-                                path = filePath,
-                                propertyTypes = ruleProviders.propertyTypes(),
-                            ),
                     )
                 }.also { ktlintRuleEngine = it }
 
     /**
-     * Clears the ".editorconfig" cache so that it gets reloaded.
+     * Clears the ".editorconfig" cache so that it gets reloaded. This should only be called after saving a modified ".editorconfig".
      */
     fun resetKtlintRuleEngine() = ktlintRuleEngine?.trimMemory()
 
