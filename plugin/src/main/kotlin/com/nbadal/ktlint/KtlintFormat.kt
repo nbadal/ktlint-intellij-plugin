@@ -20,6 +20,8 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.api.LintError
 import org.ec4j.core.parser.ParseException
 
+private val logger = KtlintLogger("com.nbdal.ktlint.KtlintFormat")
+
 internal fun ktlintLint(
     psiFile: PsiFile,
     triggeredBy: String,
@@ -64,7 +66,7 @@ private fun executeKtlint(
         return KtlintResult(NOT_STARTED)
     }
 
-    println("Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'")
+    logger.debug { "Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'" }
 
     project
         .config()
@@ -106,7 +108,7 @@ private fun executeKtlint(
                 .config()
                 .ktlintRuleEngine()
                 ?: return KtlintResult(FILE_RELATED_ERROR)
-                    .also { println("Could not create ktlintRuleEngine for path '${psiFile.virtualFile.path}'") }
+                    .also { logger.debug { "Could not create ktlintRuleEngine for path '${psiFile.virtualFile.path}'" } }
         val errorHandler = { error: LintError ->
             when {
                 // TODO: remove exclusion of rule "standard:filename" as this now results in false positives. When
@@ -114,7 +116,7 @@ private fun executeKtlint(
                 //  instead of the real name of the file. With fix in Ktlint 1.1.0 the filename will be based on
                 //  parameter "path" and the rule will no longer cause false positives.
                 error.ruleId.value == "standard:filename" -> {
-                    println("Ignore rule '${error.ruleId.value}'")
+                    logger.debug { "Ignore rule '${error.ruleId.value}'" }
                 }
 
                 error.isIgnoredInBaseline(baselineErrors) -> Unit
@@ -131,7 +133,7 @@ private fun executeKtlint(
                 fileChangedByFormat = true
             }
         }
-        println("Finished ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy' successfully")
+        logger.debug { "Finished ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy' successfully" }
         return KtlintResult(SUCCESS, lintErrors, fileChangedByFormat)
     } catch (ktLintParseException: KtLintParseException) {
         // Most likely the file contains a compilation error which prevents it from being parsed. The user should resolve those errors.
