@@ -225,11 +225,7 @@ private fun LintError.isIgnoredInBaseline(baselineErrors: List<KtlintCliError>) 
                 baselineError.status == KtlintCliError.Status.BASELINE_IGNORED
         }
 
-private fun Project.baselineErrors(filePath: String) =
-    config()
-        .baseline
-        .lintErrorsPerFile[filePath.pathRelativeTo(basePath)]
-        .orEmpty()
+private fun Project.baselineErrors(filePath: String) = config().getBaselineErrors(this, filePath.pathRelativeTo(basePath))
 
 private fun String.pathRelativeTo(projectBasePath: String?): String =
     if (projectBasePath.isNullOrBlank()) {

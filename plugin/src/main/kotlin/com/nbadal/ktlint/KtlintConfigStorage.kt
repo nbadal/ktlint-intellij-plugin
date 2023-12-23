@@ -4,14 +4,16 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
+import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.Tag
 import com.nbadal.ktlint.KtlintMode.NOT_INITIALIZED
+import com.pinterest.ktlint.cli.reporter.baseline.BaselineErrorHandling
+import com.pinterest.ktlint.cli.reporter.baseline.BaselineLoaderException
 import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import java.io.File
-import java.nio.file.Path
 
 private val logger = KtlintLogger(KtlintConfigStorage::class.qualifiedName)
 
@@ -56,13 +58,7 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
      * Keeps the state of the last loaded baseline. It serves as a cache so that the baseline does not need to be reloaded from the file
      * system on each invocation of ktlint format.
      */
-    private var _baseline: Baseline? = null
-
-    val baseline: Baseline
-        get() =
-            _baseline
-                ?.takeIf { it.baselinePath == baselinePath }
-                ?: Baseline(baselinePath).also { _baseline = it }
+    private var baseline: Baseline? = null
 
     private var ktlintRuleEngine: KtLintRuleEngine? = null
 
@@ -124,14 +120,45 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
 
     data class Baseline(
         val baselinePath: String?,
-    ) {
-        val lintErrorsPerFile: Map<String, List<KtlintCliError>> =
-            baselinePath
-                ?.let { path ->
-                    loadBaseline(path)
-                        .lintErrorsPerFile
-                        .also { logger.debug { "Load baseline from file '$path'" } }
-                }
-                ?: emptyMap<String, List<KtlintCliError>>().also { logger.debug { "Clear baseline" } }
+        val lintErrorsPerFile: Map<String, List<KtlintCliError>>,
+    )
+
+    fun getBaselineErrors(
+        project: Project,
+        filePath: String,
+    ): List<KtlintCliError> {
+        if (baseline?.baselinePath != baselinePath) {
+            baseline = project.loadBaseline()
+        }
+        return baseline
+            ?.lintErrorsPerFile
+            ?.get(filePath)
+            ?: emptyList()
     }
+
+    private fun Project.loadBaseline() =
+        baselinePath
+            ?.takeIf { it.isNotBlank() }
+            ?.let { path ->
+                try {
+                    Baseline(
+                        baselinePath = baselinePath,
+                        loadBaseline(path, BaselineErrorHandling.EXCEPTION)
+                            .lintErrorsPerFile
+                            .also { logger.debug { "Load baseline from file '$path'" } },
+                    )
+                } catch (e: BaselineLoaderException) {
+                    // The exception message produced by ktlint already contains sufficient context of the error
+                    val message = e.message ?: "Exception while loading baseline file '$baselinePath'"
+                    KtlintNotifier.notifyError(
+                        project = this,
+                        title = "Loading baseline",
+                        message = message,
+                        forceSettingsDialog = true,
+                    )
+                    logger.debug(e) { message }
+                    Baseline(baselinePath, emptyMap())
+                }
+            }
+            ?: Baseline(baselinePath, emptyMap())
 }
