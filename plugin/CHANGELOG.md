@@ -6,8 +6,6 @@ KtLint maintainer [Paul Dingemans](https://github.com/paul-dingemans) has joined
 
 ## [Unreleased]
 
-## [0.20.0-beta-7] - 2023-12-24
-
 ### Changed
 
 - Upgrade KtLint to 1.1.0
