@@ -6,8 +6,6 @@ KtLint maintainer [Paul Dingemans](https://github.com/paul-dingemans) has joined
 
 ## [Unreleased]
 
-## [0.20.0-beta-8] - 2023-12-26
-
 ### Changed
 
 - Upgrade KtLint to 1.1.0
@@ -241,9 +239,6 @@ KtLint maintainer [Paul Dingemans](https://github.com/paul-dingemans) has joined
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.20.0-beta-8...HEAD
-[0.20.0-beta-7]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.13.0...v0.20.0-beta-7
-[0.20.0-beta-8]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.13.0...v0.20.0-beta-8
 [0.13.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.10.0...v0.11.0
