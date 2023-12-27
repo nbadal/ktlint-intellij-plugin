@@ -106,7 +106,7 @@ private fun executeKtlint(
         val ktlintRuleEngine =
             project
                 .config()
-                .ktlintRuleEngine()
+                .ktlintRuleEngine
                 ?: return KtlintResult(FILE_RELATED_ERROR)
                     .also { logger.debug { "Could not create ktlintRuleEngine for path '${psiFile.virtualFile.path}'" } }
         val errorHandler = { error: LintError ->
