@@ -62,7 +62,7 @@ class KtlintRuleSuppressIntention(
                     )
                 project
                     .config()
-                    .ktlintRuleEngine()
+                    .ktlintRuleEngine
                     ?.insertSuppression(code, lintError.toKtlintSuppressionAtOffset())
                     ?.let { updatedCode ->
                         if (updatedCode != code.content) {

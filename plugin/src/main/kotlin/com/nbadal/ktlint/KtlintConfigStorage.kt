@@ -60,23 +60,29 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
      */
     private var baseline: Baseline? = null
 
-    private var ktlintRuleEngine: KtLintRuleEngine? = null
+    private var _ktlintRuleEngine: KtLintRuleEngine? = null
 
-    fun ktlintRuleEngine() =
-        ktlintRuleEngine
-            ?: ruleSetProviders
-                .ruleProviders
+    val ktlintRuleEngine: KtLintRuleEngine?
+        get() {
+            ruleSetProviders
+                .takeIf { it.isChanged() }
+                ?.ruleProviders
                 ?.let { ruleProviders ->
-                    KtLintRuleEngine(
-                        editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
-                        ruleProviders = ruleProviders,
-                    )
-                }.also { ktlintRuleEngine = it }
+                    _ktlintRuleEngine =
+                        KtLintRuleEngine(
+                            editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
+                            ruleProviders = ruleProviders,
+                        )
+                }
+            return _ktlintRuleEngine
+        }
+
+    private fun RuleSetProviders.isChanged() = externalJarPaths == this@KtlintConfigStorage.externalJarPaths
 
     /**
      * Clears the ".editorconfig" cache so that it gets reloaded. This should only be called after saving a modified ".editorconfig".
      */
-    fun resetKtlintRuleEngine() = ktlintRuleEngine?.trimMemory()
+    fun resetKtlintRuleEngine() = _ktlintRuleEngine?.trimMemory()
 
     override fun getState(): KtlintConfigStorage = this
 
