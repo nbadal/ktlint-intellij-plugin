@@ -221,14 +221,19 @@ tasks {
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel.
         // The channel is set by setting the pluginVersion in the root `gradle.properties`
         channels =
-            // Replace due to multi-module setup
-            // properties("pluginVersion").map {
-            listOf(
+            listOfNotNull(
+                // Extract channel from `pluginVersion`. When version does not contain information that restricts the version to a specific
+                // channel, then it is to be published to the `default` channel.
                 pluginVersion
                     .split('-')
                     .getOrElse(1) { "default" }
                     .split('.')
                     .first(),
-            )
+                // Publish each version to the beta channel.
+                "beta",
+            ).distinct()
+                .also { channels ->
+                    project.logger.lifecycle("PluginVersion `$pluginVersion` publishes the plugin to channels: $channels")
+                }
     }
 }
