@@ -3,7 +3,7 @@
 annotations = "24.1.0"
 
 # plugins
-buildconfig = "5.2.0"
+buildconfig = "5.3.2"
 changelog = "2.2.0"
 gradleIntelliJPlugin = "1.16.1"
 kotlin = "1.9.22"
