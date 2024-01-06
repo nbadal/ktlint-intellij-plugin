@@ -42,7 +42,6 @@ version = pluginVersion
 // Configure project's dependencies
 repositories {
     mavenCentral()
-    mavenLocal()
 }
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
@@ -51,8 +50,6 @@ dependencies {
 
     // Shadow lib (see: ../lib/README.md)
     compileOnly(project(":lib")) // Required for IDE
-    implementation("com.example.ktlint-custom-ruleset-example:ktlint-custom-ruleset-example:1.1.0")
-//    implementation("io.nlopez.compose.rules:ktlint:0.3.8")
     implementation(project(":lib", "shadow"))
 
     implementation("com.rollbar:rollbar-java:1.10.0") {
