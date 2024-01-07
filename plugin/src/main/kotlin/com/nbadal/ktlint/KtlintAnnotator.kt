@@ -3,6 +3,7 @@ package com.nbadal.ktlint
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.ExternalAnnotator
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.lang.annotation.HighlightSeverity.ERROR
 import com.intellij.lang.annotation.HighlightSeverity.INFORMATION
 import com.intellij.lang.annotation.HighlightSeverity.WARNING
@@ -17,7 +18,7 @@ import com.intellij.refactoring.suggested.startOffset
 import com.nbadal.ktlint.KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND
 import com.nbadal.ktlint.KtlintFeature.DISPLAY_ALL_VIOLATIONS
 import com.nbadal.ktlint.KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND
-import com.nbadal.ktlint.KtlintFeature.DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOCORRECTED
+import com.nbadal.ktlint.KtlintFeature.DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR
 import com.nbadal.ktlint.actions.ForceFormatIntention
 import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
 import com.nbadal.ktlint.actions.ShowAllKtlintViolationsIntention
@@ -37,7 +38,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 null
             }
 
-            psiFile.project.isEnabled(DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOCORRECTED) ||
+            psiFile.project.isEnabled(DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR) ||
                 psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) ||
                 psiFile.project.isEnabled(DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND) ||
                 psiFile.project.isEnabled(AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND)
@@ -67,7 +68,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
     ) {
         val displayAllKtlintViolations = psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) || psiFile.displayAllKtlintViolations
         val ignoreViolationsPredicate: (LintError) -> Boolean =
-            if (psiFile.project.isEnabled(DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOCORRECTED) &&
+            if (psiFile.project.isEnabled(DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR) &&
                 !psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS)
             ) {
                 // By default, hide all violations which can be autocorrected unless the current editor is configured to display all
@@ -88,14 +89,18 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
         annotationHolder: AnnotationHolder,
         shouldIgnore: (LintError) -> Boolean,
     ) {
+        val displayViolationWhichCanNotBeAutocorrectedAsError =
+            psiFile.project.isEnabled(DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR)
         errors
             ?.filterNot { shouldIgnore(it) }
             ?.forEach { lintError ->
                 errorTextRange(psiFile, lintError)
                     ?.let { errorTextRange ->
                         annotationHolder
-                            .newAnnotation(ERROR, lintError.errorMessage())
-                            .range(errorTextRange)
+                            .newAnnotation(
+                                lintError.highlightSeverity(displayViolationWhichCanNotBeAutocorrectedAsError),
+                                lintError.errorMessage(),
+                            ).range(errorTextRange)
                             .withFix(KtlintRuleSuppressIntention(lintError))
                             .create()
                     }
@@ -160,6 +165,13 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 .also {
                     logger.debug { "Annotator: $it" }
                 }?.displayAllKtlintViolations ?: false
+
+    private fun LintError.highlightSeverity(displayViolationWhichCanNotBeAutocorrectedAsError: Boolean): HighlightSeverity =
+        if (displayViolationWhichCanNotBeAutocorrectedAsError && !canBeAutoCorrected) {
+            ERROR
+        } else {
+            WARNING
+        }
 
     private fun LintError.errorMessage(): String = "$detail (${ruleId.value})"
 
