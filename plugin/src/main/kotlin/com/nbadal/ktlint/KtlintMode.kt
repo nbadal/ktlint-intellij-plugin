@@ -29,7 +29,7 @@ enum class KtlintMode(
             // Although Ktlint is executed automatically on files being edited, this option is still useful for mass formatting on files
             // without having the need to edit each file individually.
             KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
-            KtlintFeature.DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOCORRECTED,
+            KtlintFeature.DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR,
             KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
         ),
     ),
@@ -61,7 +61,7 @@ enum class KtlintFeature {
     /**
      * Display a problem for each violation that can not be autocorrected.
      */
-    DISPLAY_VIOLATIONS_WHICH_CAN_NOT_BE_AUTOCORRECTED,
+    DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR,
 
     /**
      * Displays a problem for each ktlint violation.
