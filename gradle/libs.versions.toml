@@ -8,7 +8,7 @@ changelog = "2.2.0"
 gradleIntelliJPlugin = "1.16.1"
 kotlin = "1.9.22"
 kover = "0.7.5"
-ktlint = "1.1.0"
+ktlint = "1.1.1"
 qodana = "0.1.13"
 shadow = "8.1.1"
 
