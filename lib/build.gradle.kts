@@ -38,8 +38,9 @@ tasks {
         // Expose all ruleset implementations:
         mergeServiceFiles()
 
-        // Relocate PSI classes to avoid conflicts and linkage errors. PSI class provided by the internal compiler of the Intellij IDEA are
-        // not always identical/compatible with the PSI classes provided by the embeddable kotlin compiler used by ktlint.
-        relocate("org.jetbrains.kotlin.psi", "shadow.org.jetbrains.kotlin.psi")
+        // Relocate to prevent conflicts with same packages provided by Intellij IDEA as well.
+        // - The embeddable Kotlin compiler in the Ktlint jar differs from the compiler provided in the IDEA.
+        // - "org.jetbrains.org.objectweb.asm" causes compatability issues in IDEA resulting in a lot of exceptions
+        relocate("org.jetbrains", "shadow.org.jetbrains")
     }
 }

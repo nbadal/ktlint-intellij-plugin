@@ -1,15 +1,15 @@
+package com.nbadal.ktlint
+
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.ui.IdeBorderFactory
-import com.nbadal.ktlint.KtlintConfigStorage
 import com.nbadal.ktlint.KtlintMode.DISABLED
 import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintMode.MANUAL
 import com.nbadal.ktlint.KtlintMode.NOT_INITIALIZED
-import com.nbadal.ktlint.resetKtlintAnnotator
 import java.awt.Desktop
 import java.net.URI
 import java.util.Objects
