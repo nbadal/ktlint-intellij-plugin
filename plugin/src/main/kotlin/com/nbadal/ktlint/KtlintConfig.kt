@@ -1,6 +1,5 @@
 package com.nbadal.ktlint
 
-import KtlintConfigForm
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.project.Project
@@ -12,8 +11,6 @@ class KtlintConfig(
     private val form = KtlintConfigForm(project, project.config())
 
     val distractFreeMode by form::distractFreeMode
-    val manualMode by form::manualMode
-    val disabledMode by form::disabledMode
 
     val formatOnSaveCheckbox by form::formatOnSave
 

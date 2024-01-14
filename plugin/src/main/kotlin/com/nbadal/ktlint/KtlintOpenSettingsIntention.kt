@@ -13,7 +13,7 @@ class KtlintOpenSettingsIntention :
     LowPriorityAction {
     override fun getFamilyName() = "KtLint"
 
-    override fun getText() = "Open Ktlint Settings"
+    override fun getText() = "Open Ktlint settings"
 
     override fun isAvailable(
         project: Project,
