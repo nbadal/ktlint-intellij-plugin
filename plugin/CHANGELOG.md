@@ -6,17 +6,15 @@ KtLint maintainer [Paul Dingemans](https://github.com/paul-dingemans) has joined
 
 ## [Unreleased]
 
-## What's Changed
+### What's Changed
 * Reload KtLintRuleEngine when changing the rule sets by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/429
 * Highlight a ktlint violation as warning except in distract-free mode, and it can not be autocorrected by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/437
 * Relocate all packages from "org.jetbrains" by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/445
 
-## Dependency updates
+### Dependency updates
 * Upgrade ktlint to 1.1.1 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/441
 * Bump com.github.gmazzo.buildconfig to 5.3.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/438
 * Bump io.mockk:mockk from 1.13.8 to 1.13.9 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/439
-
-**Full Changelog**: https://github.com/nbadal/ktlint-intellij-plugin/compare/0.20.0...0.20.1-beta
 
 ## [0.20.0] - 2023-12-26
 
