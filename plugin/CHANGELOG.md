@@ -6,15 +6,19 @@ KtLint maintainer [Paul Dingemans](https://github.com/paul-dingemans) has joined
 
 ## [Unreleased]
 
+## [0.20.1-beta-eap-241.8102.112] - 2024-01-20
+
 ### What's Changed
-* Reload KtLintRuleEngine when changing the rule sets by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/429
-* Highlight a ktlint violation as warning except in distract-free mode, and it can not be autocorrected by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/437
-* Relocate all packages from "org.jetbrains" by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/445
+
+- Reload KtLintRuleEngine when changing the rule sets by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/429
+- Highlight a ktlint violation as warning except in distract-free mode, and it can not be autocorrected by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/437
+- Relocate all packages from "org.jetbrains" by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/445
 
 ### Dependency updates
-* Upgrade ktlint to 1.1.1 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/441
-* Bump com.github.gmazzo.buildconfig to 5.3.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/438
-* Bump io.mockk:mockk from 1.13.8 to 1.13.9 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/439
+
+- Upgrade ktlint to 1.1.1 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/441
+- Bump com.github.gmazzo.buildconfig to 5.3.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/438
+- Bump io.mockk:mockk from 1.13.8 to 1.13.9 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/439
 
 ## [0.20.0] - 2023-12-26
 
@@ -251,7 +255,8 @@ KtLint maintainer [Paul Dingemans](https://github.com/paul-dingemans) has joined
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.20.0...v0.20.1-beta
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.20.1-beta-eap-241.8102.112...HEAD
+[0.20.1-beta-eap-241.8102.112]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.20.0...v0.20.1-beta-eap-241.8102.112
 [0.20.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.13.0...v0.20.0
 [0.13.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.11.0...v0.12.0
