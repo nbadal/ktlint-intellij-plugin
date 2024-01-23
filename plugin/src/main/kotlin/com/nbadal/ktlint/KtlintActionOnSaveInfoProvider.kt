@@ -12,9 +12,7 @@ private const val KTLINT_FORMAT_CONFIGURABLE_ID = "preferences.ktlint-plugin"
 class KtlintActionOnSaveInfoProvider : ActionOnSaveInfoProvider() {
     override fun getActionOnSaveInfos(context: ActionOnSaveContext): List<ActionOnSaveInfo> = listOf(KtlintOnSaveActionInfo(context))
 
-    override fun getSearchableOptions(): Collection<String> {
-        return listOf(ACTION_ON_SAVE_NAME)
-    }
+    override fun getSearchableOptions(): Collection<String> = listOf(ACTION_ON_SAVE_NAME)
 }
 
 private class KtlintOnSaveActionInfo(
