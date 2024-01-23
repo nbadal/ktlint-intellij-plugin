@@ -12,6 +12,8 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.util.applyIf
 
+private val logger = KtlintLogger(KtlintConfigStorage::class.qualifiedName)
+
 object KtlintNotifier {
     private const val KTLINT_NOTIFICATION_GROUP = "Ktlint Notifications"
 
@@ -49,6 +51,13 @@ object KtlintNotifier {
         .applyIf(forceSettingsDialog || project.isEnabled(KtlintFeature.SHOW_INTENTION_SETTINGS_DIALOG)) {
             addAction(OpenSettingsAction(project))
         }.notify(project)
+        .also {
+            when (notificationType) {
+                ERROR -> logger.error { message }
+                WARNING -> logger.warn { message }
+                else -> logger.debug { message }
+            }
+        }
 
     private class OpenSettingsAction(
         val project: Project,
