@@ -111,14 +111,6 @@ private fun executeKtlint(
                     .also { logger.debug { "Could not create ktlintRuleEngine for path '${psiFile.virtualFile.path}'" } }
         val errorHandler = { error: LintError ->
             when {
-                // TODO: remove exclusion of rule "standard:filename" as this now results in false positives. When
-                //  using "Code.fromSnippet" in Ktlint 1.0.0, the filename "File.kt" or "File.kts" is being used
-                //  instead of the real name of the file. With fix in Ktlint 1.1.0 the filename will be based on
-                //  parameter "path" and the rule will no longer cause false positives.
-                error.ruleId.value == "standard:filename" -> {
-                    logger.debug { "Ignore rule '${error.ruleId.value}'" }
-                }
-
                 error.isIgnoredInBaseline(baselineErrors) -> Unit
 
                 else -> lintErrors.add(error)
