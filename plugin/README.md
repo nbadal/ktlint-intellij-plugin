@@ -17,7 +17,7 @@ Ktlint is configured in the `.editorconfig` file (see [KtLint configuration](htt
 
 This plugin was formerly known as the "Ktlint (unofficial)" plugin, developed by [Nick Badal](https://github.com/nbadal). In collaboration with KtLint maintainer [Paul Dingemans](https://github.com/paul-dingemans), the plugin has now been reworked and rebranded as (official) "KtLint" Plugin. The plugin now puts more focus on the automatic formatting of Kotlin code. This results in more consistent code, better performance in IntelliJ IDEA, and developers spending less time on fixing errors which can be autocorrected. Finally, the plugin will be updated in same release cycle as KtLint itself.
 
-The plugin currently runs with ktlint version `1.1.1`.
+The plugin currently runs with ktlint version `1.2.1`.
 
 Enable and configure in `Preferences` > `Tools` > `KtLint Format`.
 <!-- Plugin description end -->
