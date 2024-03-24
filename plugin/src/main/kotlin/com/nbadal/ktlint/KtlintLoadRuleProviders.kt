@@ -13,32 +13,22 @@ private val logger = KtlintLogger("com.nbdal.ktlint.KtlintLoadRuleProviders")
 // See: LoadRuleProviders.kt
 internal fun List<URL>.loadRuleProviders(): Set<RuleProvider> =
     RuleSetProviderV3::class.java
-        .loadFromJarFiles(this, providerId = { it.id.value })
+        .loadFromJarFiles(this)
         .flatMap { it.getRuleProviders() }
         .toSet()
 
 // See: KtlintServiceLoader.kt
-private fun <T> Class<T>.loadFromJarFiles(
-    urls: List<URL>,
-    providerId: (T) -> String,
-): Set<T> {
-    val providersFromKtlintJars = this.loadProvidersFromJars(null)
-    logger.debug { "Loaded ${providersFromKtlintJars.size} providers from ktlint jars" }
-    val providerIdsFromKtlintJars = providersFromKtlintJars.map { providerId(it) }
+private fun <T> Class<T>.loadFromJarFiles(urls: List<URL>): Set<T> {
     val providersFromCustomJars =
         urls
             .distinct()
             .flatMap { url ->
                 loadProvidersFromJars(url)
-                    .filterNot { providerId(it) in providerIdsFromKtlintJars }
                     .also { providers -> logger.debug { "Loaded ${providers.size} custom ruleset providers from $url" } }
                     .filterNotNull()
                     .ifEmpty { throw EmptyRuleSetJarException("Custom rule set '$url' does not contain a custom ktlint rule set provider") }
             }.toSet()
-    return providersFromKtlintJars
-        .plus(providersFromCustomJars)
-        .filterNotNull()
-        .toSet()
+    return providersFromCustomJars.toSet()
 }
 
 class EmptyRuleSetJarException(

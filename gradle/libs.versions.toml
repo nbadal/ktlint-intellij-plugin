@@ -18,7 +18,6 @@ ktlintRuleEngine = {  group = "com.pinterest.ktlint", name = "ktlint-rule-engine
 ktlintCliRulesetCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-ruleset-core", version.ref = "ktlint" }
 ktlintCliReporterCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-reporter-core", version.ref = "ktlint" }
 ktlintCliReporterBaselineCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-reporter-baseline", version.ref = "ktlint" }
-ktlintRulesetStandard = {  group = "com.pinterest.ktlint", name = "ktlint-ruleset-standard", version.ref = "ktlint" }
 
 [plugins]
 buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" } # BuildConfig - read more: https://github.com/gmazzo/gradle-buildconfig-plugin

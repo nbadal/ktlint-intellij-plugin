@@ -16,7 +16,6 @@ dependencies {
     api(libs.ktlintCliRulesetCore)
     api(libs.ktlintCliReporterCore)
     api(libs.ktlintCliReporterBaselineCore)
-    implementation(libs.ktlintRulesetStandard)
 }
 
 tasks {
