@@ -15,7 +15,7 @@ dependencies {
     // Until version 0.50.0, the "mu.Kotlin" logger was used. In 1.x version this has been replaced with
     // "io.github.oshai.kotlinlogging.KLogger".
     implementation("com.pinterest.ktlint:ktlint-logger:0.50.0")
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.50.0")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.2.1")
 }
 
 tasks {
