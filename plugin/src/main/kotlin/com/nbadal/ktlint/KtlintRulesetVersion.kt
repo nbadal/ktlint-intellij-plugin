@@ -38,7 +38,7 @@ enum class KtlintRulesetVersion(
 
         private val default =
             entries
-                .filterNot { it.ruleSetProvider == null }
+                .filterNot { it == DEFAULT }
                 .map { ktlintRulesetVersion ->
                     ktlintRulesetVersion to
                         ktlintRulesetVersion
