@@ -2,7 +2,7 @@
 
 Contrary to the [default plugin setup](https://github.com/JetBrains/intellij-platform-plugin-template) this plugin is set up as a multi-module project. This is required as the Ktlint artifact for the KtlintRuleEngine encloses the embeddable Kotlin compiler which conflicts with the IDE compiler.
 
-The "ktlint-lib" project relocates the conflicting classes, and provides the different versions of the rulesets. The "plugin" project uses the "lib" to include the (modified) Ktlint artifacts. 
+The "lib" project relocates the conflicting classes. The "plugin" project uses the "lib" to include the (modified) Ktlint artifacts. 
 
 ## Installation
 

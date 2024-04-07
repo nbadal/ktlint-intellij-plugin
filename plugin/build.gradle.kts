@@ -48,28 +48,16 @@ repositories {
 dependencies {
 //    implementation(libs.annotations)
 
-    // Shadow lib (see: ../ktlint-lib/README.md)
-    compileOnly(project(":ktlint-lib:core")) // Required for IDE
-    implementation(project(":ktlint-lib:core", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-0-50-0")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-0-50-0", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-1-0-1")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-0-1", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-1-1-1")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-1-1", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-1-2-1")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-2-1", "shadow"))
+    // Shadow lib (see: ../lib/README.md)
+    compileOnly(project(":lib")) // Required for IDE
+    implementation(project(":lib", "shadow"))
 
     implementation("com.rollbar:rollbar-java:1.10.0") {
         exclude(group = "org.slf4j") // Duplicated in IDE environment
     }
 
     // Tests:
-    testImplementation(project(":ktlint-lib:core"))
+    testImplementation(project(":lib"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testImplementation("org.junit.platform:junit-platform-launcher:1.10.2")
     testImplementation("io.mockk:mockk:1.13.10")

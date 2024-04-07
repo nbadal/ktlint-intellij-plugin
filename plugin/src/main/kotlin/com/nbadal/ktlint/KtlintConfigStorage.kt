@@ -34,9 +34,6 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     var ktlintMode: KtlintMode = NOT_INITIALIZED
 
     @Tag
-    var ktlintRulesetVersion: KtlintRulesetVersion = KtlintRulesetVersion.DEFAULT
-
-    @Tag
     var formatOnSave: Boolean = true
 
     @Tag
@@ -49,19 +46,13 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
      * Keeps the state of the last loaded set of rule set jars. It serves as a cache so that the rule set providers do not need to be
      * reloaded from the file system on each invocation of ktlint format.
      */
-    private lateinit var _ruleSetProviders: RuleSetProviders
+    private var _ruleSetProviders: RuleSetProviders? = null
 
     val ruleSetProviders: RuleSetProviders
-        get() {
-            if (!::_ruleSetProviders.isInitialized ||
-                _ruleSetProviders.ktlintRulesetVersion != ktlintRulesetVersion ||
-                _ruleSetProviders.externalJarPaths != externalJarPaths
-            ) {
-                _ruleSetProviders = RuleSetProviders(ktlintRulesetVersion, externalJarPaths)
-                _ktlintRuleEngine = null
-            }
-            return _ruleSetProviders
-        }
+        get() =
+            _ruleSetProviders
+                ?.takeIf { it.externalJarPaths == externalJarPaths }
+                ?: RuleSetProviders(externalJarPaths).also { _ruleSetProviders = it }
 
     /**
      * Keeps the state of the last loaded baseline. It serves as a cache so that the baseline does not need to be reloaded from the file
@@ -73,22 +64,20 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
 
     val ktlintRuleEngine: KtLintRuleEngine?
         get() {
-            if (_ktlintRuleEngine == null ||
-                _ruleSetProviders.ktlintRulesetVersion != ktlintRulesetVersion ||
-                _ruleSetProviders.externalJarPaths != externalJarPaths
-            ) {
-                _ruleSetProviders
-                    .ruleProviders
-                    ?.let { ruleProviders ->
-                        _ktlintRuleEngine =
-                            KtLintRuleEngine(
-                                editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
-                                ruleProviders = ruleProviders,
-                            )
-                    }
-            }
+            ruleSetProviders
+                .takeIf { it.isChanged() }
+                ?.ruleProviders
+                ?.let { ruleProviders ->
+                    _ktlintRuleEngine =
+                        KtLintRuleEngine(
+                            editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
+                            ruleProviders = ruleProviders,
+                        )
+                }
             return _ktlintRuleEngine
         }
+
+    private fun RuleSetProviders.isChanged() = externalJarPaths == this@KtlintConfigStorage.externalJarPaths
 
     /**
      * Clears the ".editorconfig" cache so that it gets reloaded. This should only be called after saving a modified ".editorconfig".
@@ -103,16 +92,12 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
         @Suppress("USELESS_ELVIS")
         this.ktlintMode = state.ktlintMode ?: NOT_INITIALIZED
 
-        this.ktlintRulesetVersion = state.ktlintRulesetVersion
         this.formatOnSave = state.formatOnSave
         this.baselinePath = state.baselinePath
         this.externalJarPaths = state.externalJarPaths
-
-        this._ruleSetProviders = RuleSetProviders(ktlintRulesetVersion, externalJarPaths)
     }
 
     data class RuleSetProviders(
-        val ktlintRulesetVersion: KtlintRulesetVersion,
         val externalJarPaths: List<String>,
     ) {
         private var _error: String? = null
@@ -132,7 +117,6 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
                 externalJarPaths
                     .map { File(it).toURI().toURL() }
                     .loadRuleProviders()
-                    .plus(ktlintRulesetVersion.ruleProviders())
             } catch (throwable: Throwable) {
                 _isLoaded = false
                 _error = throwable.toString()
