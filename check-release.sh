@@ -34,4 +34,6 @@ fi
 echo "updated=true" >> $GITHUB_OUTPUT
 echo "newUntil=$UNTIL_VERSION" >> $GITHUB_OUTPUT
 
-sed -i '' "s|pluginUntilBuild = $PLUGIN_UNTIL_BUILD|pluginUntilBuild = $UNTIL_VERSION|g" gradle.properties
+# Command below fails on local machine (MacOs). Run command as follows for testing locally:
+# sed -i '' "s|pluginUntilBuild = $PLUGIN_UNTIL_BUILD|pluginUntilBuild = $UNTIL_VERSION|g" gradle.properties
+sed -i "s|pluginUntilBuild = $PLUGIN_UNTIL_BUILD|pluginUntilBuild = $UNTIL_VERSION|g" gradle.properties
