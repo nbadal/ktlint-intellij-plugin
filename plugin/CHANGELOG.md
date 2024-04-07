@@ -2,7 +2,7 @@
 
 # ktlint-intellij-plugin Changelog
 
-## [0.22.0] 2024-04-07
+## [Unreleased]
 
 ### What's Changed
 
@@ -271,7 +271,6 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[0.22.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.13.0...v0.20.0
 [0.13.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.12.0...v0.13.0
