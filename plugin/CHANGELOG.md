@@ -2,9 +2,20 @@
 
 # ktlint-intellij-plugin Changelog
 
-KtLint maintainer [Paul Dingemans](https://github.com/paul-dingemans) has joined the project.
+## [0.22.0] 2024-04-07
 
-## [Unreleased]
+### What's Changed
+
+* Upgrade to Intellij IDEA 2024.1
+
+### Dependency updates
+
+* Bump org.jetbrains.intellij from 1.17.2 to 1.17.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/#494
+* Bump JetBrains/qodana-action from 2023.3.1 to 2023.3.2 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/#491
+* Bump gradle/wrapper-validation-action from 2.1.1 to 2.1.2 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/#488
+* Bump org.jetbrains.kotlin.jvm from 1.9.22 to 1.9.23 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/#484
+
+## [0.21.0] 2024-03-03
 
 ### What's Changed
 
@@ -260,7 +271,8 @@ KtLint maintainer [Paul Dingemans](https://github.com/paul-dingemans) has joined
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.20.0...HEAD
+[0.22.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.13.0...v0.20.0
 [0.13.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.11.0...v0.12.0
