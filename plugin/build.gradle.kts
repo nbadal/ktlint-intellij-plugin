@@ -46,18 +46,15 @@ repositories {
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
-//    implementation(libs.annotations)
-
-    // Shadow lib (see: ../lib/README.md)
-    compileOnly(project(":lib")) // Required for IDE
-    implementation(project(":lib", "shadow"))
+    compileOnly(project(":ktlint-lib")) // Required for IDE
+    implementation(project(":ktlint-lib", "shadow"))
 
     implementation("com.rollbar:rollbar-java:1.10.0") {
         exclude(group = "org.slf4j") // Duplicated in IDE environment
     }
 
     // Tests:
-    testImplementation(project(":lib"))
+    testImplementation(project(":ktlint-lib:core"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testImplementation("org.junit.platform:junit-platform-launcher:1.10.2")
     testImplementation("io.mockk:mockk:1.13.10")

@@ -3,18 +3,22 @@ package com.nbadal.ktlint
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
+import com.intellij.psi.PsiManager
 import com.intellij.ui.IdeBorderFactory
 import com.nbadal.ktlint.KtlintMode.DISABLED
 import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintMode.MANUAL
 import com.nbadal.ktlint.KtlintMode.NOT_INITIALIZED
+import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
 import java.awt.Desktop
 import java.net.URI
 import java.util.Objects
 import javax.swing.JButton
 import javax.swing.JCheckBox
+import javax.swing.JComboBox
 import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -30,6 +34,8 @@ class KtlintConfigForm(
     lateinit var manualMode: JRadioButton
         private set
     lateinit var disabledMode: JRadioButton
+        private set
+    lateinit var rulesetVersion: JComboBox<KtlintRulesetVersion>
         private set
     private lateinit var formatLabel: JLabel
         private set
@@ -87,9 +93,8 @@ class KtlintConfigForm(
     }
 
     fun apply() {
-        project.resetKtlintAnnotator()
-
         ktlintConfigStorage.ktlintMode = ktlintMode
+        ktlintConfigStorage.ktlintRulesetVersion = ktlintRulesetVersion
         ktlintConfigStorage.formatOnSave = formatOnSave.isSelected
         ktlintConfigStorage.externalJarPaths =
             externalJarPaths
@@ -102,6 +107,18 @@ class KtlintConfigForm(
                 .text
                 .trim()
                 .let { it.ifBlank { null } }
+
+        project.resetKtlintAnnotator()
+
+        FileEditorManager
+            .getInstance(project)
+            .openFiles
+            .forEach { virtualFile ->
+                PsiManager
+                    .getInstance(project)
+                    .findFile(virtualFile)
+                    ?.let { psiFile -> ktlintFormat(psiFile, "KtlintActionOnSave") }
+            }
     }
 
     fun reset() {
@@ -111,6 +128,7 @@ class KtlintConfigForm(
             DISABLED -> disabledMode.isSelected = true
             else -> Unit
         }
+        rulesetVersion.selectedItem = ktlintConfigStorage.ktlintRulesetVersion.label
         formatOnSave.isSelected = ktlintConfigStorage.formatOnSave
         baselinePath.text = ktlintConfigStorage.baselinePath.orEmpty()
         externalJarPaths.text = ktlintConfigStorage.externalJarPaths.joinToString(", ")
@@ -125,10 +143,14 @@ class KtlintConfigForm(
                 else -> NOT_INITIALIZED
             }
 
+    private val ktlintRulesetVersion
+        get() = KtlintRulesetVersion.findByLabelOrDefault(rulesetVersion.selectedItem as String)
+
     val isModified
         get() =
             !(
                 Objects.equals(ktlintConfigStorage.ktlintMode, ktlintMode) &&
+                    Objects.equals(ktlintConfigStorage.ktlintRulesetVersion, ktlintRulesetVersion) &&
                     Objects.equals(ktlintConfigStorage.formatOnSave, formatOnSave.isSelected) &&
                     Objects.equals(ktlintConfigStorage.baselinePath, baselinePath.text) &&
                     Objects.equals(ktlintConfigStorage.externalJarPaths, externalJarPaths.text)
