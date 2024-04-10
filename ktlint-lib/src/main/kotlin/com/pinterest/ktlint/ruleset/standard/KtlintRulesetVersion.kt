@@ -1,10 +1,10 @@
-package com.nbadal.ktlint
+package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
-import shadow.com.pinterest.ktlint.ruleset.standard.StandardRuleSetProviderV0_50_0
-import shadow.com.pinterest.ktlint.ruleset.standard.StandardRuleSetProviderV1_00_1
-import shadow.com.pinterest.ktlint.ruleset.standard.StandardRuleSetProviderV1_01_1
-import shadow.com.pinterest.ktlint.ruleset.standard.StandardRuleSetProviderV1_02_1
+import com.pinterest.ktlint.ruleset.standard.V0_50_0.StandardRuleSetProvider as StandardRuleSetProviderV0_50_0
+import com.pinterest.ktlint.ruleset.standard.V1_00_1.StandardRuleSetProvider as StandardRuleSetProviderV1_00_1
+import com.pinterest.ktlint.ruleset.standard.V1_01_1.StandardRuleSetProvider as StandardRuleSetProviderV1_01_1
+import com.pinterest.ktlint.ruleset.standard.V1_02_1.StandardRuleSetProvider as StandardRuleSetProviderV1_02_1
 
 /**
  * Policies for supporting rulesets from older versions:
@@ -12,6 +12,9 @@ import shadow.com.pinterest.ktlint.ruleset.standard.StandardRuleSetProviderV1_02
  *   * Only latest patch version of a minor release is supported
  */
 enum class KtlintRulesetVersion(
+    /**
+     * Label should match with the dropdown values of the ktlint version field in the configuration panel "KtlintConfigForm".
+     */
     val label: String,
     private val ruleSetProvider: RuleSetProviderV3?,
 ) {
@@ -24,9 +27,6 @@ enum class KtlintRulesetVersion(
     // Older versions are not compatible with the plugin and are therefore not supported.
     // * V49 is incompatible as the RuleSet class was defined as value/data class which can not be used from Java environment
     // * V48 and before use the RulesetProviderV2 instead of RulesetProviderV3
-
-    // User must at least import one custom ruleset as ktlint plugin otherwise will throw errors
-    NONE("none", null),
     ;
 
     fun ruleProviders() =

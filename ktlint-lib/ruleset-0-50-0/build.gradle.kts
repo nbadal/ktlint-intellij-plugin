@@ -36,11 +36,11 @@ tasks {
 
         relocate(
             "com.pinterest.ktlint.logger",
-            "shadow.com.pinterest.ktlint-0-50-0.logger",
+            "com.pinterest.ktlint-0-50-0.logger",
         )
         relocate(
-            "com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider",
-            "shadow.com.pinterest.ktlint.ruleset.standard.StandardRuleSetProviderV0_50_0",
+            "com.pinterest.ktlint.ruleset.standard",
+            "com.pinterest.ktlint.ruleset.standard.V0_50_0",
         )
     }
 }

@@ -12,6 +12,7 @@ import com.nbadal.ktlint.KtlintMode.DISABLED
 import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintMode.MANUAL
 import com.nbadal.ktlint.KtlintMode.NOT_INITIALIZED
+import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
 import java.awt.Desktop
 import java.net.URI
 import java.util.Objects

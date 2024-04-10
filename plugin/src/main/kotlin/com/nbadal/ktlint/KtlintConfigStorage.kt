@@ -13,6 +13,7 @@ import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
+import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
 import java.io.File
 
 private val logger = KtlintLogger(KtlintConfigStorage::class.qualifiedName)
@@ -34,7 +35,7 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     var ktlintMode: KtlintMode = NOT_INITIALIZED
 
     @Tag
-    var ktlintRulesetVersion: KtlintRulesetVersion = KtlintRulesetVersion.DEFAULT
+    var ktlintRulesetVersion: KtlintRulesetVersion = KtlintRulesetVersion.findByLabelOrDefault("")
 
     @Tag
     var formatOnSave: Boolean = true

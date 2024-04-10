@@ -32,8 +32,8 @@ tasks {
         configurations = listOf(api, impl).map { it.apply { isCanBeResolved = true } }
 
         relocate(
-            "com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider",
-            "shadow.com.pinterest.ktlint.ruleset.standard.StandardRuleSetProviderV1_01_1",
+            "com.pinterest.ktlint.ruleset.standard",
+            "com.pinterest.ktlint.ruleset.standard.V1_01_1",
         )
     }
 }
