@@ -10,6 +10,7 @@ plugins {
 allprojects {
     repositories {
         mavenCentral()
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
 
@@ -31,6 +32,9 @@ dependencies {
 
     compileOnly(project(":ktlint-lib:ruleset-1-2-1")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-2-1", "shadow"))
+
+    compileOnly(project(":ktlint-lib:ruleset-1-2-2")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-1-2-2", "shadow"))
 
     implementation("com.rollbar:rollbar-java:1.10.0") {
         exclude(group = "org.slf4j") // Duplicated in IDE environment

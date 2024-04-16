@@ -61,20 +61,27 @@ Note: the total size of the plugin grows with approximately 1 MB per ruleset ver
 
 ## Building with ktlint SNAPSHOT version
 
-## Building with local ktlint SNAPSHOT
+Snapshots of ktlint are published on Sonatype https://oss.sonatype.org/content/repositories/snapshots/com/pinterest/ktlint/
 
-In case you need to build the plugin based on a SNAPSHOT version of ktlint on your local machine, then follow procedure below:
+Add following section to the `build.gradle.kts` of the `ktlint-lib` module:
+```kotlin
+allprojects {
+    repositories {
+        mavenCentral()
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
+    }
+}
+```
 
-* In the "ktlint" project execute `./gradlew publishMavenPublicationToMavenLocal` to publish the SNAPSHOT artifacts to your local maven repository.
-* In the "ktlint-intellij-plugin" project:
-  * Change the ktlint version in `libs.version.toml`  
-  * Include `mavenLocal()` repository in *all* `build.gradle.kts` files as follows:
-    ```kotlin
-     repositories {
-         mavenCentral()
-         mavenLocal()
-     }
-    ```
-  * Build the `lib` module
-  * Build the `plugin` module
-  * Run the plugin
+In `gradle/libs.version.toml` change the `ktlint` setting to the snapshot-version.
+
+In case you want to build with a local version of ktlint which is not yet published to Sonatype, then add following section to the `build.gradle.kts` of the `ktlint-lib` module instead:
+```kotlin
+allprojects {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+}
+```
+Note: In the "ktlint" project execute `./gradlew publishMavenPublicationToMavenLocal` to publish the SNAPSHOT artifacts to your local maven repository!
