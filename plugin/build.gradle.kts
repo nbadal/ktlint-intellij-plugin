@@ -41,6 +41,7 @@ version = pluginVersion
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
