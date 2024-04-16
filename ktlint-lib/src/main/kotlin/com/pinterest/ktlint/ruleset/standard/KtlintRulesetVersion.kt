@@ -4,6 +4,7 @@ import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
 import com.pinterest.ktlint.ruleset.standard.V0_50_0.StandardRuleSetProvider as StandardRuleSetProviderV0_50_0
 import com.pinterest.ktlint.ruleset.standard.V1_00_1.StandardRuleSetProvider as StandardRuleSetProviderV1_00_1
 import com.pinterest.ktlint.ruleset.standard.V1_01_1.StandardRuleSetProvider as StandardRuleSetProviderV1_01_1
+import com.pinterest.ktlint.ruleset.standard.V1_02_0.StandardRuleSetProvider as StandardRuleSetProviderV1_02_0
 import com.pinterest.ktlint.ruleset.standard.V1_02_1.StandardRuleSetProvider as StandardRuleSetProviderV1_02_1
 
 /**
@@ -20,6 +21,7 @@ enum class KtlintRulesetVersion(
 ) {
     DEFAULT("default (recommended)", null),
     V1_2_1("1.2.1", StandardRuleSetProviderV1_02_1()),
+    V1_2_0("1.2.0", StandardRuleSetProviderV1_02_0()),
     V1_1_1("1.1.1", StandardRuleSetProviderV1_01_1()),
     V1_0_1("1.0.1", StandardRuleSetProviderV1_00_1()),
     V0_50_0("0.50.0", StandardRuleSetProviderV0_50_0()),

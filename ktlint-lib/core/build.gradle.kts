@@ -7,10 +7,6 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     api(libs.ktlintRuleEngine)
     api(libs.ktlintCliRulesetCore)

@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
+// Prevent that snapshot artifacts can be used for ktlint versions that have been released officially
 repositories {
     mavenCentral()
 }

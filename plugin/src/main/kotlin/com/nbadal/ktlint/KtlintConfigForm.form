@@ -106,6 +106,7 @@
           <model>
             <item value="default (recommended)"/>
             <item value="1.2.1"/>
+            <item value="1.2.0"/>
             <item value="1.1.1"/>
             <item value="1.0.1"/>
             <item value="0.50.0"/>

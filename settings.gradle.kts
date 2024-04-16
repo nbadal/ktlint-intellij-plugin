@@ -10,6 +10,7 @@ include(
     "ktlint-lib:ruleset-0-50-0",
     "ktlint-lib:ruleset-1-0-1",
     "ktlint-lib:ruleset-1-1-1",
+    "ktlint-lib:ruleset-1-2-0",
     "ktlint-lib:ruleset-1-2-1",
     "plugin",
 )

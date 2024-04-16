@@ -21,6 +21,45 @@ Once the plugin has been tested with the `Run Plugin.run.xml` run configuration,
 - Install the zip file manually using
   <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
+## Adding a ktlint ruleset
+
+The `ktlint-lib` module contains all version of the ktlint rules which are supported by the plugin. 
+
+To support a new version (`X.Y.Z`) of ktlint, the following needs to be done:
+* Duplicate the latest `ruleset-A-B-C` module in `ktlint-lib`. This module only contains a `build.gradle.kts` file. This file needs to be changed as follows:
+  * In the `dependencies` block refer to the new ktlint version `X.Y.Z` (use a snapshot version when applicable)
+    ```kotlin
+    dependencies {
+      implementation("com.pinterest.ktlint:ktlint-ruleset-standard:X.Y.Z-SNAPSHOT")
+    }
+    ```
+  * In the `relocate` block change the coordinates of the `StandardRulesetProvider` as follows (note that only the minor version `Y` needs to be left padded with a 0 to support up to 99 minor versions):
+    ```kotlin
+        relocate(
+            "com.pinterest.ktlint.ruleset.standard",
+            "com.pinterest.ktlint.ruleset.standard.VX_YY_Z",
+        )
+    ```
+* In class `KtlintRulesetVersion` add a new enum entry below enum entry `DEFAULT`:
+  ```kotlin
+    DEFAULT("default (recommended)", null),
+    VX_Y_Z("X.Y.Z", StandardRuleSetProviderVX_0Y_Z()), 
+  ```
+  Note: the required import `com.pinterest.ktlint.ruleset.standard.VX_0Y_Z.StandardRuleSetProvider as StandardRuleSetProviderVX_0Y_Z` will not be valid until all steps have been completed and the build has succeeded.
+* In the `dependencies` block of `ktlint-lib/build.gradle.kts` add following:
+  ```kotlin
+  compileOnly(project(":ktlint-lib:ruleset-X-Y-Z")) // Required for IDE
+  implementation(project(":ktlint-lib:ruleset-X-Y-Z", "shadow"))
+  ```
+* In field `rulesetVersion` in file `KtlintConfigForm` add the new option `X.Y.Z` just below value `default (recommended)`. Note that this value should be identical to the value of the `label` used in the enum entry in `KtlintRulesetVersion`.
+* In the `include` block in the root `build.gradle.kts` add following:
+  ```kotlin
+    "ktlint-lib:ruleset-X-Y-Z",
+  ```
+
+Note: the total size of the plugin grows with approximately 1 MB per ruleset version which is added. 
+
+## Building with ktlint SNAPSHOT version
 
 ## Building with local ktlint SNAPSHOT
 

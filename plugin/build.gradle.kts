@@ -39,7 +39,6 @@ val platformDownloadSources: String by project
 group = pluginGroup
 version = pluginVersion
 
-// Configure project's dependencies
 repositories {
     mavenCentral()
 }
@@ -53,8 +52,6 @@ dependencies {
         exclude(group = "org.slf4j") // Duplicated in IDE environment
     }
 
-    // Tests:
-    testImplementation(project(":ktlint-lib:core"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testImplementation("org.junit.platform:junit-platform-launcher:1.10.2")
     testImplementation("io.mockk:mockk:1.13.10")
