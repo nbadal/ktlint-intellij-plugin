@@ -31,14 +31,11 @@ class KtlintConfigForm(
     private lateinit var mainPanel: JPanel
     lateinit var distractFreeMode: JRadioButton
         private set
-    lateinit var manualMode: JRadioButton
-        private set
-    lateinit var disabledMode: JRadioButton
-        private set
-    lateinit var rulesetVersion: JComboBox<KtlintRulesetVersion>
-        private set
+    private lateinit var manualMode: JRadioButton
+    private lateinit var disabledMode: JRadioButton
+
+    private lateinit var rulesetVersion: JComboBox<KtlintRulesetVersion>
     private lateinit var formatLabel: JLabel
-        private set
     lateinit var formatOnSave: JCheckBox
         private set
     private lateinit var externalJarPaths: TextFieldWithBrowseButton
@@ -52,16 +49,13 @@ class KtlintConfigForm(
     fun createComponent(): JComponent {
         mainPanel.border = IdeBorderFactory.createTitledBorder("Ktlint Format Settings")
 
-        formatLabel.isVisible = distractFreeMode.isSelected
-        formatOnSave.isVisible = distractFreeMode.isSelected
-        distractFreeMode.addChangeListener {
-            formatLabel.isVisible = distractFreeMode.isSelected
-            formatOnSave.isVisible = distractFreeMode.isSelected
-        }
+        setFormatFieldsVisibility()
+        distractFreeMode.addChangeListener { setFormatFieldsVisibility() }
+        manualMode.addChangeListener { setFormatFieldsVisibility() }
 
         disabledMode.addChangeListener {
+            setFormatFieldsVisibility()
             val isNotDisabledMode = !disabledMode.isSelected
-            formatOnSave.isEnabled = isNotDisabledMode
             externalJarPaths.isEnabled = isNotDisabledMode
             baselinePath.isEnabled = isNotDisabledMode
         }
@@ -117,7 +111,9 @@ class KtlintConfigForm(
                 PsiManager
                     .getInstance(project)
                     .findFile(virtualFile)
-                    ?.let { psiFile -> ktlintFormat(psiFile, "KtlintActionOnSave") }
+                    ?.let { psiFile ->
+                        ktlintFormat(psiFile, triggeredBy = "KtlintActionOnSave")
+                    }
             }
     }
 
@@ -155,4 +151,9 @@ class KtlintConfigForm(
                     Objects.equals(ktlintConfigStorage.baselinePath, baselinePath.text) &&
                     Objects.equals(ktlintConfigStorage.externalJarPaths, externalJarPaths.text)
             )
+
+    private fun setFormatFieldsVisibility() {
+        formatLabel.isVisible = distractFreeMode.isSelected
+        formatOnSave.isVisible = distractFreeMode.isSelected
+    }
 }

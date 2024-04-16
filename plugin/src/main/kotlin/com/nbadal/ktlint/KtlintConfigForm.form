@@ -82,12 +82,34 @@
           <toolTipText resource-bundle="strings" key="disabledModeTooltip"/>
         </properties>
       </component>
-      <component id="15acd" class="javax.swing.JButton" binding="githubButton">
+      <component id="30741" class="javax.swing.JLabel" binding="formatLabel">
         <constraints>
-          <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="strings" key="githubButton"/>
+          <text resource-bundle="strings" key="formatLabel"/>
+        </properties>
+      </component>
+      <component id="21f12" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="strings" key="rulesetVersionLabel"/>
+        </properties>
+      </component>
+      <component id="e4ea7" class="javax.swing.JComboBox" binding="rulesetVersion">
+        <constraints>
+          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <model>
+            <item value="default (recommended)"/>
+            <item value="1.2.1"/>
+            <item value="1.1.1"/>
+            <item value="1.0.1"/>
+            <item value="0.50.0"/>
+          </model>
         </properties>
       </component>
       <component id="147a1" class="javax.swing.JCheckBox" binding="formatOnSave">
@@ -104,34 +126,12 @@
           <visible value="true"/>
         </properties>
       </component>
-      <component id="30741" class="javax.swing.JLabel" binding="formatLabel">
+      <component id="15acd" class="javax.swing.JButton" binding="githubButton">
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="strings" key="formatLabel"/>
-        </properties>
-      </component>
-      <component id="d4428" class="javax.swing.JComboBox" binding="rulesetVersion" custom-create="true">
-        <constraints>
-          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <model>
-            <item value="default (recommended)"/>
-            <item value="1.2.1"/>
-            <item value="1.1.1"/>
-            <item value="1.0.1"/>
-            <item value="0.50.0"/>
-          </model>
-        </properties>
-      </component>
-      <component id="21f12" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text resource-bundle="strings" key="rulesetVersionLabel"/>
+          <text resource-bundle="strings" key="githubButton"/>
         </properties>
       </component>
     </children>
