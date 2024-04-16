@@ -26,25 +26,28 @@ internal fun ktlintLint(
     psiFile: PsiFile,
     triggeredBy: String,
 ) = if (psiFile.virtualFile.isKotlinFile()) {
-    executeKtlint(LINT, psiFile, triggeredBy, force = true)
+    executeKtlint(LINT, psiFile, KtlintFileFormatRange, triggeredBy)
 } else {
     KtlintResult(NOT_STARTED)
 }
 
 internal fun ktlintFormat(
     psiFile: PsiFile,
+    ktlintFormatRange: KtlintFormatRange,
     triggeredBy: String,
     forceFormat: Boolean = false,
 ): KtlintResult {
     var ktlintResult = KtlintResult(NOT_STARTED)
-    if (psiFile.virtualFile.isKotlinFile()) {
+    if (psiFile.virtualFile.isKotlinFile() &&
+        (psiFile.project.config().ktlintMode == DISTRACT_FREE || forceFormat)
+    ) {
         val project = psiFile.project
         val document = psiFile.viewProvider.document
         PsiDocumentManager
             .getInstance(project)
             .doPostponedOperationsAndUnblockDocument(document)
         WriteCommandAction.runWriteCommandAction(project) {
-            ktlintResult = executeKtlint(FORMAT, psiFile, triggeredBy, forceFormat)
+            ktlintResult = executeKtlint(FORMAT, psiFile, ktlintFormatRange, triggeredBy)
         }
         FileDocumentManager.getInstance().saveDocument(document)
         DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
@@ -58,13 +61,10 @@ internal fun ktlintFormat(
 private fun executeKtlint(
     ktlintExecutionType: KtlintExecutionType,
     psiFile: PsiFile,
+    ktlintFormatRange: KtlintFormatRange,
     triggeredBy: String,
-    force: Boolean = false,
 ): KtlintResult {
     val project = psiFile.project
-    if (project.config().ktlintMode != DISTRACT_FREE && !force) {
-        return KtlintResult(NOT_STARTED)
-    }
 
     logger.debug { "Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'" }
 
@@ -112,14 +112,18 @@ private fun executeKtlint(
         val errorHandler = { error: LintError ->
             when {
                 error.isIgnoredInBaseline(baselineErrors) -> Unit
-
                 else -> lintErrors.add(error)
             }
         }
         if (ktlintExecutionType == LINT) {
             ktlintRuleEngine.lint(code) { lintError -> errorHandler(lintError) }
         } else {
-            val formattedCode = ktlintRuleEngine.format(code) { lintError, _ -> errorHandler(lintError) }
+            val formattedCode =
+                if (ktlintFormatRange == KtlintFileFormatRange) {
+                    ktlintRuleEngine.format(code) { lintError, _ -> errorHandler(lintError) }
+                } else {
+                    ktlintRuleEngine.format(code, ktlintFormatRange.intRange()) { lintError, _ -> errorHandler(lintError) }
+                }
             if (formattedCode != code.content) {
                 psiFile.viewProvider.document.setText(formattedCode)
                 fileChangedByFormat = true

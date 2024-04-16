@@ -31,16 +31,14 @@ class KtlintConfigForm(
     private lateinit var mainPanel: JPanel
     lateinit var distractFreeMode: JRadioButton
         private set
-    lateinit var manualMode: JRadioButton
-        private set
-    lateinit var disabledMode: JRadioButton
-        private set
-    lateinit var rulesetVersion: JComboBox<KtlintRulesetVersion>
-        private set
+    private lateinit var manualMode: JRadioButton
+    private lateinit var disabledMode: JRadioButton
+
+    private lateinit var rulesetVersion: JComboBox<KtlintRulesetVersion>
     private lateinit var formatLabel: JLabel
-        private set
     lateinit var formatOnSave: JCheckBox
         private set
+    private lateinit var attachToIntellijFormat: JCheckBox
     private lateinit var externalJarPaths: TextFieldWithBrowseButton
     private lateinit var baselinePath: TextFieldWithBrowseButton
     private lateinit var githubButton: JButton
@@ -52,16 +50,13 @@ class KtlintConfigForm(
     fun createComponent(): JComponent {
         mainPanel.border = IdeBorderFactory.createTitledBorder("Ktlint Format Settings")
 
-        formatLabel.isVisible = distractFreeMode.isSelected
-        formatOnSave.isVisible = distractFreeMode.isSelected
-        distractFreeMode.addChangeListener {
-            formatLabel.isVisible = distractFreeMode.isSelected
-            formatOnSave.isVisible = distractFreeMode.isSelected
-        }
+        setFormatFieldsVisibility()
+        distractFreeMode.addChangeListener { setFormatFieldsVisibility() }
+        manualMode.addChangeListener { setFormatFieldsVisibility() }
 
         disabledMode.addChangeListener {
+            setFormatFieldsVisibility()
             val isNotDisabledMode = !disabledMode.isSelected
-            formatOnSave.isEnabled = isNotDisabledMode
             externalJarPaths.isEnabled = isNotDisabledMode
             baselinePath.isEnabled = isNotDisabledMode
         }
@@ -96,6 +91,7 @@ class KtlintConfigForm(
         ktlintConfigStorage.ktlintMode = ktlintMode
         ktlintConfigStorage.ktlintRulesetVersion = ktlintRulesetVersion
         ktlintConfigStorage.formatOnSave = formatOnSave.isSelected
+        ktlintConfigStorage.attachToIntellijFormat = attachToIntellijFormat.isSelected
         ktlintConfigStorage.externalJarPaths =
             externalJarPaths
                 .text
@@ -117,7 +113,9 @@ class KtlintConfigForm(
                 PsiManager
                     .getInstance(project)
                     .findFile(virtualFile)
-                    ?.let { psiFile -> ktlintFormat(psiFile, "KtlintActionOnSave") }
+                    ?.let { psiFile ->
+                        ktlintFormat(psiFile, ktlintFormatRange = KtlintFileFormatRange, triggeredBy = "KtlintActionOnSave")
+                    }
             }
     }
 
@@ -130,6 +128,7 @@ class KtlintConfigForm(
         }
         rulesetVersion.selectedItem = ktlintConfigStorage.ktlintRulesetVersion.label
         formatOnSave.isSelected = ktlintConfigStorage.formatOnSave
+        attachToIntellijFormat.isSelected = ktlintConfigStorage.attachToIntellijFormat
         baselinePath.text = ktlintConfigStorage.baselinePath.orEmpty()
         externalJarPaths.text = ktlintConfigStorage.externalJarPaths.joinToString(", ")
     }
@@ -152,7 +151,14 @@ class KtlintConfigForm(
                 Objects.equals(ktlintConfigStorage.ktlintMode, ktlintMode) &&
                     Objects.equals(ktlintConfigStorage.ktlintRulesetVersion, ktlintRulesetVersion) &&
                     Objects.equals(ktlintConfigStorage.formatOnSave, formatOnSave.isSelected) &&
+                    Objects.equals(ktlintConfigStorage.attachToIntellijFormat, attachToIntellijFormat.isSelected) &&
                     Objects.equals(ktlintConfigStorage.baselinePath, baselinePath.text) &&
                     Objects.equals(ktlintConfigStorage.externalJarPaths, externalJarPaths.text)
             )
+
+    private fun setFormatFieldsVisibility() {
+        formatLabel.isVisible = distractFreeMode.isSelected || manualMode.isSelected
+        formatOnSave.isVisible = distractFreeMode.isSelected
+        attachToIntellijFormat.isVisible = manualMode.isSelected
+    }
 }

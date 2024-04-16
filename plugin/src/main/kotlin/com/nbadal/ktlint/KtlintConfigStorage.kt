@@ -41,6 +41,9 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     var formatOnSave: Boolean = true
 
     @Tag
+    var attachToIntellijFormat: Boolean = true
+
+    @Tag
     var baselinePath: String? = null
 
     @Tag
