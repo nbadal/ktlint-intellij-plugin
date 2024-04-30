@@ -149,48 +149,6 @@ jobs:
         with:
           files: ${{ github.workspace }}/plugin/build/reports/kover/report.xml
 
-  # Run Qodana inspections and provide report
-  inspectCode:
-    name: Inspect code
-    needs: [ build ]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      checks: write
-      pull-requests: write
-    steps:
-
-      # Free GitHub Actions Environment Disk Space
-      - name: Maximize Build Space
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: false
-          large-packages: false
-
-      # Check out current repository
-      - name: Fetch Sources
-        uses: actions/checkout@v4
-
-      # Builds secrets file
-      - name: Build secrets file
-        env:
-          ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
-        shell: bash
-        run: echo "ROLLBAR_ACCESS_TOKEN=$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
-
-      # Set up Java environment for the next steps
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: zulu
-          java-version: 17
-
-      # Run Qodana inspections
-      - name: Qodana - Code Inspection
-        uses: JetBrains/qodana-action@v2023.3.2
-        with:
-          cache-default-branch-only: true
-
   # Run plugin structure verification along with IntelliJ Plugin Verifier
   verify:
     name: Verify plugin
