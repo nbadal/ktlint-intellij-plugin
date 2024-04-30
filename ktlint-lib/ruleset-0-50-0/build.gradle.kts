@@ -15,8 +15,27 @@ repositories {
 dependencies {
     // Until version 0.50.0, the "mu.Kotlin" logger was used. In 1.x version this has been replaced with
     // "io.github.oshai.kotlinlogging.KLogger".
-    implementation("com.pinterest.ktlint:ktlint-logger:0.50.0")
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.50.0")
+    constraints {
+        runtimeOnly(libs.slf4j.api) {
+            because(
+                "Transitive ktlint logging dependency (2.0.3) does not use the module classloader in ServiceLoader. Replace with newer SLF4J version",
+            )
+        }
+    }
+    implementation("com.pinterest.ktlint:ktlint-logger:0.50.0") {
+        // Exclude the slf4j 2.0.3 version provided via Ktlint as it does not use the module classloader in the ServiceLoader
+        exclude("org.slf4j")
+            .because(
+                "Transitive ktlint logging dependency (2.0.3) does not use the module classloader in ServiceLoader. Replace with newer SLF4J version",
+            )
+    }
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.50.0") {
+        // Exclude the slf4j 2.0.3 version provided via Ktlint as it does not use the module classloader in the ServiceLoader
+        exclude("org.slf4j")
+            .because(
+                "Transitive ktlint logging dependency (2.0.3) does not use the module classloader in ServiceLoader. Replace with newer SLF4J version",
+            )
+    }
 }
 
 tasks {
