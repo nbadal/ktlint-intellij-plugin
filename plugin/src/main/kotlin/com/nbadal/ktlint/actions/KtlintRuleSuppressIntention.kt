@@ -8,6 +8,7 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION
+import com.nbadal.ktlint.KtlintFileFormatRange
 import com.nbadal.ktlint.config
 import com.nbadal.ktlint.isEnabled
 import com.nbadal.ktlint.ktlintFormat
@@ -67,7 +68,7 @@ class KtlintRuleSuppressIntention(
                     ?.let { updatedCode ->
                         if (updatedCode != code.content) {
                             document.setText(updatedCode)
-                            ktlintFormat(psiFile, "KtlintSuppressIntention")
+                            ktlintFormat(psiFile, ktlintFormatRange = KtlintFileFormatRange, triggeredBy = "KtlintSuppressIntention")
                         }
                     }
             }

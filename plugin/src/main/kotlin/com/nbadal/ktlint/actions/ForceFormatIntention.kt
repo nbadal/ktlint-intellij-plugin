@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintFeature
+import com.nbadal.ktlint.KtlintFileFormatRange
 import com.nbadal.ktlint.isEnabled
 import com.nbadal.ktlint.ktlintFormat
 
@@ -37,6 +38,6 @@ class ForceFormatIntention :
         editor: Editor?,
         psiFile: PsiFile,
     ) {
-        ktlintFormat(psiFile, "ForceFormatIntention", forceFormat = true)
+        ktlintFormat(psiFile, ktlintFormatRange = KtlintFileFormatRange, triggeredBy = "ForceFormatIntention", forceFormat = true)
     }
 }

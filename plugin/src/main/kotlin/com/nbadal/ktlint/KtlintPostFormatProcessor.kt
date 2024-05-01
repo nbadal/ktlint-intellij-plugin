@@ -17,8 +17,13 @@ class KtlintPostFormatProcessor : PostFormatProcessor {
         rangeToReformat: TextRange,
         settings: CodeStyleSettings,
     ): TextRange {
-        if (psiFile.project.isEnabled(KtlintFeature.POST_FORMAT_WITH_KTLINT)) {
-            ktlintFormat(psiFile, "KtlintPostFormatProcessor")
+        if (psiFile.project.isEnabled(KtlintFeature.POST_FORMAT_WITH_KTLINT) || psiFile.project.config().attachToIntellijFormat) {
+            ktlintFormat(
+                psiFile,
+                ktlintFormatRange = KtlintBlockFormatRange(rangeToReformat.startOffset, rangeToReformat.endOffset + 1),
+                triggeredBy = "KtlintPostFormatProcessor",
+                forceFormat = true,
+            )
         }
         return rangeToReformat
     }

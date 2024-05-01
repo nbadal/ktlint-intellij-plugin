@@ -38,6 +38,7 @@ class KtlintConfigForm(
     private lateinit var formatLabel: JLabel
     lateinit var formatOnSave: JCheckBox
         private set
+    private lateinit var attachToIntellijFormat: JCheckBox
     private lateinit var externalJarPaths: TextFieldWithBrowseButton
     private lateinit var baselinePath: TextFieldWithBrowseButton
     private lateinit var githubButton: JButton
@@ -90,6 +91,7 @@ class KtlintConfigForm(
         ktlintConfigStorage.ktlintMode = ktlintMode
         ktlintConfigStorage.ktlintRulesetVersion = ktlintRulesetVersion
         ktlintConfigStorage.formatOnSave = formatOnSave.isSelected
+        ktlintConfigStorage.attachToIntellijFormat = attachToIntellijFormat.isSelected
         ktlintConfigStorage.externalJarPaths =
             externalJarPaths
                 .text
@@ -112,7 +114,7 @@ class KtlintConfigForm(
                     .getInstance(project)
                     .findFile(virtualFile)
                     ?.let { psiFile ->
-                        ktlintFormat(psiFile, triggeredBy = "KtlintActionOnSave")
+                        ktlintFormat(psiFile, ktlintFormatRange = KtlintFileFormatRange, triggeredBy = "KtlintActionOnSave")
                     }
             }
     }
@@ -126,6 +128,7 @@ class KtlintConfigForm(
         }
         rulesetVersion.selectedItem = ktlintConfigStorage.ktlintRulesetVersion.label
         formatOnSave.isSelected = ktlintConfigStorage.formatOnSave
+        attachToIntellijFormat.isSelected = ktlintConfigStorage.attachToIntellijFormat
         baselinePath.text = ktlintConfigStorage.baselinePath.orEmpty()
         externalJarPaths.text = ktlintConfigStorage.externalJarPaths.joinToString(", ")
     }
@@ -148,12 +151,14 @@ class KtlintConfigForm(
                 Objects.equals(ktlintConfigStorage.ktlintMode, ktlintMode) &&
                     Objects.equals(ktlintConfigStorage.ktlintRulesetVersion, ktlintRulesetVersion) &&
                     Objects.equals(ktlintConfigStorage.formatOnSave, formatOnSave.isSelected) &&
+                    Objects.equals(ktlintConfigStorage.attachToIntellijFormat, attachToIntellijFormat.isSelected) &&
                     Objects.equals(ktlintConfigStorage.baselinePath, baselinePath.text) &&
                     Objects.equals(ktlintConfigStorage.externalJarPaths, externalJarPaths.text)
             )
 
     private fun setFormatFieldsVisibility() {
-        formatLabel.isVisible = distractFreeMode.isSelected
+        formatLabel.isVisible = distractFreeMode.isSelected || manualMode.isSelected
         formatOnSave.isVisible = distractFreeMode.isSelected
+        attachToIntellijFormat.isVisible = manualMode.isSelected
     }
 }
