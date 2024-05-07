@@ -72,7 +72,7 @@ dependencies {
 kotlin {
     @Suppress("UnstableApiUsage")
     jvmToolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(17)
         vendor = JvmVendorSpec.JETBRAINS
     }
 }
@@ -143,14 +143,13 @@ tasks {
     //   }
     // Replace with JavaCompile and KotlintCompile tasks
 
-    // Set the compatibility versions to 11
     withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
     }
 
     withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "11"
+        kotlinOptions.jvmTarget = "17"
     }
 
     named<Test>("test") {
