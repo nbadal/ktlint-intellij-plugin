@@ -3,6 +3,8 @@ import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.konan.properties.Properties
 import java.io.FileInputStream
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 fun properties(key: String) = providers.gradleProperty(key)
 
@@ -36,8 +38,16 @@ val platformType: String by project
 val platformVersion: String by project
 val platformDownloadSources: String by project
 
+val finalPluginVersion =
+    if (pluginVersion.takeIfVersionForChannel("default") != null) {
+        pluginVersion
+    } else {
+        // When building the beta or dev version then expand the version with a build timestamp
+        "$pluginVersion.${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}"
+    }
+
 group = pluginGroup
-version = pluginVersion
+version = finalPluginVersion
 
 repositories {
     mavenCentral()
@@ -96,7 +106,7 @@ buildConfig {
     props.load(FileInputStream(secretsPropertiesFile))
 
     buildConfigField("String", "NAME", "\"ktlint-intellij-plugin\"")
-    buildConfigField("String", "VERSION", "\"${pluginVersion}\"")
+    buildConfigField("String", "VERSION", "\"${finalPluginVersion}\"")
     buildConfigField("String", "ROLLBAR_ACCESS_TOKEN", "\"${props.getProperty("ROLLBAR_ACCESS_TOKEN")}\"")
 }
 
@@ -153,7 +163,8 @@ tasks {
         //   version = properties("pluginVersion")
         //   sinceBuild = properties("pluginSinceBuild")
         //   untilBuild = properties("pluginUntilBuild")
-        version = pluginVersion
+        version = finalPluginVersion
+
         sinceBuild = pluginSinceBuild
         untilBuild = pluginUntilBuild
 
@@ -216,16 +227,23 @@ tasks {
             listOfNotNull(
                 // Extract channel from `pluginVersion`. When version does not contain information that restricts the version to a specific
                 // channel, then it is to be published to the `default` channel.
-                pluginVersion
-                    .split('-')
-                    .getOrElse(1) { "default" }
-                    .split('.')
-                    .first(),
-                // Publish each version to the beta channel.
-                "beta",
+                finalPluginVersion.takeIfVersionForChannel("default"),
+                // Publish official and beta releases to beta channel
+                finalPluginVersion.takeIfVersionForChannel("beta"),
+                // Publish each version to the dev channel
+                "dev",
             ).distinct()
                 .also { channels ->
-                    project.logger.lifecycle("PluginVersion `$pluginVersion` publishes the plugin to channels: $channels")
+                    project.logger.lifecycle("PluginVersion `$finalPluginVersion` publishes the plugin to channels: $channels")
                 }
     }
 }
+
+fun String.takeIfVersionForChannel(channel: String): String? =
+    split('-')
+        // Extract the channel from the version number. If no version is embedded in the version, assume the given channel was included in
+        // the version.
+        .getOrElse(1) { channel }
+        // The version can contain a subversion which is specified after a ".", and has to be ignored
+        .split('.')
+        .firstOrNull { it == channel }
