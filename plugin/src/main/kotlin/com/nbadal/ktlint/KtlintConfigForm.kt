@@ -13,10 +13,12 @@ import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintMode.MANUAL
 import com.nbadal.ktlint.KtlintMode.NOT_INITIALIZED
 import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
+import java.awt.Cursor
 import java.awt.Desktop
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import java.net.URI
 import java.util.Objects
-import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JComboBox
 import javax.swing.JComponent
@@ -41,7 +43,10 @@ class KtlintConfigForm(
     private lateinit var attachToIntellijFormat: JCheckBox
     private lateinit var externalJarPaths: TextFieldWithBrowseButton
     private lateinit var baselinePath: TextFieldWithBrowseButton
-    private lateinit var githubButton: JButton
+    private lateinit var popularExternalRulesetsLabel: JLabel
+    private lateinit var jetpackComposeLabel: JLabel
+    private lateinit var ktlintProjectLabel: JLabel
+    private lateinit var ktlintPluginProjectLabel: JLabel
 
     fun createUIComponents() {
         // Stub.
@@ -77,14 +82,29 @@ class KtlintConfigForm(
 
         // If we're able to launch the browser, show the GitHub button!
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-            githubButton.addActionListener {
-                Desktop.getDesktop().browse(URI("https://github.com/nbadal/ktlint-intellij-plugin"))
-            }
+            jetpackComposeLabel.setLinkLabel(jetpackComposeUri)
+            ktlintProjectLabel.setLinkLabel(ktlintProjectUri)
+            ktlintPluginProjectLabel.setLinkLabel(ktlintPluginProjectUri)
         } else {
-            githubButton.isVisible = false
+            popularExternalRulesetsLabel.isVisible = false
+            jetpackComposeLabel.isVisible = false
+            ktlintPluginProjectLabel.isVisible = false
         }
 
         return mainPanel
+    }
+
+    private fun JLabel.setLinkLabel(uri: URI) {
+        setText("<html><a href=\"\">$text</a></html>")
+        setCursor(Cursor(Cursor.HAND_CURSOR))
+        addMouseListener(
+            object : MouseAdapter() {
+                @Override
+                override fun mouseClicked(e: MouseEvent?) {
+                    Desktop.getDesktop().browse(uri)
+                }
+            },
+        )
     }
 
     fun apply() {
@@ -160,5 +180,12 @@ class KtlintConfigForm(
         formatLabel.isVisible = distractFreeMode.isSelected || manualMode.isSelected
         formatOnSave.isVisible = distractFreeMode.isSelected
         attachToIntellijFormat.isVisible = manualMode.isSelected
+    }
+
+    private companion object {
+        val jetpackComposeUri =
+            URI("https://mrmans0n.github.io/compose-rules/ktlint/#using-with-ktlint-cli-or-the-ktlint-unofficial-intellij-plugin")
+        val ktlintPluginProjectUri = URI("https://github.com/nbadal/ktlint-intellij-plugin/issues")
+        val ktlintProjectUri = URI("https://github.com/pinterest/ktlint/issues")
     }
 }
