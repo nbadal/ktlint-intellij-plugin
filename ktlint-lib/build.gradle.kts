@@ -10,7 +10,10 @@ plugins {
 allprojects {
     repositories {
         mavenCentral()
+        // Comment out next line before publish on default channel. It is okay to keep it when publishing to beta or dev channels
         maven("https://oss.sonatype.org/content/repositories/snapshots")
+        // Comment out next line before publishing to any channel
+        mavenLocal()
     }
 }
 

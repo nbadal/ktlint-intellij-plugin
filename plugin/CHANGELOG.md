@@ -30,7 +30,7 @@
 - Bump gradle/wrapper-validation-action from 2.1.1 to 2.1.2 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/#488
 - Bump org.jetbrains.kotlin.jvm from 1.9.22 to 1.9.23 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/#484
 
-## [[0.23.0-dev.2024-05-07]_14-35-18] - 2024-05-07
+## [0.23.0-dev.2024-05-07_14-35-18] - 2024-05-07
 
 ### What's Changed
 
