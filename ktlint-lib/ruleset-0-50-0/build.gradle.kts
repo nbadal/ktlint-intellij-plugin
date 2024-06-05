@@ -29,7 +29,7 @@ dependencies {
                 "Transitive ktlint logging dependency (2.0.3) does not use the module classloader in ServiceLoader. Replace with newer SLF4J version",
             )
     }
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:0.50.0") {
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.3.0") {
         // Exclude the slf4j 2.0.3 version provided via Ktlint as it does not use the module classloader in the ServiceLoader
         exclude("org.slf4j")
             .because(

@@ -15,7 +15,7 @@ plugins {
 
 dependencies {
     // TODO: remove `-SNAPSHOT` once ktlint 1.2.2 is released officially
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.2.2-SNAPSHOT")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.3.0")
 }
 
 tasks {

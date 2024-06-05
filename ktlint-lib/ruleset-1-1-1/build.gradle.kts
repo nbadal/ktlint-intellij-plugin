@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.1.1")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.3.0")
 }
 
 tasks {
