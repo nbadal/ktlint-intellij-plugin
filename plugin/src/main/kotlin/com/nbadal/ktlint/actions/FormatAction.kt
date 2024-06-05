@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.nbadal.ktlint.KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT
-import com.nbadal.ktlint.KtlintFileFormatRange
+import com.nbadal.ktlint.KtlintFileAutocorrectHandler
 import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintNotifier.notifyInformation
 import com.nbadal.ktlint.KtlintNotifier.notifyWarning
@@ -95,7 +95,14 @@ class FormatAction : AnAction() {
                 PsiManager
                     .getInstance(project)
                     .findFile(fileOrDir)
-                    ?.let { ktlintFormat(it, ktlintFormatRange = KtlintFileFormatRange, triggeredBy = "FormatAction", forceFormat = true) }
+                    ?.let {
+                        ktlintFormat(
+                            it,
+                            ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+                            triggeredBy = "FormatAction",
+                            forceFormat = true,
+                        )
+                    }
             // In case an error occurs, a notification has already been sent by ktlintFormat above
             when (ktlintResult?.status) {
                 KtlintResult.Status.SUCCESS -> {

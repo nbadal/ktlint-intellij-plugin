@@ -13,6 +13,8 @@ import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
+import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
 import java.io.File
 
@@ -66,6 +68,16 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
             }
             return _ruleSetProviders
         }
+
+    val ruleIdsWithAutocorrectApproveHandler: Set<RuleId>
+        get() =
+            ruleSetProviders
+                .ruleProviders
+                .orEmpty()
+                .map { it.createNewRuleInstance() }
+                .filter { it is RuleAutocorrectApproveHandler }
+                .map { it.ruleId }
+                .toSet()
 
     /**
      * Keeps the state of the last loaded baseline. It serves as a cache so that the baseline does not need to be reloaded from the file

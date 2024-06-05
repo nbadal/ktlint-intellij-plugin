@@ -20,6 +20,7 @@ enum class KtlintRulesetVersion(
     val label: String,
     private val ruleSetProvider: RuleSetProviderV3?,
 ) {
+    // Versions should be ordered starting with default and then sorted from the most recent to the least recent version
     DEFAULT("default (recommended)", null),
     V1_2_2("1.2.2", StandardRuleSetProviderV1_02_2()),
     V1_2_1("1.2.1", StandardRuleSetProviderV1_02_1()),
@@ -36,6 +37,15 @@ enum class KtlintRulesetVersion(
     fun ruleProviders() =
         ruleSetProvider?.getRuleProviders()
             ?: default.ruleSetProvider?.getRuleProviders().orEmpty()
+
+    /**
+     * Check whether the current rule set version is released before the given version. False in case the current release equals the given
+     * release, or in case it is released after the given release.
+     */
+    fun isReleasedBefore(otherKtlintRulesetVersion: KtlintRulesetVersion): Boolean =
+        // Default version (ordinal 0) is equal to the most recent released version (ordinal 1) are the same version. So the current version
+        // can never before any other version. Higher ordinals are older versions.
+        ordinal != 0 && ordinal > otherKtlintRulesetVersion.ordinal
 
     companion object {
         fun findByLabelOrDefault(label: String) = entries.firstOrNull { it.label == label } ?: DEFAULT

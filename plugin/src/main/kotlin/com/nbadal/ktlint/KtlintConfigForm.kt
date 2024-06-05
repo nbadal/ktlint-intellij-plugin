@@ -134,7 +134,11 @@ class KtlintConfigForm(
                     .getInstance(project)
                     .findFile(virtualFile)
                     ?.let { psiFile ->
-                        ktlintFormat(psiFile, ktlintFormatRange = KtlintFileFormatRange, triggeredBy = "KtlintActionOnSave")
+                        ktlintFormat(
+                            psiFile,
+                            ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+                            triggeredBy = "KtlintActionOnSave",
+                        )
                     }
             }
     }

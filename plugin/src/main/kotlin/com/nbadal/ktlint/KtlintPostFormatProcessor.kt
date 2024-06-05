@@ -20,7 +20,7 @@ class KtlintPostFormatProcessor : PostFormatProcessor {
         if (psiFile.project.isEnabled(KtlintFeature.POST_FORMAT_WITH_KTLINT) || psiFile.project.config().attachToIntellijFormat) {
             ktlintFormat(
                 psiFile,
-                ktlintFormatRange = KtlintBlockFormatRange(rangeToReformat.startOffset, rangeToReformat.endOffset + 1),
+                ktlintFormatAutoCorrectHandler = KtlintBlockAutocorrectHandler(rangeToReformat.startOffset, rangeToReformat.endOffset + 1),
                 triggeredBy = "KtlintPostFormatProcessor",
                 forceFormat = true,
             )
