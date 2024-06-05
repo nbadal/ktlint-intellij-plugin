@@ -19,7 +19,7 @@ class ForceFormatIntention :
     LowPriorityAction {
     override fun getFamilyName() = "KtLint"
 
-    override fun getText() = "Format file with ktlint"
+    override fun getText() = "Ktlint format file"
 
     override fun isAvailable(
         project: Project,

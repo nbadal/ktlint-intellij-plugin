@@ -12,6 +12,6 @@ include(
     "ktlint-lib:ruleset-1-1-1",
     "ktlint-lib:ruleset-1-2-0",
     "ktlint-lib:ruleset-1-2-1",
-    "ktlint-lib:ruleset-1-2-2",
+    "ktlint-lib:ruleset-1-3-0",
     "plugin",
 )

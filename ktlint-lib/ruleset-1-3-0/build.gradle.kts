@@ -7,15 +7,12 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
-// TODO: Uncomment once ktlint 1.2.2 is released officially
-// Prevent that snapshot artifacts can be used for ktlint versions that have been released officially
-// repositories {
-//    mavenCentral()
-// }
+repositories {
+    mavenCentral()
+}
 
 dependencies {
-    // TODO: remove `-SNAPSHOT` once ktlint 1.2.2 is released officially
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.2.2-SNAPSHOT")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.3.0")
 }
 
 tasks {
@@ -35,7 +32,7 @@ tasks {
 
         relocate(
             "com.pinterest.ktlint.ruleset.standard",
-            "com.pinterest.ktlint.ruleset.standard.V1_02_2",
+            "com.pinterest.ktlint.ruleset.standard.V1_03_0",
         )
     }
 }

@@ -23,7 +23,7 @@ class KtlintRuleSuppressIntention(
     HighPriorityAction {
     override fun getFamilyName() = "KtLint"
 
-    override fun getText() = "Suppress '${lintError.ruleId.value}'"
+    override fun getText() = "Ktlint suppress '${lintError.ruleId.value}'"
 
     override fun isAvailable(
         project: Project,

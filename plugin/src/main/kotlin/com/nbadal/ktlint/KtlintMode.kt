@@ -22,6 +22,8 @@ enum class KtlintMode(
      */
     DISTRACT_FREE(
         setOf(
+            KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
+            KtlintFeature.DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR,
             KtlintFeature.FORMAT_WITH_KTLINT_ON_SAVE,
             KtlintFeature.POST_FORMAT_WITH_KTLINT,
             KtlintFeature.SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS,
@@ -29,22 +31,21 @@ enum class KtlintMode(
             // Although Ktlint is executed automatically on files being edited, this option is still useful for mass formatting on files
             // without having the need to edit each file individually.
             KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
-            KtlintFeature.DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR,
-            KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
         ),
     ),
 
     /**
-     * Ktlint is enabled for the project. All lint violations will be shown. User has to trigger format with ktlint manually.
+     * Ktlint is enabled for the project. All lint violations will be shown as warning as the user is allowed to ignore violations which
+     * cannot be autocorrected. User has to trigger format with ktlint manually.
      */
     MANUAL(
         setOf(
             KtlintFeature.DISPLAY_ALL_VIOLATIONS,
+            KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
             KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
             KtlintFeature.SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT,
             KtlintFeature.SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS,
             KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION,
-            KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
         ),
     ),
 

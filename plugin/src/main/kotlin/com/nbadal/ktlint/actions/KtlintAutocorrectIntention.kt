@@ -17,7 +17,7 @@ class KtlintAutocorrectIntention(
     HighPriorityAction {
     override fun getFamilyName() = "KtLint"
 
-    override fun getText() = "Ktlint fix '${lintError.detail}'"
+    override fun getText() = "Ktlint fix '${lintError.detail} (${lintError.ruleId.value})'"
 
     override fun isAvailable(
         project: Project,

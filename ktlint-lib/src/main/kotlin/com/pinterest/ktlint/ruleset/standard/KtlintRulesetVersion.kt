@@ -6,7 +6,7 @@ import com.pinterest.ktlint.ruleset.standard.V1_00_1.StandardRuleSetProvider as 
 import com.pinterest.ktlint.ruleset.standard.V1_01_1.StandardRuleSetProvider as StandardRuleSetProviderV1_01_1
 import com.pinterest.ktlint.ruleset.standard.V1_02_0.StandardRuleSetProvider as StandardRuleSetProviderV1_02_0
 import com.pinterest.ktlint.ruleset.standard.V1_02_1.StandardRuleSetProvider as StandardRuleSetProviderV1_02_1
-import com.pinterest.ktlint.ruleset.standard.V1_02_2.StandardRuleSetProvider as StandardRuleSetProviderV1_02_2
+import com.pinterest.ktlint.ruleset.standard.V1_03_0.StandardRuleSetProvider as StandardRuleSetProviderV1_03_0
 
 /**
  * Policies for supporting rulesets from older versions:
@@ -22,7 +22,7 @@ enum class KtlintRulesetVersion(
 ) {
     // Versions should be ordered starting with default and then sorted from the most recent to the least recent version
     DEFAULT("default (recommended)", null),
-    V1_2_2("1.2.2", StandardRuleSetProviderV1_02_2()),
+    V1_3_0("1.3.0", StandardRuleSetProviderV1_03_0()),
     V1_2_1("1.2.1", StandardRuleSetProviderV1_02_1()),
     V1_2_0("1.2.0", StandardRuleSetProviderV1_02_0()),
     V1_1_1("1.1.1", StandardRuleSetProviderV1_01_1()),
@@ -30,8 +30,8 @@ enum class KtlintRulesetVersion(
     V0_50_0("0.50.0", StandardRuleSetProviderV0_50_0()),
 
     // Older versions are not compatible with the plugin and are therefore not supported.
-    // * V49 is incompatible as the RuleSet class was defined as value/data class which can not be used from Java environment
-    // * V48 and before use the RulesetProviderV2 instead of RulesetProviderV3
+    // * Version 0.49 is incompatible as the RuleSet class was defined as value/data class which can not be used from Java environment
+    // * Version 0.48 and before use the RulesetProviderV2 instead of RulesetProviderV3
     ;
 
     fun ruleProviders() =
