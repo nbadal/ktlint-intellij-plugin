@@ -12,4 +12,12 @@ updates:
         # ktlint-lib includes multiple (old) versions of logger and standard ruleset so that the user can choose which version of ktlint
         # rules are used. Those versions should never be bumped.
         - dependency-name: "com.pinterest.ktlint:ktlint-logger"
+          update-types:
+            - "major"
+            - "minor"
+            - "patch"
         - dependency-name: "com.pinterest.ktlint:ktlint-ruleset-standard"
+          update-types:
+            - "major"
+            - "minor"
+            - "patch"
