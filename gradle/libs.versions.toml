@@ -19,6 +19,7 @@ ktlintRuleEngine = {  group = "com.pinterest.ktlint", name = "ktlint-rule-engine
 ktlintCliRulesetCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-ruleset-core", version.ref = "ktlint" }
 ktlintCliReporterCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-reporter-core", version.ref = "ktlint" }
 ktlintCliReporterBaselineCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-reporter-baseline", version.ref = "ktlint" }
+ktlintRulesetStandard = {  group = "com.pinterest.ktlint", name = "ktlint-ruleset-standard", version.ref = "ktlint" }
 slf4j-api = {  group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 
 [plugins]

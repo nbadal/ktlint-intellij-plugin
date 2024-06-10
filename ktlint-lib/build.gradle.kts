@@ -18,26 +18,29 @@ allprojects {
 }
 
 dependencies {
-    compileOnly(project(":ktlint-lib:core")) // Required for IDE
-    implementation(project(":ktlint-lib:core", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-0-50-0")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-0-50-0", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-1-0-1")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-0-1", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-1-1-1")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-1-1", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-1-2-0")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-2-0", "shadow"))
+    // Add dependencies from latest released Ktlint version. Note that the latest release version is not build as a subproject like the
+    // older released version. Reason for this is that minimizing the Shadowjar of the subprojects leads to removal of the RulesetProviderV3
+    // class which leads to exceptions when loading a custom ruleset jar.
+    api(libs.ktlintRuleEngine)
+    api(libs.ktlintCliRulesetCore)
+    api(libs.ktlintCliReporterCore)
+    api(libs.ktlintCliReporterBaselineCore)
+    implementation(libs.ktlintRulesetStandard)
 
     compileOnly(project(":ktlint-lib:ruleset-1-2-1")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-2-1", "shadow"))
 
-    compileOnly(project(":ktlint-lib:ruleset-1-3-0")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-3-0", "shadow"))
+    compileOnly(project(":ktlint-lib:ruleset-1-2-0")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-1-2-0", "shadow"))
+
+    compileOnly(project(":ktlint-lib:ruleset-1-1-1")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-1-1-1", "shadow"))
+
+    compileOnly(project(":ktlint-lib:ruleset-1-0-1")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-1-0-1", "shadow"))
+
+    compileOnly(project(":ktlint-lib:ruleset-0-50-0")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-0-50-0", "shadow"))
 
     implementation("com.rollbar:rollbar-java:1.10.0") {
         exclude(group = "org.slf4j") // Duplicated in IDE environment
@@ -62,8 +65,7 @@ tasks {
         // Expose all ruleset implementations:
         mergeServiceFiles()
 
-        // Remove all classes which are not referenced. Note that classes that are reference inside the "plugin" module might need to be
-        // added to ShadowJarMinimizeHelper to prevent that they are removed.
-        minimize()
+        // Ktlint-lib itself may not be minimized as this would result in exceptions when loading custom rulesets as the RulesetProviderV3
+        // can not be found
     }
 }

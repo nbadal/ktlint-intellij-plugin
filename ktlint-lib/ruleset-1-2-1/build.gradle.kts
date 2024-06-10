@@ -35,5 +35,9 @@ tasks {
             "com.pinterest.ktlint.ruleset.standard",
             "com.pinterest.ktlint.ruleset.standard.V1_02_1",
         )
+
+        minimize {
+            exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:1.2.1"))
+        }
     }
 }

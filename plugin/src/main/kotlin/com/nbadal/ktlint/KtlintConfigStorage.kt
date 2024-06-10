@@ -147,8 +147,14 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
                 _isLoaded = true
                 externalJarPaths
                     .map { File(it).toURI().toURL() }
-                    .loadRuleProviders()
+                    .loadCustomRuleProviders()
+                    .also { logger.info { "Loaded ${it.size} rules from custom rule providers $externalJarPaths" } }
                     .plus(ktlintRulesetVersion.ruleProviders())
+                    .also {
+                        logger.info {
+                            "Added ${ktlintRulesetVersion.ruleProviders().size} from default ktlint ruleset version ${ktlintRulesetVersion.label}"
+                        }
+                    }
             } catch (throwable: Throwable) {
                 _isLoaded = false
                 _error = throwable.toString()

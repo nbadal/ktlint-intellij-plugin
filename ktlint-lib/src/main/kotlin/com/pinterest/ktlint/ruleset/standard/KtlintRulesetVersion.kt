@@ -6,7 +6,6 @@ import com.pinterest.ktlint.ruleset.standard.V1_00_1.StandardRuleSetProvider as 
 import com.pinterest.ktlint.ruleset.standard.V1_01_1.StandardRuleSetProvider as StandardRuleSetProviderV1_01_1
 import com.pinterest.ktlint.ruleset.standard.V1_02_0.StandardRuleSetProvider as StandardRuleSetProviderV1_02_0
 import com.pinterest.ktlint.ruleset.standard.V1_02_1.StandardRuleSetProvider as StandardRuleSetProviderV1_02_1
-import com.pinterest.ktlint.ruleset.standard.V1_03_0.StandardRuleSetProvider as StandardRuleSetProviderV1_03_0
 
 /**
  * Policies for supporting rulesets from older versions:
@@ -22,7 +21,13 @@ enum class KtlintRulesetVersion(
 ) {
     // Versions should be ordered starting with default and then sorted from the most recent to the least recent version
     DEFAULT("default (recommended)", null),
-    V1_3_0("1.3.0", StandardRuleSetProviderV1_03_0()),
+
+    // The latest released version of Ktlint is to be loaded via the "StandardRuleSetProvider()" constructor. So whenever adding a new
+    // release, a new ruleset subproject has to be created for the previous release.
+    V1_3_0("1.3.0", StandardRuleSetProvider()),
+
+    // For each older release that is supported, a separate ruleset subproject exists in which the StandardRuleSetProvider is relocated to
+    // a unique class name.
     V1_2_1("1.2.1", StandardRuleSetProviderV1_02_1()),
     V1_2_0("1.2.0", StandardRuleSetProviderV1_02_0()),
     V1_1_1("1.1.1", StandardRuleSetProviderV1_01_1()),
@@ -47,6 +52,7 @@ enum class KtlintRulesetVersion(
         // can never before any other version. Higher ordinals are older versions.
         ordinal != 0 && ordinal > otherKtlintRulesetVersion.ordinal
 
+    @OptIn(ExperimentalStdlibApi::class)
     companion object {
         fun findByLabelOrDefault(label: String) = entries.firstOrNull { it.label == label } ?: DEFAULT
 
