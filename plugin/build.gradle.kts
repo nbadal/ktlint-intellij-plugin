@@ -51,7 +51,8 @@ version = finalPluginVersion
 
 repositories {
     mavenCentral()
-    mavenLocal()
+    // Comment out next line releasing a new version to any channel
+    // mavenLocal()
 }
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
