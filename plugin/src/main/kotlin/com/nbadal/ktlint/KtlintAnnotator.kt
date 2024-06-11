@@ -13,7 +13,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
-import com.intellij.refactoring.suggested.startOffset
 import com.nbadal.ktlint.KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND
 import com.nbadal.ktlint.KtlintFeature.DISPLAY_ALL_VIOLATIONS
 import com.nbadal.ktlint.KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND
@@ -235,7 +234,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
         } else {
             psiFile
                 .findElementAt(lintError.offsetFromStartOf(document))
-                ?.let { TextRange.from(it.startOffset, it.textLength) }
+                ?.let { TextRange.from(it.textRange.startOffset, it.textLength) }
                 ?: TextRange(lintError.lineStartOffset(document), lintError.getLineEndOffset(document))
         }
     }
