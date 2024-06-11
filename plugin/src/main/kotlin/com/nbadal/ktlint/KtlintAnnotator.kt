@@ -90,8 +90,6 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
         annotationHolder: AnnotationHolder,
         shouldIgnore: (LintError) -> Boolean,
     ) {
-        val displayViolationWhichCanNotBeAutocorrectedAsError =
-            psiFile.project.isEnabled(DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR)
         errors
             ?.filterNot { shouldIgnore(it) }
             ?.forEach { lintError ->
