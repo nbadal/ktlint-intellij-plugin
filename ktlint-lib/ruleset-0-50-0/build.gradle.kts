@@ -22,7 +22,7 @@ dependencies {
             )
         }
     }
-    implementation("com.pinterest.ktlint:ktlint-logger:0.50.0") {
+    implementation("com.pinterest.ktlint:ktlint-logger:1.3.0") {
         // Exclude the slf4j 2.0.3 version provided via Ktlint as it does not use the module classloader in the ServiceLoader
         exclude("org.slf4j")
             .because(
