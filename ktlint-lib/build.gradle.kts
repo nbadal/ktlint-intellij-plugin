@@ -1,5 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("java") // Java support
@@ -41,21 +40,19 @@ dependencies {
     }
 }
 
+kotlin {
+    compilerOptions {
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+    }
+}
+
 tasks {
     withType<JavaCompile> {
         sourceCompatibility = "17"
         targetCompatibility = "17"
     }
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
-    }
 
     withType<ShadowJar> {
-        val api = project.configurations.api.get()
-        val impl = project.configurations.implementation.get()
-
-        configurations = listOf(api, impl).map { it.apply { isCanBeResolved = true } }
-
         // Expose all ruleset implementations:
         mergeServiceFiles()
 
