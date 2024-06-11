@@ -7,7 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintFeature
-import com.nbadal.ktlint.KtlintFileFormatRange
+import com.nbadal.ktlint.KtlintFileAutocorrectHandler
 import com.nbadal.ktlint.isEnabled
 import com.nbadal.ktlint.ktlintFormat
 
@@ -19,7 +19,7 @@ class ForceFormatIntention :
     LowPriorityAction {
     override fun getFamilyName() = "KtLint"
 
-    override fun getText() = "Format file with ktlint"
+    override fun getText() = "Ktlint format file"
 
     override fun isAvailable(
         project: Project,
@@ -38,6 +38,11 @@ class ForceFormatIntention :
         editor: Editor?,
         psiFile: PsiFile,
     ) {
-        ktlintFormat(psiFile, ktlintFormatRange = KtlintFileFormatRange, triggeredBy = "ForceFormatIntention", forceFormat = true)
+        ktlintFormat(
+            psiFile,
+            ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+            triggeredBy = "ForceFormatIntention",
+            forceFormat = true,
+        )
     }
 }

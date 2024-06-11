@@ -3,6 +3,7 @@ package com.nbadal.ktlint
 import com.nbadal.ktlint.actions.FormatAction
 import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import java.net.URL
 import java.net.URLClassLoader
 import java.util.ServiceConfigurationError
@@ -10,22 +11,25 @@ import java.util.ServiceLoader
 
 private val logger = KtlintLogger("com.nbdal.ktlint.KtlintLoadRuleProviders")
 
-// See: LoadRuleProviders.kt
-internal fun List<URL>.loadRuleProviders(): Set<RuleProvider> =
+/**
+ * Loads the rule providers from the given list of JAR [URL]s. Rules from the [RuleSetId.STANDARD] will be excluded. The rules provided via
+ * ktlint will be loaded separately. So technically it is possible that the custom ruleset provides the standard rules of a different ktlint
+ * version than the ktlint version the user has selected in the Ktlint plugin preferences.
+ */
+internal fun List<URL>.loadCustomRuleProviders(): Set<RuleProvider> =
     RuleSetProviderV3::class.java
-        .loadFromJarFiles(this)
+        .loadCustomRuleProvidersFromJarFiles(this)
         .flatMap { it.getRuleProviders() }
         .toSet()
 
-// See: KtlintServiceLoader.kt
-private fun <T> Class<T>.loadFromJarFiles(urls: List<URL>): Set<T> {
+private fun Class<RuleSetProviderV3>.loadCustomRuleProvidersFromJarFiles(urls: List<URL>): Set<RuleSetProviderV3> {
     val providersFromCustomJars =
         urls
             .distinct()
             .flatMap { url ->
                 loadProvidersFromJars(url)
+                    .filterNot { it.id == RuleSetId.STANDARD }
                     .also { providers -> logger.debug { "Loaded ${providers.size} custom ruleset providers from $url" } }
-                    .filterNotNull()
                     .ifEmpty { throw EmptyRuleSetJarException("Custom rule set '$url' does not contain a custom ktlint rule set provider") }
             }.toSet()
     return providersFromCustomJars.toSet()

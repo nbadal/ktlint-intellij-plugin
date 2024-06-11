@@ -3,7 +3,6 @@ package com.nbadal.ktlint
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.ExternalAnnotator
-import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.lang.annotation.HighlightSeverity.ERROR
 import com.intellij.lang.annotation.HighlightSeverity.INFORMATION
 import com.intellij.lang.annotation.HighlightSeverity.WARNING
@@ -20,9 +19,11 @@ import com.nbadal.ktlint.KtlintFeature.DISPLAY_ALL_VIOLATIONS
 import com.nbadal.ktlint.KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND
 import com.nbadal.ktlint.KtlintFeature.DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR
 import com.nbadal.ktlint.actions.ForceFormatIntention
+import com.nbadal.ktlint.actions.KtlintAutocorrectIntention
 import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
 import com.nbadal.ktlint.actions.ShowAllKtlintViolationsIntention
 import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 
 internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
     private val logger = KtlintLogger(this::class.qualifiedName)
@@ -79,11 +80,11 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 { !displayAllKtlintViolations }
             }
 
-        createAnnotationPerViolation(psiFile, errors, annotationHolder, ignoreViolationsPredicate)
+        createAnnotationsPerViolation(psiFile, errors, annotationHolder, ignoreViolationsPredicate)
         createAnnotationSummaryForIgnoredViolations(psiFile, errors, annotationHolder, ignoreViolationsPredicate)
     }
 
-    private fun createAnnotationPerViolation(
+    private fun createAnnotationsPerViolation(
         psiFile: PsiFile,
         errors: List<LintError>?,
         annotationHolder: AnnotationHolder,
@@ -96,15 +97,72 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
             ?.forEach { lintError ->
                 errorTextRange(psiFile, lintError)
                     ?.let { errorTextRange ->
-                        annotationHolder
-                            .newAnnotation(
-                                lintError.highlightSeverity(displayViolationWhichCanNotBeAutocorrectedAsError),
-                                lintError.errorMessage(),
-                            ).range(errorTextRange)
-                            .withFix(KtlintRuleSuppressIntention(lintError))
-                            .create()
+                        if (lintError.canBeAutoCorrected) {
+                            annotationHolder.createAutocorrectIntention(psiFile, lintError, errorTextRange)
+                        }
+                        annotationHolder.createSuppressIntention(psiFile, lintError, errorTextRange)
                     }
             }
+    }
+
+    private fun AnnotationHolder.createAutocorrectIntention(
+        psiFile: PsiFile,
+        lintError: LintError,
+        errorTextRange: TextRange,
+    ) {
+        when {
+            lintError.ruleId in psiFile.project.config().ruleIdsWithAutocorrectApproveHandler -> {
+                // Fixing of individual lint errors is supported for this rule. No tooltip needed.
+                newAnnotation(WARNING, lintError.errorMessage())
+                    .range(errorTextRange)
+                    .withFix(KtlintAutocorrectIntention(lintError))
+                    .create()
+            }
+
+            lintError.ruleId.ruleSetId == RuleSetId.STANDARD -> {
+                // Rules provided by Ktlint 1.3.0+ all support manual fixing of individual lint errors and as of that are already
+                // handled by previous when-condition.
+                newSilentAnnotation(WARNING)
+                    .range(errorTextRange)
+                    .tooltip(
+                        "<i>${lintError.errorMessage()}</i><p>" +
+                            "Manual fixing of individual Ktlint violations is not supported by version " +
+                            "'${psiFile.project.ktlintRulesetVersion().label}' of the ruleset. <strong>Upgrade the ruleset in the Ktlint " +
+                            "Plugin Settings to at least 1.3.0.</strong>",
+                    ).create()
+            }
+
+            else -> {
+                // Custom rules that provide support for fixing individual violations are already handled in a when-condition above.
+                newSilentAnnotation(WARNING)
+                    .range(errorTextRange)
+                    .tooltip(
+                        "<i>${lintError.errorMessage()}</i><p>" +
+                            "Manual fixing of individual Ktlint violations is not supported for rule '${lintError.ruleId.value}'. " +
+                            "<strong>Upgrade to a later version of this ruleset if possible.</strong> This rule is provided via a custom" +
+                            " ruleset.<strong>Contact the maintainer of the '${lintError.ruleId.ruleSetId.value}' ruleset to provide a " +
+                            "compatible ruleset.</strong>",
+                    ).create()
+            }
+        }
+    }
+
+    private fun AnnotationHolder.createSuppressIntention(
+        psiFile: PsiFile,
+        lintError: LintError,
+        errorTextRange: TextRange,
+    ) {
+        val severity =
+            when {
+                lintError.canBeAutoCorrected -> WARNING
+                psiFile.project.isEnabled(DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR) -> ERROR
+                else -> WARNING
+            }
+        // A violation can always be suppressed. So no tooltip is needed.
+        newAnnotation(severity, lintError.errorMessage())
+            .range(errorTextRange)
+            .withFix(KtlintRuleSuppressIntention(lintError))
+            .create()
     }
 
     private fun createAnnotationSummaryForIgnoredViolations(
@@ -165,13 +223,6 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 .also {
                     logger.debug { "Annotator: $it" }
                 }?.displayAllKtlintViolations ?: false
-
-    private fun LintError.highlightSeverity(displayViolationWhichCanNotBeAutocorrectedAsError: Boolean): HighlightSeverity =
-        if (displayViolationWhichCanNotBeAutocorrectedAsError && !canBeAutoCorrected) {
-            ERROR
-        } else {
-            WARNING
-        }
 
     private fun LintError.errorMessage(): String = "$detail (${ruleId.value})"
 

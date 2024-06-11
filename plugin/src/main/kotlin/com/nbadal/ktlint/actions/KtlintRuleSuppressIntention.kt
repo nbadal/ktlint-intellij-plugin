@@ -5,11 +5,11 @@ import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
-import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION
-import com.nbadal.ktlint.KtlintFileFormatRange
+import com.nbadal.ktlint.KtlintFileAutocorrectHandler
 import com.nbadal.ktlint.config
+import com.nbadal.ktlint.findElementAt
 import com.nbadal.ktlint.isEnabled
 import com.nbadal.ktlint.ktlintFormat
 import com.pinterest.ktlint.rule.engine.api.Code
@@ -23,7 +23,7 @@ class KtlintRuleSuppressIntention(
     HighPriorityAction {
     override fun getFamilyName() = "KtLint"
 
-    override fun getText() = "Suppress '${lintError.ruleId.value}'"
+    override fun getText() = "Ktlint suppress '${lintError.ruleId.value}'"
 
     override fun isAvailable(
         project: Project,
@@ -31,16 +31,8 @@ class KtlintRuleSuppressIntention(
         psiFile: PsiFile,
     ): Boolean {
         // Skip if no error element can be located for the error offset
-        return psiFile.project.isEnabled(SHOW_INTENTION_TO_SUPPRESS_VIOLATION) && psiFile.findElementAtLintErrorOffset() != null
+        return psiFile.project.isEnabled(SHOW_INTENTION_TO_SUPPRESS_VIOLATION) && psiFile.findElementAt(lintError) != null
     }
-
-    private fun PsiFile.findElementAtLintErrorOffset(): PsiElement? =
-        viewProvider
-            .document
-            ?.takeIf { lintError.line <= it.lineCount }
-            ?.let { doc ->
-                findElementAt(doc.getLineStartOffset(lintError.line - 1) + lintError.col - 1)
-            }
 
     override fun invoke(
         project: Project,
@@ -68,7 +60,11 @@ class KtlintRuleSuppressIntention(
                     ?.let { updatedCode ->
                         if (updatedCode != code.content) {
                             document.setText(updatedCode)
-                            ktlintFormat(psiFile, ktlintFormatRange = KtlintFileFormatRange, triggeredBy = "KtlintSuppressIntention")
+                            ktlintFormat(
+                                psiFile,
+                                ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+                                triggeredBy = "KtlintSuppressIntention",
+                            )
                         }
                     }
             }

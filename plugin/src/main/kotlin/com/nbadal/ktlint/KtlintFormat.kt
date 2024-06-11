@@ -18,6 +18,7 @@ import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import org.ec4j.core.parser.ParseException
 
 private val logger = KtlintLogger("com.nbdal.ktlint.KtlintFormat")
@@ -26,14 +27,14 @@ internal fun ktlintLint(
     psiFile: PsiFile,
     triggeredBy: String,
 ) = if (psiFile.virtualFile.isKotlinFile()) {
-    executeKtlint(LINT, psiFile, KtlintFileFormatRange, triggeredBy)
+    executeKtlint(LINT, psiFile, KtlintFileAutocorrectHandler, triggeredBy)
 } else {
     KtlintResult(NOT_STARTED)
 }
 
 internal fun ktlintFormat(
     psiFile: PsiFile,
-    ktlintFormatRange: KtlintFormatRange,
+    ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
     triggeredBy: String,
     forceFormat: Boolean = false,
 ): KtlintResult {
@@ -47,7 +48,7 @@ internal fun ktlintFormat(
             .getInstance(project)
             .doPostponedOperationsAndUnblockDocument(document)
         WriteCommandAction.runWriteCommandAction(project) {
-            ktlintResult = executeKtlint(FORMAT, psiFile, ktlintFormatRange, triggeredBy)
+            ktlintResult = executeKtlint(FORMAT, psiFile, ktlintFormatAutoCorrectHandler, triggeredBy)
         }
         FileDocumentManager.getInstance().saveDocument(document)
         DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
@@ -61,7 +62,7 @@ internal fun ktlintFormat(
 private fun executeKtlint(
     ktlintExecutionType: KtlintExecutionType,
     psiFile: PsiFile,
-    ktlintFormatRange: KtlintFormatRange,
+    ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
     triggeredBy: String,
 ): KtlintResult {
     val project = psiFile.project
@@ -87,8 +88,7 @@ private fun executeKtlint(
             return KtlintResult(PLUGIN_CONFIGURATION_ERROR)
         }
 
-    // KtLint wants the full file path in order to search for .editorconfig files
-    val baselineErrors = project.baselineErrors(psiFile.virtualFile.path)
+    val baselineErrors = with(psiFile) { project.baselineErrors(virtualFile.path) }
 
     val lintErrors = mutableListOf<LintError>()
     var fileChangedByFormat = false
@@ -109,20 +109,45 @@ private fun executeKtlint(
                 .ktlintRuleEngine
                 ?: return KtlintResult(FILE_RELATED_ERROR)
                     .also { logger.debug { "Could not create ktlintRuleEngine for path '${psiFile.virtualFile.path}'" } }
-        val errorHandler = { error: LintError ->
-            when {
-                error.isIgnoredInBaseline(baselineErrors) -> Unit
-                else -> lintErrors.add(error)
-            }
-        }
         if (ktlintExecutionType == LINT) {
-            ktlintRuleEngine.lint(code) { lintError -> errorHandler(lintError) }
+            ktlintRuleEngine.lint(code) { lintError -> lintErrors.add(lintError) }
         } else {
             val formattedCode =
-                if (ktlintFormatRange == KtlintFileFormatRange) {
-                    ktlintRuleEngine.format(code) { lintError, _ -> errorHandler(lintError) }
-                } else {
-                    ktlintRuleEngine.format(code, ktlintFormatRange.intRange()) { lintError, _ -> errorHandler(lintError) }
+                when (ktlintFormatAutoCorrectHandler) {
+                    is KtlintFileAutocorrectHandler ->
+                        ktlintRuleEngine.format(code) { lintError ->
+                            if (lintError.isIgnoredInBaseline(baselineErrors)) {
+                                AutocorrectDecision.NO_AUTOCORRECT
+                            } else {
+                                lintErrors.add(lintError)
+                                AutocorrectDecision.ALLOW_AUTOCORRECT
+                            }
+                        }
+
+                    is KtlintBlockAutocorrectHandler ->
+                        ktlintRuleEngine.format(code) { lintError ->
+                            if (lintError.isIgnoredInBaseline(baselineErrors)) {
+                                AutocorrectDecision.NO_AUTOCORRECT
+                            } else {
+                                val offset = psiFile.getLineStartOffset(lintError)
+                                if (ktlintFormatAutoCorrectHandler.isRangeContainingOffset(offset)) {
+                                    // Do not add the lint error to the list of lint errors as it will be autocorrected
+                                    AutocorrectDecision.ALLOW_AUTOCORRECT
+                                } else {
+                                    lintErrors.add(lintError)
+                                    AutocorrectDecision.NO_AUTOCORRECT
+                                }
+                            }
+                        }
+
+                    is KtlintViolationAutocorrectHandler ->
+                        ktlintRuleEngine.format(code) { lintError ->
+                            if (lintError == ktlintFormatAutoCorrectHandler.lintError) {
+                                AutocorrectDecision.ALLOW_AUTOCORRECT
+                            } else {
+                                AutocorrectDecision.NO_AUTOCORRECT
+                            }
+                        }
                 }
             if (formattedCode != code.content) {
                 psiFile.viewProvider.document.setText(formattedCode)
@@ -130,7 +155,11 @@ private fun executeKtlint(
             }
         }
         logger.debug { "Finished ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy' successfully" }
-        return KtlintResult(SUCCESS, lintErrors, fileChangedByFormat)
+        return KtlintResult(
+            SUCCESS,
+            lintErrors.filterNot { it.isIgnoredInBaseline(baselineErrors) },
+            fileChangedByFormat,
+        )
     } catch (ktLintParseException: KtLintParseException) {
         // Most likely the file contains a compilation error which prevents it from being parsed. The user should resolve those errors.
         // The stacktrace is excluded from the message as it would distract from resolving the error.
