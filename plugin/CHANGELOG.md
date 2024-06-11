@@ -4,7 +4,20 @@
 
 ## [Unreleased]
 
-## [0.23.0-beta-1.2024-05-19_16-20-39] - 2024-05-19
+## [0.23.0-dev.2024-06-11_14-14-08] - 2024-06-11
+
+### What's Changed
+
+- Upgrade to Intellij IDEA 2024.1
+
+### Dependency updates
+
+- Bump org.jetbrains.intellij from 1.17.2 to 1.17.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/#494
+- Bump JetBrains/qodana-action from 2023.3.1 to 2023.3.2 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/#491
+- Bump gradle/wrapper-validation-action from 2.1.1 to 2.1.2 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/#488
+- Bump org.jetbrains.kotlin.jvm from 1.9.22 to 1.9.23 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/#484
+
+## [[0.23.0-beta-1.2024-05-19]_16-20-39] - 2024-05-19
 
 ### What's Changed
 
@@ -30,7 +43,7 @@
 - Bump gradle/wrapper-validation-action from 2.1.1 to 2.1.2 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/#488
 - Bump org.jetbrains.kotlin.jvm from 1.9.22 to 1.9.23 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/#484
 
-## [0.23.0-dev.2024-05-07_14-35-18] - 2024-05-07
+## [[0.23.0-dev.2024-05-07]_14-35-18] - 2024-05-07
 
 ### What's Changed
 
@@ -298,9 +311,10 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.23.0-beta-1.2024-05-19_16-20-39...HEAD
-[0.23.0-dev.2024-05-07]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.21.0...v0.23.0-dev.2024-05-07
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.23.0-dev.2024-06-11_14-14-08...HEAD
 [0.23.0-dev.2024-05-08]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.23.0-dev.2024-05-07...v0.23.0-dev.2024-05-08
+[0.23.0-dev.2024-05-07]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.21.0...v0.23.0-dev.2024-05-07
+[0.23.0-beta-1.2024-05-19]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.23.0-dev.2024-05-08...v0.23.0-beta-1.2024-05-19
 [0.21.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.13.0...v0.20.0
 [0.13.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.12.0...v0.13.0
@@ -331,3 +345,4 @@
 [0.23.0-beta-1.2024-05-19_16-20-39]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.23.0-dev.2024-05-08...v0.23.0-beta-1.2024-05-19_16-20-39
 [0.23.0-dev.2024-05-07_14-35-18]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.21.0...v0.23.0-dev.2024-05-07_14-35-18
 [0.23.0-dev.2024-05-08_16-08-58]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.23.0-dev.2024-05-07...v0.23.0-dev.2024-05-08_16-08-58
+[0.23.0-dev.2024-06-11_14-14-08]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.23.0-beta-1.2024-05-19...v0.23.0-dev.2024-06-11_14-14-08
