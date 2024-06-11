@@ -1,5 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("java") // Java support
@@ -16,21 +15,19 @@ dependencies {
     implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.1.1")
 }
 
+kotlin {
+    compilerOptions {
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+    }
+}
+
 tasks {
     withType<JavaCompile> {
         sourceCompatibility = "17"
         targetCompatibility = "17"
     }
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
-    }
 
     withType<ShadowJar> {
-        val api = project.configurations.api.get()
-        val impl = project.configurations.implementation.get()
-
-        configurations = listOf(api, impl).map { it.apply { isCanBeResolved = true } }
-
         relocate(
             "com.pinterest.ktlint.ruleset.standard",
             "com.pinterest.ktlint.ruleset.standard.V1_01_1",
