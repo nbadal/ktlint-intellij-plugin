@@ -17,7 +17,9 @@ class KtlintPostFormatProcessor : PostFormatProcessor {
         rangeToReformat: TextRange,
         settings: CodeStyleSettings,
     ): TextRange {
-        if (psiFile.project.isEnabled(KtlintFeature.POST_FORMAT_WITH_KTLINT) || psiFile.project.config().attachToIntellijFormat) {
+        if (psiFile.project.isEnabled(KtlintFeature.POST_FORMAT_WITH_KTLINT) ||
+            (psiFile.project.config().attachToIntellijFormat && psiFile.project.ktlintMode() == KtlintMode.MANUAL)
+        ) {
             ktlintFormat(
                 psiFile,
                 ktlintFormatAutoCorrectHandler = KtlintBlockAutocorrectHandler(rangeToReformat.startOffset, rangeToReformat.endOffset + 1),
