@@ -64,7 +64,7 @@ dependencies {
         exclude(group = "org.slf4j") // Duplicated in IDE environment
     }
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.3")
     testImplementation("org.junit.platform:junit-platform-launcher:1.10.3")
     testImplementation("io.mockk:mockk:1.13.11")
 }
