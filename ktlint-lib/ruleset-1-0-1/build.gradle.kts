@@ -16,17 +16,13 @@ dependencies {
 }
 
 kotlin {
+    jvmToolchain(17)
     compilerOptions {
         apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
     }
 }
 
 tasks {
-    withType<JavaCompile> {
-        sourceCompatibility = "17"
-        targetCompatibility = "17"
-    }
-
     withType<ShadowJar> {
         relocate(
             "com.pinterest.ktlint.ruleset.standard",
