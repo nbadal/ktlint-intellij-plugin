@@ -24,7 +24,11 @@ dependencies {
     api(libs.ktlintCliRulesetCore)
     api(libs.ktlintCliReporterCore)
     api(libs.ktlintCliReporterBaselineCore)
+
+    // Include the ktlint ruleset baked into the latest ktlint release in the `ktlint-lib` directly
     implementation(libs.ktlintRulesetStandard)
+
+    // Be aware that the latest ktlint ruleset is not listed below because it already included by line above!
 
     compileOnly(project(":ktlint-lib:ruleset-1-3-0")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-3-0", "shadow"))
