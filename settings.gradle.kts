@@ -11,6 +11,7 @@ include(
     "ktlint-lib:ruleset-1-1-1",
     "ktlint-lib:ruleset-1-2-0",
     "ktlint-lib:ruleset-1-2-1",
-    // The latest released version is *not* build as a separate sub project, but is an integral part of the lib
+    "ktlint-lib:ruleset-1-3-0",
+    // The latest released version of the ktlint ruleset is *not* build as a separate subproject, but is an integral part of the lib
     "plugin",
 )
