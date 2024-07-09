@@ -27,6 +27,9 @@ dependencies {
     api(libs.ktlintCliReporterBaselineCore)
     implementation(libs.ktlintRulesetStandard)
 
+    compileOnly(project(":ktlint-lib:ruleset-1-3-0")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-1-3-0", "shadow"))
+
     compileOnly(project(":ktlint-lib:ruleset-1-2-1")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-2-1", "shadow"))
 
