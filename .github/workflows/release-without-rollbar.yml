@@ -16,12 +16,11 @@ jobs:
         if: ${{ success() }}
         run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
-      # Setup Java 11 environment for the next steps
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'adopt'
-          java-version: 11
+          distribution: 'zulu'
+          java-version: 17
 
       # Check out current repository
       - name: Fetch Sources
@@ -52,8 +51,8 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'adopt'
-          java-version: 11
+          distribution: 'zulu'
+          java-version: 17
 
       # Check out current repository
       - name: Fetch Sources
