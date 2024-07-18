@@ -6,7 +6,7 @@ import com.pinterest.ktlint.ruleset.standard.V1_00_1.StandardRuleSetProvider as 
 import com.pinterest.ktlint.ruleset.standard.V1_01_1.StandardRuleSetProvider as StandardRuleSetProviderV1_01_1
 import com.pinterest.ktlint.ruleset.standard.V1_02_0.StandardRuleSetProvider as StandardRuleSetProviderV1_02_0
 import com.pinterest.ktlint.ruleset.standard.V1_02_1.StandardRuleSetProvider as StandardRuleSetProviderV1_02_1
-import com.pinterest.ktlint.ruleset.standard.V1_02_1.StandardRuleSetProvider as StandardRuleSetProviderV1_03_0
+import com.pinterest.ktlint.ruleset.standard.V1_03_0.StandardRuleSetProvider as StandardRuleSetProviderV1_03_0
 
 /**
  * Policies for supporting rulesets from older versions:
