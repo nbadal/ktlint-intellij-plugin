@@ -31,6 +31,8 @@ class KtlintConfigForm(
     private val ktlintConfigStorage: KtlintConfigStorage,
 ) {
     private lateinit var mainPanel: JPanel
+    lateinit var showBanner: JCheckBox
+        private set
     lateinit var distractFreeMode: JRadioButton
         private set
     private lateinit var manualMode: JRadioButton
@@ -54,6 +56,8 @@ class KtlintConfigForm(
 
     fun createComponent(): JComponent {
         mainPanel.border = IdeBorderFactory.createTitledBorder("Ktlint Format Settings")
+
+        showBanner.isSelected = KtlintApplicationConfigStorage.getInstance().state.showBanner
 
         setFormatFieldsVisibility()
         distractFreeMode.addChangeListener { setFormatFieldsVisibility() }
@@ -108,6 +112,8 @@ class KtlintConfigForm(
     }
 
     fun apply() {
+        KtlintApplicationConfigStorage.getInstance().state.showBanner = showBanner.isSelected
+
         ktlintConfigStorage.ktlintMode = ktlintMode
         ktlintConfigStorage.ktlintRulesetVersion = ktlintRulesetVersion
         ktlintConfigStorage.formatOnSave = formatOnSave.isSelected
@@ -144,12 +150,15 @@ class KtlintConfigForm(
     }
 
     fun reset() {
+        showBanner.isSelected = KtlintApplicationConfigStorage.getInstance().state.showBanner
+
         when (ktlintConfigStorage.ktlintMode) {
             DISTRACT_FREE -> distractFreeMode.isSelected = true
             MANUAL -> manualMode.isSelected = true
             DISABLED -> disabledMode.isSelected = true
             else -> Unit
         }
+
         rulesetVersion.selectedItem = ktlintConfigStorage.ktlintRulesetVersion.label
         formatOnSave.isSelected = ktlintConfigStorage.formatOnSave
         attachToIntellijFormat.isSelected = ktlintConfigStorage.attachToIntellijFormat

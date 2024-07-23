@@ -1,5 +1,6 @@
 package com.nbadal.ktlint
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
@@ -20,11 +21,50 @@ import java.io.File
 
 private val logger = KtlintLogger(KtlintConfigStorage::class.qualifiedName)
 
+/**
+ * Application wide configuration settings. Those settings are stored in a file  outside the '.idea' folder of the project. Those settings
+ * apply to all projects. In this way the user does not have to set the setting for each project.
+ */
+@Service(Service.Level.APP)
 @State(
-    name = "KtLint plugin",
+    name = "KtLint plugin (application)",
+    // Application wide ktlint settings are stored in a file outside the '.idea' folder of the project.
     storages = [Storage("ktlint-plugin.xml")],
 )
+class KtlintApplicationConfigStorage : PersistentStateComponent<KtlintApplicationConfigStorage.State> {
+    data class State(
+        // Some users work on projects for which only a subselection is using ktlint. They do not want to see the ktlint banner advocating
+        // to configure the ktlint project in the project that are not using ktlint. Neither do they want to disable ktlint explicitly in
+        // those other projects, as that would result in creating a plugin settings file inside hte '.idea' folder of the project.
+        var showBanner: Boolean = true,
+    )
+
+    private var _state = setDefaultState()
+
+    override fun getState(): State = _state
+
+    override fun loadState(state: State) {
+        _state = state
+    }
+
+    fun setDefaultState() = State()
+
+    companion object {
+        fun getInstance(): KtlintApplicationConfigStorage =
+            ApplicationManager.getApplication().getService(KtlintApplicationConfigStorage::class.java)
+    }
+}
+
+/**
+ * Project specific configuration settings. Those settings are stored inside the '.idea' folder of the project. Those settings apply to
+ * all projects. In this way the user does not have to set the setting for each project.
+ */
 @Service(Service.Level.PROJECT)
+@State(
+    name = "KtLint plugin",
+    // Project specific application settings are stored in a file inside the '.idea' folder of the project.
+    storages = [Storage("ktlint-plugin.xml")],
+)
 class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
     /**
      * The plugin can not detect whether ktlint should run or not on a newly loaded project that contains Kotlin code.

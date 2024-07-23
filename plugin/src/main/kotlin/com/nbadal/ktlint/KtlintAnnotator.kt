@@ -41,7 +41,10 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
             psiFile.project.isEnabled(DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR) ||
                 psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) ||
                 psiFile.project.isEnabled(DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND) ||
-                psiFile.project.isEnabled(AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND)
+                (
+                    psiFile.project.isEnabled(AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND) &&
+                        KtlintApplicationConfigStorage.getInstance().state.showBanner
+                )
             -> {
                 if (editor.document.ktlintAnnotatorUserData?.modificationTimestamp == editor.document.modificationStamp) {
                     // Document is unchanged since last time ktlint has run. Reuse lint errors from user data. It also has the advantage that
@@ -80,7 +83,9 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
             }
 
         createAnnotationsPerViolation(psiFile, errors, annotationHolder, ignoreViolationsPredicate)
-        createAnnotationSummaryForIgnoredViolations(psiFile, errors, annotationHolder, ignoreViolationsPredicate)
+        if (KtlintApplicationConfigStorage.getInstance().state.showBanner) {
+            createAnnotationSummaryForIgnoredViolations(psiFile, errors, annotationHolder, ignoreViolationsPredicate)
+        }
     }
 
     private fun createAnnotationsPerViolation(
@@ -201,6 +206,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 .newAnnotation(INFORMATION, message)
                 .fileLevel()
                 .withFix(KtlintOpenSettingsIntention())
+                .withFix(KtlintOpenSettingsDoNotShowAgainIntention())
                 .create()
         } else {
             annotationHolder

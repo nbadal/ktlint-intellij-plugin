@@ -9,7 +9,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <externalAnnotator language="kotlin" implementationClass="com.nbadal.ktlint.KtlintAnnotator" id="KtlintAnnotator"/>
         <postFormatProcessor implementation="com.nbadal.ktlint.KtlintPostFormatProcessor" />
-        <projectConfigurable groupId="tools" displayName="KtLint" id="preferences.ktlint-plugin"
+        <projectConfigurable displayName="KtLint" groupId="tools" id="preferences.ktlint-plugin"
                              instance="com.nbadal.ktlint.KtlintConfig"/>
         <errorHandler implementation="com.nbadal.ktlint.KtlintErrorHandler" />
         <notificationGroup id="Ktlint Notifications" displayType="BALLOON"/>
