@@ -43,7 +43,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 psiFile.project.isEnabled(DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND) ||
                 (
                     psiFile.project.isEnabled(AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND) &&
-                        KtlintApplicationConfigStorage.getInstance().state.showBanner
+                        KtlintApplicationSettings.getInstance().state.showBanner
                 )
             -> {
                 if (editor.document.ktlintAnnotatorUserData?.modificationTimestamp == editor.document.modificationStamp) {
@@ -83,7 +83,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
             }
 
         createAnnotationsPerViolation(psiFile, errors, annotationHolder, ignoreViolationsPredicate)
-        if (KtlintApplicationConfigStorage.getInstance().state.showBanner) {
+        if (KtlintApplicationSettings.getInstance().state.showBanner) {
             createAnnotationSummaryForIgnoredViolations(psiFile, errors, annotationHolder, ignoreViolationsPredicate)
         }
     }

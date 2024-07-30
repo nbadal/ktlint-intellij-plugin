@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 internal class KtlintFormatTest {
-    private val config = KtlintConfigStorage()
+    private val config = KtlintProjectSettings()
 
     @BeforeEach
     internal fun setUp() {

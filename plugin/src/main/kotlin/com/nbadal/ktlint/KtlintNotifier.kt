@@ -12,7 +12,7 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.util.applyIf
 
-private val logger = KtlintLogger(KtlintConfigStorage::class.qualifiedName)
+private val logger = KtlintLogger(KtlintProjectSettings::class.qualifiedName)
 
 object KtlintNotifier {
     private const val KTLINT_NOTIFICATION_GROUP = "Ktlint Notifications"

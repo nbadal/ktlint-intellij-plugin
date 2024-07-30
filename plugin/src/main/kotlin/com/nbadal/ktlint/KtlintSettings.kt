@@ -19,7 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
 import java.io.File
 
-private val logger = KtlintLogger(KtlintConfigStorage::class.qualifiedName)
+private val logger = KtlintLogger(KtlintProjectSettings::class.qualifiedName)
 
 /**
  * Application wide configuration settings. Those settings are stored in a file  outside the '.idea' folder of the project. Those settings
@@ -27,11 +27,11 @@ private val logger = KtlintLogger(KtlintConfigStorage::class.qualifiedName)
  */
 @Service(Service.Level.APP)
 @State(
-    name = "KtLint plugin (application)",
+    name = "com.nbadal.ktlint.KtlintApplicationSettings",
     // Application wide ktlint settings are stored in a file outside the '.idea' folder of the project.
     storages = [Storage("ktlint-plugin.xml")],
 )
-class KtlintApplicationConfigStorage : PersistentStateComponent<KtlintApplicationConfigStorage.State> {
+class KtlintApplicationSettings : PersistentStateComponent<KtlintApplicationSettings.State> {
     data class State(
         // Some users work on projects for which only a subselection is using ktlint. They do not want to see the ktlint banner advocating
         // to configure the ktlint project in the project that are not using ktlint. Neither do they want to disable ktlint explicitly in
@@ -39,7 +39,7 @@ class KtlintApplicationConfigStorage : PersistentStateComponent<KtlintApplicatio
         var showBanner: Boolean = true,
     )
 
-    private var _state = setDefaultState()
+    private var _state = State()
 
     override fun getState(): State = _state
 
@@ -47,11 +47,8 @@ class KtlintApplicationConfigStorage : PersistentStateComponent<KtlintApplicatio
         _state = state
     }
 
-    fun setDefaultState() = State()
-
     companion object {
-        fun getInstance(): KtlintApplicationConfigStorage =
-            ApplicationManager.getApplication().getService(KtlintApplicationConfigStorage::class.java)
+        fun getInstance(): KtlintApplicationSettings = ApplicationManager.getApplication().getService(KtlintApplicationSettings::class.java)
     }
 }
 
@@ -61,11 +58,11 @@ class KtlintApplicationConfigStorage : PersistentStateComponent<KtlintApplicatio
  */
 @Service(Service.Level.PROJECT)
 @State(
-    name = "KtLint plugin",
+    name = "com.nbadal.ktlint.KtlintProjectSettings",
     // Project specific application settings are stored in a file inside the '.idea' folder of the project.
     storages = [Storage("ktlint-plugin.xml")],
 )
-class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
+class KtlintProjectSettings : PersistentStateComponent<KtlintProjectSettings> {
     /**
      * The plugin can not detect whether ktlint should run or not on a newly loaded project that contains Kotlin code.
      * Enabling the plugin by default on all projects including formatting of code may be not acceptable in some
@@ -151,9 +148,9 @@ class KtlintConfigStorage : PersistentStateComponent<KtlintConfigStorage> {
      */
     fun resetKtlintRuleEngine() = _ktlintRuleEngine?.trimMemory()
 
-    override fun getState(): KtlintConfigStorage = this
+    override fun getState(): KtlintProjectSettings = this
 
-    override fun loadState(state: KtlintConfigStorage) {
+    override fun loadState(state: KtlintProjectSettings) {
         // If the ktlint mode which is actually stored is not a valid enum value, the field 'state.ktlintMode' contains a null value
         // although the field is not nullable.
         @Suppress("USELESS_ELVIS")
