@@ -8,23 +8,23 @@ import javax.swing.JComponent
 class KtlintConfig(
     private val project: Project,
 ) : SearchableConfigurable {
-    private val form = KtlintConfigForm(project, project.config())
+    private val ktlintSettingsComponent = KtlintSettingsComponent(project, project.config())
 
-    val distractFreeMode by form::distractFreeMode
+    val distractFreeMode by ktlintSettingsComponent::distractFreeModeRadioButton
 
-    val formatOnSaveCheckbox by form::formatOnSave
+    val formatOnSaveCheckbox by ktlintSettingsComponent::formatOnSaveCheckbox
 
-    override fun createComponent(): JComponent = form.createComponent()
+    override fun createComponent(): JComponent = ktlintSettingsComponent.createComponent()
 
-    override fun isModified() = form.isModified
+    override fun isModified() = ktlintSettingsComponent.isModified
 
     override fun apply() {
-        form.apply()
+        ktlintSettingsComponent.apply()
         // Re-inspect:
         DaemonCodeAnalyzer.getInstance(project).restart()
     }
 
-    override fun reset() = form.reset()
+    override fun reset() = ktlintSettingsComponent.reset()
 
     override fun getDisplayName() = "KtLint"
 

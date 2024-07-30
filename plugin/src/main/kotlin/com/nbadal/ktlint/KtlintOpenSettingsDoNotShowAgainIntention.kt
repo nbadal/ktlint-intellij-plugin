@@ -32,7 +32,7 @@ class KtlintOpenSettingsDoNotShowAgainIntention :
         editor: Editor?,
         psiFile: PsiFile,
     ) {
-        KtlintApplicationConfigStorage.getInstance().state.showBanner = false
+        KtlintApplicationSettings.getInstance().state.showBanner = false
         // Re-inspect to get the banner removed
         DaemonCodeAnalyzer.getInstance(project).restart()
     }
