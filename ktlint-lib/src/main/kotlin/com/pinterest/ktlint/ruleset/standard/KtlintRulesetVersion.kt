@@ -15,7 +15,7 @@ import com.pinterest.ktlint.ruleset.standard.V1_03_0.StandardRuleSetProvider as 
  */
 enum class KtlintRulesetVersion(
     /**
-     * Label should match with the dropdown values of the ktlint version field in the configuration panel "KtlintConfigForm".
+     * Labels are displayed in the ktlint settings screen
      */
     val label: String,
     private val ruleSetProvider: RuleSetProviderV3?,
@@ -45,16 +45,6 @@ enum class KtlintRulesetVersion(
         ruleSetProvider?.getRuleProviders()
             ?: default.ruleSetProvider?.getRuleProviders().orEmpty()
 
-    /**
-     * Check whether the current rule set version is released before the given version. False in case the current release equals the given
-     * release, or in case it is released after the given release.
-     */
-    fun isReleasedBefore(otherKtlintRulesetVersion: KtlintRulesetVersion): Boolean =
-        // Default version (ordinal 0) is equal to the most recent released version (ordinal 1) are the same version. So the current version
-        // can never before any other version. Higher ordinals are older versions.
-        ordinal != 0 && ordinal > otherKtlintRulesetVersion.ordinal
-
-    @OptIn(ExperimentalStdlibApi::class)
     companion object {
         fun findByLabelOrDefault(label: String) = entries.firstOrNull { it.label == label } ?: DEFAULT
 
