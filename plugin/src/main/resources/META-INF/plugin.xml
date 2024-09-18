@@ -18,6 +18,10 @@
         <actionOnSave implementation="com.nbadal.ktlint.KtlintActionOnSave" order="after FormatOnSaveAction"/>
     </extensions>
 
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <supportsKotlinPluginMode supportsK2="true" />
+    </extensions>
+
     <actions>
         <action id="Ktlint.Lint" class="com.nbadal.ktlint.actions.LintAction"
                 text="Show All Ktlint Violations In File" description="Show all Ktlint violations in the current file">
