@@ -1,6 +1,6 @@
 [versions]
 # libraries
-annotations = "25.0.0"
+annotations = "26.0.0"
 
 # plugins
 buildconfig = "5.5.0"
