@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.2.0")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.4.0")
 }
 
 kotlin {
@@ -30,7 +30,7 @@ tasks {
         )
 
         minimize {
-            exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:1.2.0"))
+            exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:1.4.0"))
         }
     }
 }
