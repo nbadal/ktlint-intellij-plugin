@@ -71,12 +71,12 @@ class KtlintSettingsComponent(
 
     private val baselinePathTextFieldWithBrowseButton =
         TextFieldWithBrowseButton().apply {
-            addBrowseFolderListener(
-                "Ktlint baseline",
-                null,
-                project,
-                FileChooserDescriptorFactory.createSingleFileDescriptor("xml"),
-            )
+            val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor("xml")
+            addActionListener {
+                FileChooser.chooseFile(descriptor, project, null) {
+                    text = it.path
+                }
+            }
         }
     private var baselinePath: String?
         get() =
