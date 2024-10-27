@@ -2,12 +2,12 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
 import com.pinterest.ktlint.ruleset.standard.V0_50_0.StandardRuleSetProvider as StandardRuleSetProviderV0_50_0
-import com.pinterest.ktlint.ruleset.standard.V1_00_1.StandardRuleSetProvider as StandardRuleSetProviderV1_00_1
-import com.pinterest.ktlint.ruleset.standard.V1_01_1.StandardRuleSetProvider as StandardRuleSetProviderV1_01_1
-import com.pinterest.ktlint.ruleset.standard.V1_02_0.StandardRuleSetProvider as StandardRuleSetProviderV1_02_0
-import com.pinterest.ktlint.ruleset.standard.V1_02_1.StandardRuleSetProvider as StandardRuleSetProviderV1_02_1
-import com.pinterest.ktlint.ruleset.standard.V1_03_0.StandardRuleSetProvider as StandardRuleSetProviderV1_03_0
-import com.pinterest.ktlint.ruleset.standard.V1_03_1.StandardRuleSetProvider as StandardRuleSetProviderV1_03_1
+import com.pinterest.ktlint.ruleset.standard.V1_0_1.StandardRuleSetProvider as StandardRuleSetProviderV1_0_1
+import com.pinterest.ktlint.ruleset.standard.V1_1_1.StandardRuleSetProvider as StandardRuleSetProviderV1_1_1
+import com.pinterest.ktlint.ruleset.standard.V1_2_0.StandardRuleSetProvider as StandardRuleSetProviderV1_2_0
+import com.pinterest.ktlint.ruleset.standard.V1_2_1.StandardRuleSetProvider as StandardRuleSetProviderV1_2_1
+import com.pinterest.ktlint.ruleset.standard.V1_3_0.StandardRuleSetProvider as StandardRuleSetProviderV1_3_0
+import com.pinterest.ktlint.ruleset.standard.V1_3_1.StandardRuleSetProvider as StandardRuleSetProviderV1_3_1
 
 /**
  * Policies for supporting rulesets from older versions:
@@ -30,12 +30,12 @@ enum class KtlintRulesetVersion(
 
     // For each older release that is supported, a separate ruleset subproject exists in which the StandardRuleSetProvider is relocated to
     // a unique class name.
-    V1_3_1("1.3.1", StandardRuleSetProviderV1_03_1()),
-    V1_3_0("1.3.0", StandardRuleSetProviderV1_03_0()),
-    V1_2_1("1.2.1", StandardRuleSetProviderV1_02_1()),
-    V1_2_0("1.2.0", StandardRuleSetProviderV1_02_0()),
-    V1_1_1("1.1.1", StandardRuleSetProviderV1_01_1()),
-    V1_0_1("1.0.1", StandardRuleSetProviderV1_00_1()),
+    V1_3_1("1.3.1", StandardRuleSetProviderV1_3_1()),
+    V1_3_0("1.3.0", StandardRuleSetProviderV1_3_0()),
+    V1_2_1("1.2.1", StandardRuleSetProviderV1_2_1()),
+    V1_2_0("1.2.0", StandardRuleSetProviderV1_2_0()),
+    V1_1_1("1.1.1", StandardRuleSetProviderV1_1_1()),
+    V1_0_1("1.0.1", StandardRuleSetProviderV1_0_1()),
     V0_50_0("0.50.0", StandardRuleSetProviderV0_50_0()),
 
     // Older versions are not compatible with the plugin and are therefore not supported.

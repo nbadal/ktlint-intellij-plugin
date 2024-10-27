@@ -26,7 +26,7 @@ tasks {
     withType<ShadowJar> {
         relocate(
             "com.pinterest.ktlint.ruleset.standard",
-            "com.pinterest.ktlint.ruleset.standard.V1_02_0",
+            "com.pinterest.ktlint.ruleset.standard.V1_2_0",
         )
 
         minimize {
