@@ -1,16 +1,12 @@
 # Why is this a module?
 
-The `ktlint-lib` contains several libraries to isolate functionalities from Ktlint in such a way that it does not conflict with the plugin.
+The plugin encapsulates the artifacts of Ktlint in such a way that it does not conflict with the plugin. For example the embedded Kotlin compiler in the KtlintRuleEngine conflicts with the Kotlin compiler provided by Intellij IDEA. The `build.gradle.kts` contains the dependencies on the required Ktlint artifacts including the latest version of the rules.  Next to this, the lib contains submodules for older versions of the Ktlint rulesets.
 
-## Core
+## Ruleset modules
 
-The Ktlint RuleEngine core module requires certain elements of the kotlin compiler. As of that it includes a dependency on the embedded kotlin compiler library. This clashes and conflicts with classes we use in the JetBrains Kotlin plugin.
+Each ruleset module transforms the StandardRuleSetProvider of that version to a unique class name so that multiple versions of the Standard rule sets can be supported by the plugin. The plugin allows the user to configure one of the supported ktlint versions. In this way, the user can keep the configuration of the ktlint intellij plugin in sync with other plugins like the ktlint gradle plugin or kotlinter.
 
-## Ruleset
-
-Each ruleset library transforms the StandardRuleSetProvider of that version to a unique class name so that multiple versions of the Standard rule sets can be supported by the plugin. The plugin allows the user to configure one of the supported ktlint versions. In this way, the user can keep the configuration of the ktlint intellij plugin in sync with other plugins like the ktlint gradle plugin or kotlinter.
-
-# ktlint-lib
+# ktlint-lib module
 
 The ktlint-lib module itself contains the `KtlintRulesetVersion` class which contains the references to the distinct versions of the rulesets. Also, it contains the `ShadowJarMinimizeHelper` class containing references to classes which are also used in the `plugin` module to prevent that those classes are removed by the minimize process of the Shadow Jar. 
 
