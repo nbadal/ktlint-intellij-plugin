@@ -189,7 +189,7 @@ class KtlintProjectSettings : PersistentStateComponent<KtlintProjectSettings> {
                     .plus(ktlintRulesetVersion.ruleProviders())
                     .also {
                         logger.info {
-                            "Added ${ktlintRulesetVersion.ruleProviders().size} from default ktlint ruleset version ${ktlintRulesetVersion.label}"
+                            "Loaded ${ktlintRulesetVersion.ruleProviders().size} rules from default ktlint ruleset version ${ktlintRulesetVersion.label}"
                         }
                     }
             } catch (throwable: Throwable) {
