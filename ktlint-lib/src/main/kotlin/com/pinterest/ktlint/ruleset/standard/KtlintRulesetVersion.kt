@@ -26,7 +26,7 @@ enum class KtlintRulesetVersion(
 
     // The latest released version of Ktlint is to be loaded via the "StandardRuleSetProvider()" constructor. So whenever adding a new
     // release, a new ruleset subproject has to be created for the previous release.
-    V1_4_0("1.4.0", StandardRuleSetProvider()),
+    V1_4_1("1.4.1", StandardRuleSetProvider()),
 
     // For each older release that is supported, a separate ruleset subproject exists in which the StandardRuleSetProvider is relocated to
     // a unique class name.
