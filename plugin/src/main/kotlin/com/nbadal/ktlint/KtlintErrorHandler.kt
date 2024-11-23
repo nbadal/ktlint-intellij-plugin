@@ -41,6 +41,7 @@ class KtlintErrorHandler : ErrorReportSubmitter() {
                 is IdeaReportingEvent -> {
                     rollbar.error(event.data.throwable, extras)
                 }
+
                 else -> {
                     rollbar.error(event.throwable, extras, event.message)
                 }

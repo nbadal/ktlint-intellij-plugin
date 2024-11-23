@@ -114,7 +114,7 @@ private fun executeKtlint(
         } else {
             val formattedCode =
                 when (ktlintFormatAutoCorrectHandler) {
-                    is KtlintFileAutocorrectHandler ->
+                    is KtlintFileAutocorrectHandler -> {
                         ktlintRuleEngine.format(code) { lintError ->
                             if (lintError.isIgnoredInBaseline(baselineErrors)) {
                                 AutocorrectDecision.NO_AUTOCORRECT
@@ -123,8 +123,9 @@ private fun executeKtlint(
                                 AutocorrectDecision.ALLOW_AUTOCORRECT
                             }
                         }
+                    }
 
-                    is KtlintBlockAutocorrectHandler ->
+                    is KtlintBlockAutocorrectHandler -> {
                         ktlintRuleEngine.format(code) { lintError ->
                             if (lintError.isIgnoredInBaseline(baselineErrors)) {
                                 AutocorrectDecision.NO_AUTOCORRECT
@@ -139,8 +140,9 @@ private fun executeKtlint(
                                 }
                             }
                         }
+                    }
 
-                    is KtlintViolationAutocorrectHandler ->
+                    is KtlintViolationAutocorrectHandler -> {
                         ktlintRuleEngine.format(code) { lintError ->
                             if (lintError == ktlintFormatAutoCorrectHandler.lintError) {
                                 AutocorrectDecision.ALLOW_AUTOCORRECT
@@ -148,6 +150,7 @@ private fun executeKtlint(
                                 AutocorrectDecision.NO_AUTOCORRECT
                             }
                         }
+                    }
                 }
             if (formattedCode != code.content) {
                 psiFile.viewProvider.document.setText(formattedCode)

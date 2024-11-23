@@ -58,7 +58,9 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 }
             }
 
-            else -> null
+            else -> {
+                null
+            }
         }
 
     override fun doAnnotate(collectedInfo: List<LintError>?): List<LintError>? =
