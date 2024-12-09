@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.2.0")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.5.0")
 
     constraints {
         // ec4-core version 0.3.0 which is included in ktlint 1.2.0 fails on '.editorconfig' properties without value
@@ -37,7 +37,7 @@ tasks {
         )
 
         minimize {
-            exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:1.2.0"))
+            exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:1.5.0"))
         }
     }
 }
