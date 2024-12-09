@@ -20,6 +20,10 @@ dependencies {
                 "Transitive ktlint logging dependency (2.0.3) does not use the module classloader in ServiceLoader. Replace with newer SLF4J version",
             )
         }
+        // ec4-core version 0.3.0 which is included in ktlint 0.50.0 fails on '.editorconfig' properties without value
+        implementation("org.ec4j.core:ec4j-core:1.1.0") {
+            because("Allows '.editorconfig' properties to be defined without any value")
+        }
     }
     implementation("com.pinterest.ktlint:ktlint-logger:0.50.0") {
         // Exclude the slf4j 2.0.3 version provided via Ktlint as it does not use the module classloader in the ServiceLoader
