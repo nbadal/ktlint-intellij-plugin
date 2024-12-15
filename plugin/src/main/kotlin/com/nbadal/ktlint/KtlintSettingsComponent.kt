@@ -289,7 +289,8 @@ class KtlintSettingsComponent(
             else -> Unit
         }
 
-        rulesetVersionComboBoxWithWidePopup.selectedItem = ktlintProjectSettings.ktlintRulesetVersion.label
+        rulesetVersionComboBoxWithWidePopup.selectedItem =
+            ktlintProjectSettings.ktlintRulesetVersion?.label ?: KtlintRulesetVersion.DEFAULT.label
         formatOnSaveCheckbox.isSelected = ktlintProjectSettings.formatOnSave
         attachToIntellijFormattingCheckbox.isSelected = ktlintProjectSettings.attachToIntellijFormat
         baselinePath = ktlintProjectSettings.baselinePath
