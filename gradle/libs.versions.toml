@@ -1,7 +1,4 @@
 [versions]
-# libraries
-annotations = "26.0.1"
-
 # plugins
 buildconfig = "5.5.1"
 changelog = "2.2.1"
@@ -14,7 +11,6 @@ shadow = "8.1.1"
 slf4j="2.0.16"
 
 [libraries]
-annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
 ktlintRuleEngine = {  group = "com.pinterest.ktlint", name = "ktlint-rule-engine", version.ref = "ktlint" }
 ktlintCliRulesetCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-ruleset-core", version.ref = "ktlint" }
 ktlintCliReporterCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-reporter-core", version.ref = "ktlint" }
