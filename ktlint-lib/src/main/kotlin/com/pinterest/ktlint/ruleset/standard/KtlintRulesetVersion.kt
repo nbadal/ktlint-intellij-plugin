@@ -8,6 +8,7 @@ import com.pinterest.ktlint.ruleset.standard.V1_2_0.StandardRuleSetProvider as S
 import com.pinterest.ktlint.ruleset.standard.V1_2_1.StandardRuleSetProvider as StandardRuleSetProviderV1_2_1
 import com.pinterest.ktlint.ruleset.standard.V1_3_0.StandardRuleSetProvider as StandardRuleSetProviderV1_3_0
 import com.pinterest.ktlint.ruleset.standard.V1_3_1.StandardRuleSetProvider as StandardRuleSetProviderV1_3_1
+import com.pinterest.ktlint.ruleset.standard.V1_4_1.StandardRuleSetProvider as StandardRuleSetProviderV1_4_1
 
 /**
  * Policies for supporting rulesets from older versions:
@@ -26,10 +27,11 @@ enum class KtlintRulesetVersion(
 
     // The latest released version of Ktlint is to be loaded via the "StandardRuleSetProvider()" constructor. So whenever adding a new
     // release, a new ruleset subproject has to be created for the previous release.
-    V1_4_1("1.4.1", StandardRuleSetProvider()),
+    V1_5_0("1.5.0", StandardRuleSetProvider()),
 
     // For each older release that is supported, a separate ruleset subproject exists in which the StandardRuleSetProvider is relocated to
     // a unique class name.
+    V1_4_1("1.4.1", StandardRuleSetProviderV1_4_1()),
     V1_3_1("1.3.1", StandardRuleSetProviderV1_3_1()),
     V1_3_0("1.3.0", StandardRuleSetProviderV1_3_0()),
     V1_2_1("1.2.1", StandardRuleSetProviderV1_2_1()),

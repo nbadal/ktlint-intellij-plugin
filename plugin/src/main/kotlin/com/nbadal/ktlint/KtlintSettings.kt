@@ -74,7 +74,7 @@ class KtlintProjectSettings : PersistentStateComponent<KtlintProjectSettings> {
     var ktlintMode: KtlintMode = NOT_INITIALIZED
 
     @Tag
-    var ktlintRulesetVersion: KtlintRulesetVersion = KtlintRulesetVersion.findByLabelOrDefault("")
+    var ktlintRulesetVersion: KtlintRulesetVersion? = null
 
     @Tag
     var formatOnSave: Boolean = true
@@ -100,7 +100,7 @@ class KtlintProjectSettings : PersistentStateComponent<KtlintProjectSettings> {
                 _ruleSetProviders.ktlintRulesetVersion != ktlintRulesetVersion ||
                 _ruleSetProviders.externalJarPaths != externalJarPaths
             ) {
-                _ruleSetProviders = RuleSetProviders(ktlintRulesetVersion, externalJarPaths)
+                _ruleSetProviders = RuleSetProviders(ktlintRulesetVersion ?: KtlintRulesetVersion.DEFAULT, externalJarPaths)
                 _ktlintRuleEngine = null
             }
             return _ruleSetProviders
@@ -161,7 +161,7 @@ class KtlintProjectSettings : PersistentStateComponent<KtlintProjectSettings> {
         this.baselinePath = state.baselinePath
         this.externalJarPaths = state.externalJarPaths
 
-        this._ruleSetProviders = RuleSetProviders(ktlintRulesetVersion, externalJarPaths)
+        this._ruleSetProviders = RuleSetProviders(ktlintRulesetVersion ?: KtlintRulesetVersion.DEFAULT, externalJarPaths)
     }
 
     data class RuleSetProviders(
