@@ -1,6 +1,7 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.konan.properties.Properties
 import java.io.FileInputStream
@@ -21,37 +22,31 @@ plugins {
     alias(libs.plugins.buildconfig) // BuildConfig - read more: https://github.com/gmazzo/gradle-buildconfig-plugin
 }
 
-// Import variables from gradle.properties file as plugin is now configured as submodule
-// Original setup in intellij plugin template
-//   group = properties("pluginGroup").get()
-//   version = properties("pluginVersion").get()
-val pluginGroup: String by project
-
 // `pluginName_` variable ends with `_` because of the collision with Kotlin magic getter in the `intellij` closure.
 // Read more about the issue: https://github.com/JetBrains/intellij-platform-plugin-template/issues/29
 @Suppress("PropertyName")
 val pluginName_: String by project
-val pluginVersion: String by project
-val pluginRepositoryUrl: String by project
-val pluginSinceBuild: String by project
-val pluginUntilBuild: String by project
-val pluginVerifierIdeVersions: String by project
-val platformPlugins: String by project
-val platformType: String by project
-val platformVersion: String by project
-val platformDownloadSources: String by project
 
-val finalPluginVersion =
-    if (pluginVersion.takeIfVersionForChannel("default") != null) {
-        pluginVersion
-    } else {
-        // When building the beta or dev version then expand the version with a build timestamp
-        "$pluginVersion.${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}"
-    }
+group = providers.gradleProperty("pluginGroup").get()
+val pluginVersion =
+    providers
+        .gradleProperty("pluginVersion")
+        .let { pluginVersion ->
+            if (pluginVersion.takeIfVersionForChannel("default") != null) {
+                pluginVersion
+            } else {
+                // When building the beta or dev version then expand the version with a build timestamp
+                "$pluginVersion.${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}"
+            }
+        }
+version = pluginVersion
 
-group = pluginGroup
-version = finalPluginVersion
+// Set the JVM language level used to build the project.
+kotlin {
+    jvmToolchain(17)
+}
 
+// Configure project's dependencies
 repositories {
     mavenCentral()
 
@@ -96,17 +91,10 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.14")
 }
 
-kotlin {
-    jvmToolchain(17)
-}
-
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
 intellijPlatform {
     pluginConfiguration {
-        // Read properties from variables due to multi-module setup
-        // Original
-        //   version = providers.gradleProperty("pluginVersion")
-        version = finalPluginVersion
+        version = providers.gradleProperty("pluginVersion")
 
         // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
         description =
@@ -128,25 +116,20 @@ intellijPlatform {
         val changelog = project.changelog // local variable for configuration cache compatibility
         // Get the latest available change notes from the changelog file
         changeNotes =
-            // Replace below with variable pluginVersion due to multi-module setup
-            // Original:
-            //     providers.gradleProperty("pluginVersion").map { pluginVersion ->
-            with(changelog) {
-                renderItem(
-                    (getOrNull(pluginVersion) ?: getUnreleased())
-                        .withHeader(false)
-                        .withEmptySections(false),
-                    Changelog.OutputType.HTML,
-                )
+            providers.gradleProperty("pluginVersion").map { pluginVersion ->
+                with(changelog) {
+                    renderItem(
+                        (getOrNull(pluginVersion) ?: getUnreleased())
+                            .withHeader(false)
+                            .withEmptySections(false),
+                        Changelog.OutputType.HTML,
+                    )
+                }
             }
 
         ideaVersion {
-            // Read properties from variables due to multi-module setup
-            // Original:
-            //     sinceBuild = providers.gradleProperty("pluginSinceBuild")
-            //     untilBuild = providers.gradleProperty("pluginUntilBuild")
-            sinceBuild = pluginSinceBuild
-            untilBuild = pluginUntilBuild
+            sinceBuild = providers.gradleProperty("pluginSinceBuild")
+            untilBuild = providers.gradleProperty("pluginUntilBuild")
         }
     }
 
@@ -165,17 +148,21 @@ intellijPlatform {
         // Original:
         //     channels = providers.gradleProperty("pluginVersion").map { listOf(it.substringAfter('-', "").substringBefore('.').ifEmpty { "default" }) }
         channels =
-            listOfNotNull(
-                // Extract channel from `pluginVersion`. When version does not contain information that restricts the version to a specific
-                // channel, then it is to be published to the `default` channel.
-                finalPluginVersion.takeIfVersionForChannel("default"),
-                // Publish official and beta releases to beta channel
-                finalPluginVersion.takeIfVersionForChannel("beta"),
-                // Publish each version to the dev channel
-                "dev",
-            ).distinct()
-                .also { channels ->
-                    project.logger.lifecycle("PluginVersion `$finalPluginVersion` publishes the plugin to channels: $channels")
+            providers
+                .gradleProperty("pluginVersion")
+                .let { pluginVersion ->
+                    listOfNotNull(
+                        // Extract channel from `pluginVersion`. When version does not contain information that restricts the version to a specific
+                        // channel, then it is to be published to the `default` channel.
+                        pluginVersion.takeIfVersionForChannel("default"),
+                        // Publish official and beta releases to beta channel
+                        pluginVersion.takeIfVersionForChannel("beta"),
+                        // Publish each version to the dev channel
+                        "dev",
+                    ).distinct()
+                        .also { channels ->
+                            project.logger.lifecycle("PluginVersion `$version` publishes the plugin to channels: $channels")
+                        }
                 }
     }
 
@@ -186,8 +173,9 @@ intellijPlatform {
     }
 }
 
-fun String.takeIfVersionForChannel(channel: String): String? =
-    split('-')
+fun Provider<String>.takeIfVersionForChannel(channel: String): String? =
+    get()
+        .split('-')
         // Extract the channel from the version number. If no version is embedded in the version, assume the given channel was included in
         // the version.
         .getOrElse(1) { channel }
@@ -197,7 +185,7 @@ fun String.takeIfVersionForChannel(channel: String): String? =
 
 // Configure BuildConfig generation
 buildConfig {
-    packageName("$pluginGroup.${pluginName_}")
+    packageName("$group.${pluginName_}")
 
     val secretsPropertiesFile = File("secrets.properties")
     if (!secretsPropertiesFile.exists()) throw GradleException("secrets.properties not found.")
@@ -205,16 +193,14 @@ buildConfig {
     props.load(FileInputStream(secretsPropertiesFile))
 
     buildConfigField("String", "NAME", "\"ktlint-intellij-plugin\"")
-    buildConfigField("String", "VERSION", "\"${finalPluginVersion}\"")
+    buildConfigField("String", "VERSION", "\"${pluginVersion}\"")
     buildConfigField("String", "ROLLBAR_ACCESS_TOKEN", "\"${props.getProperty("ROLLBAR_ACCESS_TOKEN")}\"")
 }
 
 // Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
 changelog {
     groups.empty()
-    // Replace due to multi-module setup
-    // repositoryUrl = properties("pluginRepositoryUrl")
-    repositoryUrl = pluginRepositoryUrl
+    repositoryUrl = providers.gradleProperty("pluginRepositoryUrl")
 }
 
 // Configure Gradle Kover Plugin - read more: https://github.com/Kotlin/kotlinx-kover#configuration
@@ -234,7 +220,7 @@ tasks {
     //   wrapper {
     //      gradleVersion = properties("gradleVersion").get()
     //   }
-    // Replace with JavaCompile and KotlintCompile tasks
+    // Replace with JavaCompile and KotlinCompile tasks
 
     withType<JavaCompile> {
         sourceCompatibility = "17"
@@ -242,64 +228,9 @@ tasks {
     }
 
     withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
-    }
-
-    named<Test>("test") {
-        useJUnitPlatform()
-    }
-
-    patchPluginXml {
-        // Read properties from variables due to multi-module setup
-        // Original
-        //   version = properties("pluginVersion")
-        version = finalPluginVersion
-
-        sinceBuild = pluginSinceBuild
-        untilBuild = pluginUntilBuild
-
-        // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
-        pluginDescription =
-            providers
-                .fileContents(layout.projectDirectory.file("README.md"))
-                .asText
-                .map {
-                    val start = "<!-- Plugin description -->"
-                    val end = "<!-- Plugin description end -->"
-
-                    with(it.lines()) {
-                        if (!containsAll(listOf(start, end))) {
-                            throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
-                        }
-                        subList(indexOf(start) + 1, indexOf(end)).joinToString("\n").let(::markdownToHTML)
-                    }
-                }
-
-        val changelog = project.changelog // local variable for configuration cache compatibility
-        // Get the latest available change notes from the changelog file
-        changeNotes =
-            // Replace due to multi-module setup
-            //   properties("pluginVersion")
-            //      .map { pluginVersion ->
-            with(changelog) {
-                renderItem(
-                    (getOrNull(finalPluginVersion) ?: getUnreleased())
-                        .withHeader(false)
-                        .withEmptySections(false),
-                    Changelog.OutputType.HTML,
-                )
-            }
-    }
-
-    signPlugin {
-        certificateChain = environment("CERTIFICATE_CHAIN")
-        privateKey = environment("PRIVATE_KEY")
-        password = environment("PRIVATE_KEY_PASSWORD")
-    }
-
-    publishPlugin {
-        dependsOn(patchChangelog)
-        token = environment("PUBLISH_TOKEN")
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
     }
 }
 
