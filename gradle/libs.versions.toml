@@ -1,16 +1,19 @@
 [versions]
+# libraries
+junit = "4.13.2"
 # plugins
 buildconfig = "5.5.1"
 changelog = "2.2.1"
-gradleIntelliJPlugin = "1.17.4"
+intelliJPlatform = "2.1.0"
 kotlin = "2.1.0"
 kover = "0.9.0"
 ktlint = "1.5.0"
-qodana = "0.1.13"
+qodana = "2024.2.3"
 shadow = "8.1.1"
 slf4j="2.0.16"
 
 [libraries]
+junit = { group = "junit", name = "junit", version.ref = "junit" }
 ktlintRuleEngine = {  group = "com.pinterest.ktlint", name = "ktlint-rule-engine", version.ref = "ktlint" }
 ktlintCliRulesetCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-ruleset-core", version.ref = "ktlint" }
 ktlintCliReporterCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-reporter-core", version.ref = "ktlint" }
@@ -21,7 +24,7 @@ slf4j-api = {  group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 [plugins]
 buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" } # BuildConfig - read more: https://github.com/gmazzo/gradle-buildconfig-plugin
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
-gradleIntelliJPlugin = { id = "org.jetbrains.intellij", version.ref = "gradleIntelliJPlugin" }
+intelliJPlatform = { id = "org.jetbrains.intellij.platform", version.ref = "intelliJPlatform" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 qodana = { id = "org.jetbrains.qodana", version.ref = "qodana" }
