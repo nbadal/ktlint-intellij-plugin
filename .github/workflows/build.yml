@@ -232,10 +232,10 @@ jobs:
       - name: List build config
         run: |
           # Plugin is build in subdirectory due to multi-module setup
-          ls -alsh ${{ github.workspace }}/plugin/build/config
+          ls -alsh ${{ github.workspace }}/plugin/build
 
       - name: Cat
-        run: cat build/config
+        run: if [[ -f "${{ github.workspace }}/plugin/build/listProductsReleases.txt" ]]; then cat ${{ github.workspace }}/plugin/build/listProductsReleases.txt; fi
 
       # Cache Plugin Verifier IDEs
       - name: Setup Plugin Verifier IDEs Cache
