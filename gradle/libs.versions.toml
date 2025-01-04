@@ -8,7 +8,7 @@ intelliJPlatform = "2.1.0"
 kotlin = "2.1.0"
 kover = "0.9.0"
 ktlint = "1.5.0"
-qodana = "2024.2.3"
+qodana = "2024.3.4"
 shadow = "8.1.1"
 slf4j="2.0.16"
 
