@@ -226,6 +226,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Free disk space before setup Plugin Verifier Cache
+        run: df -h
+
+      - name: List build config
+        run: ls -alsh build/config
+
       # Cache Plugin Verifier IDEs
       - name: Setup Plugin Verifier IDEs Cache
         uses: actions/cache@v4
@@ -233,7 +239,7 @@ jobs:
           path: ${{ needs.build.outputs.pluginVerifierHomeDir }}/ides
           key: plugin-verifier-${{ hashFiles('build/listProductsReleases.txt') }}
 
-      - name: Free disk space
+      - name: Free disk space after setup Plugin Verifier Cache
         run: df -h
 
       - name: Disk usage in MB of largest 10 directories in /dev/root
