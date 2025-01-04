@@ -242,9 +242,6 @@ jobs:
       - name: Free disk space after setup Plugin Verifier Cache
         run: df -h
 
-      - name: Disk usage in MB of largest 10 directories in /dev/root
-        run: du -sm /dev/root/* | sort -nr | head -n10
-
       # Run Verify Plugin task and IntelliJ Plugin Verifier tool
       - name: Run Plugin Verification tasks
         run: ./gradlew verifyPlugin -Dplugin.verifier.home.dir=${{ needs.build.outputs.pluginVerifierHomeDir }}
