@@ -230,14 +230,20 @@ jobs:
         run: df -h
 
       - name: List build config
-        run: ls -alsh build/config
+        run: |
+          # Plugin is build in subdirectory due to multi-module setup
+          ls -alsh ${{ github.workspace }}/plugin/build/config
+
+      - name: Cat
+        run: cat build/config
 
       # Cache Plugin Verifier IDEs
       - name: Setup Plugin Verifier IDEs Cache
         uses: actions/cache@v4
         with:
           path: ${{ needs.build.outputs.pluginVerifierHomeDir }}/ides
-          key: plugin-verifier-${{ hashFiles('build/listProductsReleases.txt') }}
+          # Plugin is build in subdirectory due to multi-module setup
+          key: plugin-verifier-${{ hashFiles('plugin/build/listProductsReleases.txt') }}
 
       - name: Free disk space after setup Plugin Verifier Cache
         run: df -h
