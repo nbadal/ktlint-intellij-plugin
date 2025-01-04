@@ -226,17 +226,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Free disk space before setup Plugin Verifier Cache
-        run: df -h
-
-      - name: List build config
-        run: |
-          # Plugin is build in subdirectory due to multi-module setup
-          if [[ -d ${{ github.workspace }}/plugin/build ]]; then ls -alsh ${{ github.workspace }}/plugin/build; fi
-
-      - name: Cat
-        run: if [[ -f "${{ github.workspace }}/plugin/build/listProductsReleases.txt" ]]; then cat ${{ github.workspace }}/plugin/build/listProductsReleases.txt; fi
-
       # Cache Plugin Verifier IDEs
       - name: Setup Plugin Verifier IDEs Cache
         uses: actions/cache@v4
@@ -244,9 +233,6 @@ jobs:
           path: ${{ needs.build.outputs.pluginVerifierHomeDir }}/ides
           # Plugin is build in subdirectory due to multi-module setup
           key: plugin-verifier-${{ hashFiles('plugin/build/listProductsReleases.txt') }}
-
-      - name: Free disk space after setup Plugin Verifier Cache
-        run: df -h
 
       # Run Verify Plugin task and IntelliJ Plugin Verifier tool
       - name: Run Plugin Verification tasks
