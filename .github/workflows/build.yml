@@ -232,7 +232,7 @@ jobs:
       - name: List build config
         run: |
           # Plugin is build in subdirectory due to multi-module setup
-          ls -alsh ${{ github.workspace }}/plugin/build
+          if [[ -d ${{ github.workspace }}/plugin/build ]]; then ls -alsh ${{ github.workspace }}/plugin/build; fi
 
       - name: Cat
         run: if [[ -f "${{ github.workspace }}/plugin/build/listProductsReleases.txt" ]]; then cat ${{ github.workspace }}/plugin/build/listProductsReleases.txt; fi
