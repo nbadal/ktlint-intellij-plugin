@@ -1,4 +1,6 @@
 .gradle
 .idea
+.intellijPlatform
+.kotlin
 build
 secrets.properties
