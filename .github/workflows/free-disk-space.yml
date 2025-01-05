@@ -8,8 +8,10 @@ on:
 jobs:
   cleanup:
     runs-on: ubuntu-latest
-
     steps:
+      - name: Disk usage in MB of largest 25 directories in /
+        run: du -sm /dev/root | sort -nr | head -n25
+
       - name: Free Disk Space
         run: |
           echo "Disk space before cleanup:"
