@@ -193,7 +193,10 @@ jobs:
   verify:
     name: Verify plugin
     needs: [ build ]
-    runs-on: ubuntu-latest
+    # Work around for running out of disk space in verifyPlugin step. This might be caused by bigger size of ubuntu
+    # images (https://github.com/actions/runner-images/issues/10636),  This can be removed after January 17th when
+    # rollout of ubuntu-latest to 24.04 has been completed (https://github.blog/changelog/2024-05-14-github-hosted-runners-public-beta-of-ubuntu-24-04-is-now-available/)
+    runs-on: ubuntu-24.04
     steps:
 
       # Free GitHub Actions Environment Disk Space
