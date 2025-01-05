@@ -17,12 +17,11 @@ class KtlintActionOnSave : ActionOnSave() {
 
     override fun processDocuments(
         project: Project,
-        documents: Array<Document?>,
+        documents: Array<out Document>,
     ) {
         val psiFiles =
             with(FileDocumentManager.getInstance()) {
                 documents
-                    .filterNotNull()
                     .mapNotNull { getFile(it) }
                     .mapNotNull { PsiManager.getInstance(project).findFile(it) }
             }
