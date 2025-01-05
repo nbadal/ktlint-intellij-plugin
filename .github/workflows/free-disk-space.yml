@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Free Disk Space
-      run: |
-        echo "Disk space before cleanup:"
-        df -h
+      - name: Free Disk Space
+        run: |
+          echo "Disk space before cleanup:"
+          df -h
 
       # Free GitHub Actions Environment Disk Space
       - name: Maximize Build Space
