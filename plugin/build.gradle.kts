@@ -28,7 +28,8 @@ plugins {
 val pluginName_: String by project
 
 group = providers.gradleProperty("pluginGroup").get()
-val pluginVersion =
+// The publishPluginVersion contains the build timestamp in case the version is targeting a non-default channel
+val publishPluginVersion =
     providers
         .gradleProperty("pluginVersion")
         .get()
@@ -40,7 +41,7 @@ val pluginVersion =
                 "$pluginVersion.${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}"
             }
         }
-version = pluginVersion
+version = publishPluginVersion
 
 // Set the JVM language level used to build the project.
 kotlin {
@@ -95,7 +96,10 @@ dependencies {
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
 intellijPlatform {
     pluginConfiguration {
-        version = providers.gradleProperty("pluginVersion")
+        // Use publishPluginVersion which contains the build timestamp for release to non-default channel
+        // Original:
+        //    version = providers.gradleProperty("pluginVersion")
+        version = publishPluginVersion
 
         // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
         description =
@@ -117,7 +121,10 @@ intellijPlatform {
         val changelog = project.changelog // local variable for configuration cache compatibility
         // Get the latest available change notes from the changelog file
         changeNotes =
-            providers.gradleProperty("pluginVersion").map { pluginVersion ->
+            // Use publishPluginVersion which contains the build timestamp for release to non-default channel
+            // Original:
+            //     providers.gradleProperty("pluginVersion").map { pluginVersion ->
+            publishPluginVersion.let { pluginVersion ->
                 with(changelog) {
                     renderItem(
                         (getOrNull(pluginVersion) ?: getUnreleased())
@@ -148,13 +155,17 @@ intellijPlatform {
         // The channel is set by setting the pluginVersion in the root `gradle.properties`
         // Original:
         //     channels = providers.gradleProperty("pluginVersion").map { listOf(it.substringAfter('-', "").substringBefore('.').ifEmpty { "default" }) }
+        // Use publishPluginVersion which contains the build timestamp for release to non-default channel instead of
+        // the regular pluginVersion
+        // Original:
+        //    version = providers.gradleProperty("pluginVersion")
         channels =
             listOfNotNull(
                 // Extract channel from `pluginVersion`. When version does not contain information that restricts the version to a specific
                 // channel, then it is to be published to the `default` channel.
-                pluginVersion.takeIfVersionForChannel("default"),
+                publishPluginVersion.takeIfVersionForChannel("default"),
                 // Publish official and beta releases to beta channel
-                pluginVersion.takeIfVersionForChannel("beta"),
+                publishPluginVersion.takeIfVersionForChannel("beta"),
                 // Publish each version to the dev channel
                 "dev",
             ).distinct()
@@ -189,7 +200,7 @@ buildConfig {
     props.load(FileInputStream(secretsPropertiesFile))
 
     buildConfigField("String", "NAME", "\"ktlint-intellij-plugin\"")
-    buildConfigField("String", "VERSION", "\"${pluginVersion}\"")
+    buildConfigField("String", "VERSION", "\"$publishPluginVersion\"")
     buildConfigField("String", "ROLLBAR_ACCESS_TOKEN", "\"${props.getProperty("ROLLBAR_ACCESS_TOKEN")}\"")
 }
 
