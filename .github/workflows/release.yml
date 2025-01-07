@@ -102,7 +102,8 @@ jobs:
       - name: Upload Release Asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ github.event.release.tag_name }} ./build/distributions/*
+        # Plugin is build in subdirectory due to multi-module setup
+        run: gh release upload ${{ github.event.release.tag_name }} ./plugin/build/distributions/*
 
       # Create a pull request
       - name: Create Pull Request
