@@ -4,6 +4,22 @@
 
 ## [Unreleased]
 
+## [0.26.0] - 2025-01-07
+
+- Add constraint on ec4j-core in ktlint ruleset until 1.3.1 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/599
+- Add ktlint 1.5.0 ruleset by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/601
+- Remove obsolete annotation lib by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/602
+- Bump codecov/codecov-action from 4 to 5 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/591
+- Bump com.github.gmazzo.buildconfig from 5.5.0 to 5.5.1 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/594
+- Bump org.jetbrains.kotlin.jvm from 2.0.21 to 2.1.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/595
+- Bump org.gradle.toolchains.foojay-resolver-convention from 0.8.0 to 0.9.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/596
+- Bump org.jetbrains.kotlinx.kover from 0.8.3 to 0.9.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/600
+- Bump org.junit.jupiter:junit-jupiter from 5.11.3 to 5.11.4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/605
+- Bump org.junit.platform:junit-platform-launcher from 1.11.3 to 1.11.4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/604
+- Upgrade to intellij platform plugin v2 (to 2.2.1) by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/607
+- Bump io.mockk:mockk from 1.13.13 to 1.13.14 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/606
+- Bump org.jetbrains.qodana from 2024.2.3 to 2024.3.4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/609
+
 ## [0.22.0] - 2024-04-07
 
 ### What's Changed
@@ -272,11 +288,13 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.26.0...HEAD
+[0.26.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.22.0...v0.26.0
 [0.22.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.13.0...v0.20.0
 [0.13.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.12.0...v0.13.0
-[0.12.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.11.0...v0.12.0
+[0.12.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.10.0...v0.12.0
 [0.11.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.9.0...v0.9.1
@@ -299,4 +317,4 @@
 [0.3.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.0.2...v0.1.0
-[0.0.2]: https://github.com/nbadal/ktlint-intellij-plugin/compare/
+[0.0.2]: https://github.com/nbadal/ktlint-intellij-plugin/commits/v0.0.2
