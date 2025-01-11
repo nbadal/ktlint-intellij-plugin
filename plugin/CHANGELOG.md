@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.26.1-dev-1.2025-01-11_16-13-37] - 2025-01-11
+
+== What's changed
+
+- Upgrade `intellijPlatformVersion` from `2023.3` to `2023.3.8`.
+
 ## [0.22.0] - 2024-04-07
 
 ### What's Changed
@@ -272,11 +278,12 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.26.1-dev-1.2025-01-11_16-13-37...HEAD
 [0.22.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.13.0...v0.20.0
 [0.13.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.12.0...v0.13.0
-[0.12.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.11.0...v0.12.0
+[0.12.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.10.0...v0.12.0
 [0.11.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.9.0...v0.9.1
@@ -299,4 +306,5 @@
 [0.3.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.0.2...v0.1.0
-[0.0.2]: https://github.com/nbadal/ktlint-intellij-plugin/compare/
+[0.0.2]: https://github.com/nbadal/ktlint-intellij-plugin/commits/v0.0.2
+[0.26.1-dev-1.2025-01-11_16-13-37]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.22.0...v0.26.1-dev-1.2025-01-11_16-13-37
