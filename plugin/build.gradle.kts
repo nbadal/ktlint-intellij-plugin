@@ -95,6 +95,8 @@ dependencies {
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
 intellijPlatform {
+    projectName.set("ktlint")
+
     pluginConfiguration {
         // Use publishPluginVersion which contains the build timestamp for release to non-default channel
         // Original:
