@@ -88,7 +88,7 @@ jobs:
         shell: bash
         run: |
           # Plugin is build in subdirectory due to multi-module setup
-          cd ${{ github.workspace }}/plugin/build/distributions
+          cd ${{ github.workspace }}/ktlint-plugin/build/distributions
           FILENAME=`ls *.zip`
           unzip "$FILENAME" -d content
 
@@ -100,7 +100,7 @@ jobs:
         with:
           name: ${{ steps.artifact.outputs.filename }}
           # Plugin is build in subdirectory due to multi-module setup
-          path: ./plugin/build/distributions/content/*/*
+          path: ./ktlint-plugin/build/distributions/content/*/*
 
   # Run tests and upload a code coverage report
   test:
@@ -142,14 +142,14 @@ jobs:
         with:
           name: tests-result
           # Plugin is build in subdirectory due to multi-module setup
-          path: ${{ github.workspace }}/plugin/build/reports/tests
+          path: ${{ github.workspace }}/ktlint-plugin/build/reports/tests
 
       # Upload the Kover report to CodeCov
       - name: Upload Code Coverage Report
         uses: codecov/codecov-action@v5
         with:
           # Plugin is build in subdirectory due to multi-module setup
-          files: ${{ github.workspace }}/plugin/build/reports/kover/report.xml
+          files: ${{ github.workspace }}/ktlint-plugin/build/reports/kover/report.xml
 
   # Run Qodana inspections and provide report
   inspectCode:
@@ -232,7 +232,7 @@ jobs:
         with:
           path: ${{ needs.build.outputs.pluginVerifierHomeDir }}/ides
           # Plugin is build in subdirectory due to multi-module setup
-          key: plugin-verifier-${{ hashFiles('plugin/build/listProductsReleases.txt') }}
+          key: plugin-verifier-${{ hashFiles('ktlint-plugin/build/listProductsReleases.txt') }}
 
       # Run Verify Plugin task and IntelliJ Plugin Verifier tool
       - name: Run Plugin Verification tasks
@@ -245,7 +245,7 @@ jobs:
         with:
           name: pluginVerifier-result
           # Plugin is build in subdirectory due to multi-module setup
-          path: ${{ github.workspace }}/plugin/build/reports/pluginVerifier
+          path: ${{ github.workspace }}/ktlint-plugin/build/reports/pluginVerifier
 
   # Prepare a draft release for GitHub Releases page for the manual verification
   # If accepted and published, release workflow would be triggered
