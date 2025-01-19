@@ -8,7 +8,7 @@ The "ktlint-lib" project relocates the conflicting classes, and provides the dif
 
 Once the plugin has been tested with the `Run Plugin.run.xml` run configuration, the development version of the plugin can also be installed on the local machine of yourself and other beta testers.
 
-- Modify the name of the plugin `plugin/src/main/resources/META-INF/plugin.xml` and/or the `pluginVersion` in the (root) `gradle.properties` so that the specific version can be recognized easily:
+- Modify the name of the plugin `ktlint-plugin/src/main/resources/META-INF/plugin.xml` and/or the `pluginVersion` in the (root) `gradle.properties` so that the specific version can be recognized easily:
    ```xml
    <name>Ktlint (dev-version YYYY-MM-DD)</name>
    ```
