@@ -6,13 +6,13 @@
 
 ## [0.26.0] - 2025-01-07
 
-## What's Changed
+### What's Changed
 
 * Add constraint on ec4j-core in ktlint ruleset until 1.3.1 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/599
 * Add ktlint 1.5.0 ruleset by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/601
 * Remove obsolete annotation lib by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/602
 
-## Dependency updates
+### Dependency updates
 
 * Bump codecov/codecov-action from 4 to 5 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/591
 * Bump com.github.gmazzo.buildconfig from 5.5.0 to 5.5.1 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/594
@@ -29,14 +29,14 @@
 
 ## [0.25.0] - 2024-11-14
 
-## What's Changed
+### What's Changed
 * Update max IDE build to 243.* by @github-actions in https://github.com/nbadal/ktlint-intellij-plugin/pull/569
 * Refactor settings screen by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/571
 * Add application setting to hide ktlint banner when project is not initialized @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/555
 * Set property that it is ensured that the plugin works in K2 mode starting from Idea version 2024.2.1 or newer @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/505
 * Ktlint 1.4.1 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/commit/7154aa19610ef730f67c6dad64859004f4c4b898
 
-## Dependency updates
+### Dependency updates
 * Bump org.jetbrains.kotlinx.kover from 0.8.2 to 0.8.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/556
 * Bump org.slf4j:slf4j-api from 2.0.13 to 2.0.16 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/561
 * Bump gradle/actions from 3 to 4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/557
@@ -54,11 +54,11 @@
 
 ## [0.24.1] - 2024-07-23
 
-## What's Changed
+### What's Changed
 
 * Fix reference for ruleset version `1.3.0` by  @paul-dingemans in #551
 
-## Dependencies upgrades
+### Dependencies upgrades
 * Bump com.github.gmazzo.buildconfig from 5.3.5 to 5.4.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/549
 * Bump io.mockk:mockk from 1.13.11 to 1.13.12 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/552
 
@@ -66,11 +66,11 @@
 
 ## [0.24.0] - 2024-07-09
 
-## What's Changed
+### What's Changed
 
 * Upgrade ktlint to 1.3.1 / add ktlint ruleset 1.3.1 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/547
 
-## Dependency upgrades
+### Dependency upgrades
 
 * Bump org.jetbrains.intellij from 1.17.3 to 1.17.4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/538
 * Bump org.junit.platform:junit-platform-launcher from 1.10.2 to 1.10.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/541
@@ -363,6 +363,11 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
+[0.26.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.25.0...v0.26.0
+[0.25.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.24.1...v0.25.0
+[0.24.1]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.24.0...v0.24.1
+[0.24.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.23.0...v0.24.0
+[0.23.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.13.0...v0.20.0
