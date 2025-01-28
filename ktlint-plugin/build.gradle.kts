@@ -84,7 +84,7 @@ dependencies {
     compileOnly(project(":ktlint-lib")) // Required for IDE
     implementation(project(":ktlint-lib", "shadow"))
 
-    implementation("com.rollbar:rollbar-java:1.10.3") {
+    implementation("com.rollbar:rollbar-java:2.0.0") {
         exclude(group = "org.slf4j") // Duplicated in IDE environment
     }
 
