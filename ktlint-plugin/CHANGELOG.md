@@ -4,96 +4,99 @@
 
 ## [Unreleased]
 
+## [0.26.1-dev-2.2025-01-19_15-53-43] - 2025-01-19
+
+- Set projectName explicitly to ktlint by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/618
+- Shadow all packages of "org.jetbrains" and "org.intellij" by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/621
+- Refactor - Rename directory "plugin" to "ktlint-plugin" by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/622
+- Fix script create-ktlint-plugin-zip.sh by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/623
+- Update max IDE build to 251.* by @github-actions in https://github.com/nbadal/ktlint-intellij-plugin/pull/620
+- Bump org.jetbrains.kotlinx.kover from 0.9.0 to 0.9.1 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/615
+- Bump io.mockk:mockk from 1.13.14 to 1.13.16 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/619
+
 ## [0.26.0] - 2025-01-07
 
 ### What's Changed
 
-* Add constraint on ec4j-core in ktlint ruleset until 1.3.1 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/599
-* Add ktlint 1.5.0 ruleset by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/601
-* Remove obsolete annotation lib by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/602
+- Add constraint on ec4j-core in ktlint ruleset until 1.3.1 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/599
+- Add ktlint 1.5.0 ruleset by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/601
+- Remove obsolete annotation lib by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/602
 
 ### Dependency updates
 
-* Bump codecov/codecov-action from 4 to 5 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/591
-* Bump com.github.gmazzo.buildconfig from 5.5.0 to 5.5.1 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/594
-* Bump org.jetbrains.kotlin.jvm from 2.0.21 to 2.1.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/595
-* Bump org.gradle.toolchains.foojay-resolver-convention from 0.8.0 to 0.9.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/596
-* Bump org.jetbrains.kotlinx.kover from 0.8.3 to 0.9.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/600
-* Bump org.junit.jupiter:junit-jupiter from 5.11.3 to 5.11.4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/605
-* Bump org.junit.platform:junit-platform-launcher from 1.11.3 to 1.11.4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/604
-* Upgrade to intellij platform plugin v2 (to 2.2.1) by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/607
-* Bump io.mockk:mockk from 1.13.13 to 1.13.14 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/606
-* Bump org.jetbrains.qodana from 2024.2.3 to 2024.3.4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/609
-
-**Full Changelog**: https://github.com/nbadal/ktlint-intellij-plugin/compare/0.25.0...0.26.0
+- Bump codecov/codecov-action from 4 to 5 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/591
+- Bump com.github.gmazzo.buildconfig from 5.5.0 to 5.5.1 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/594
+- Bump org.jetbrains.kotlin.jvm from 2.0.21 to 2.1.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/595
+- Bump org.gradle.toolchains.foojay-resolver-convention from 0.8.0 to 0.9.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/596
+- Bump org.jetbrains.kotlinx.kover from 0.8.3 to 0.9.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/600
+- Bump org.junit.jupiter:junit-jupiter from 5.11.3 to 5.11.4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/605
+- Bump org.junit.platform:junit-platform-launcher from 1.11.3 to 1.11.4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/604
+- Upgrade to intellij platform plugin v2 (to 2.2.1) by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/607
+- Bump io.mockk:mockk from 1.13.13 to 1.13.14 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/606
+- Bump org.jetbrains.qodana from 2024.2.3 to 2024.3.4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/609
 
 ## [0.25.0] - 2024-11-14
 
 ### What's Changed
-* Update max IDE build to 243.* by @github-actions in https://github.com/nbadal/ktlint-intellij-plugin/pull/569
-* Refactor settings screen by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/571
-* Add application setting to hide ktlint banner when project is not initialized @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/555
-* Set property that it is ensured that the plugin works in K2 mode starting from Idea version 2024.2.1 or newer @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/505
-* Ktlint 1.4.1 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/commit/7154aa19610ef730f67c6dad64859004f4c4b898
+
+- Update max IDE build to 243.* by @github-actions in https://github.com/nbadal/ktlint-intellij-plugin/pull/569
+- Refactor settings screen by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/571
+- Add application setting to hide ktlint banner when project is not initialized @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/555
+- Set property that it is ensured that the plugin works in K2 mode starting from Idea version 2024.2.1 or newer @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/505
+- Ktlint 1.4.1 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/commit/7154aa19610ef730f67c6dad64859004f4c4b898
 
 ### Dependency updates
-* Bump org.jetbrains.kotlinx.kover from 0.8.2 to 0.8.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/556
-* Bump org.slf4j:slf4j-api from 2.0.13 to 2.0.16 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/561
-* Bump gradle/actions from 3 to 4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/557
-* Bump org.jetbrains.kotlin.jvm from 2.0.10 to 2.0.20 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/564
-* Bump com.rollbar:rollbar-java from 1.10.0 to 1.10.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/567
-* Bump peter-evans/create-pull-request 7 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/566
-* Bump com.github.gmazzo.buildconfig to 5.5.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/570
-* Bump io.mockk:mockk to 1.13.13 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/579
-* Bump org.jetbrains.kotlin.jvm to 2.0.21 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/581
-* Bump org.jetbrains:annotations to 26.0.1 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/582
-* Bump org.junit.jupiter:junit-jupiter to 5.11.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/584
-* Bump org.junit.platform:junit-platform-launcher to 1.11.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/585
 
-**Full Changelog**: https://github.com/nbadal/ktlint-intellij-plugin/compare/0.24.1...0.25.0
+- Bump org.jetbrains.kotlinx.kover from 0.8.2 to 0.8.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/556
+- Bump org.slf4j:slf4j-api from 2.0.13 to 2.0.16 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/561
+- Bump gradle/actions from 3 to 4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/557
+- Bump org.jetbrains.kotlin.jvm from 2.0.10 to 2.0.20 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/564
+- Bump com.rollbar:rollbar-java from 1.10.0 to 1.10.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/567
+- Bump peter-evans/create-pull-request 7 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/566
+- Bump com.github.gmazzo.buildconfig to 5.5.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/570
+- Bump io.mockk:mockk to 1.13.13 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/579
+- Bump org.jetbrains.kotlin.jvm to 2.0.21 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/581
+- Bump org.jetbrains:annotations to 26.0.1 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/582
+- Bump org.junit.jupiter:junit-jupiter to 5.11.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/584
+- Bump org.junit.platform:junit-platform-launcher to 1.11.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/585
 
 ## [0.24.1] - 2024-07-23
 
 ### What's Changed
 
-* Fix reference for ruleset version `1.3.0` by  @paul-dingemans in #551
+- Fix reference for ruleset version `1.3.0` by  @paul-dingemans in #551
 
 ### Dependencies upgrades
-* Bump com.github.gmazzo.buildconfig from 5.3.5 to 5.4.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/549
-* Bump io.mockk:mockk from 1.13.11 to 1.13.12 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/552
 
-**Full Changelog**: https://github.com/nbadal/ktlint-intellij-plugin/compare/0.24.0...0.24.1
+- Bump com.github.gmazzo.buildconfig from 5.3.5 to 5.4.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/549
+- Bump io.mockk:mockk from 1.13.11 to 1.13.12 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/552
 
 ## [0.24.0] - 2024-07-09
 
 ### What's Changed
 
-* Upgrade ktlint to 1.3.1 / add ktlint ruleset 1.3.1 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/547
+- Upgrade ktlint to 1.3.1 / add ktlint ruleset 1.3.1 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/547
 
 ### Dependency upgrades
 
-* Bump org.jetbrains.intellij from 1.17.3 to 1.17.4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/538
-* Bump org.junit.platform:junit-platform-launcher from 1.10.2 to 1.10.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/541
-* Bump org.junit.jupiter:junit-jupiter from 5.10.2 to 5.10.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/542
-* Bump org.jetbrains.changelog from 2.2.0 to 2.2.1 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/545
-* Bump org.jetbrains.kotlinx.kover from 0.7.6 to 0.8.2 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/543
-* Bump org.jetbrains.kotlin.jvm from 1.9.24 to 2.0.0 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/548
-
-**Full Changelog**: https://github.com/nbadal/ktlint-intellij-plugin/compare/0.23.0...0.24.0
+- Bump org.jetbrains.intellij from 1.17.3 to 1.17.4 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/538
+- Bump org.junit.platform:junit-platform-launcher from 1.10.2 to 1.10.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/541
+- Bump org.junit.jupiter:junit-jupiter from 5.10.2 to 5.10.3 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/542
+- Bump org.jetbrains.changelog from 2.2.0 to 2.2.1 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/545
+- Bump org.jetbrains.kotlinx.kover from 0.7.6 to 0.8.2 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/543
+- Bump org.jetbrains.kotlin.jvm from 1.9.24 to 2.0.0 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/548
 
 ## [0.23.0] - 2024-06-11
 
 ### What's Changed
 
-* Upgrade ktlint to `1.3.0` by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/#487
-* Support multiple versions of ktlint standard ruleset by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/#487
-* Reformat a selection instead of entire file by @paul-dingemans (https://github.com/nbadal/ktlint-intellij-plugin/pull/503)
-* Display links to popular external rulesets, ktlint, and ktlint plugin page by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/518
-* Support correcting individual lint violations by @paul-dingemans (https://github.com/nbadal/ktlint-intellij-plugin/pull/533)
-* Update max IDE build to 242.* by @paul-dingemans (https://github.com/nbadal/ktlint-intellij-plugin/pull/523)
-* Upgrade minimum platform version to 2022.3 / Java 17 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/516
-
-**Full Changelog**: https://github.com/nbadal/ktlint-intellij-plugin/compare/0.22.0...0.23.0
+- Upgrade ktlint to `1.3.0` by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/#487
+- Support multiple versions of ktlint standard ruleset by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/#487
+- Reformat a selection instead of entire file by @paul-dingemans (https://github.com/nbadal/ktlint-intellij-plugin/pull/503)
+- Display links to popular external rulesets, ktlint, and ktlint plugin page by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/518
+- Support correcting individual lint violations by @paul-dingemans (https://github.com/nbadal/ktlint-intellij-plugin/pull/533)
+- Update max IDE build to 242.* by @paul-dingemans (https://github.com/nbadal/ktlint-intellij-plugin/pull/523)
+- Upgrade minimum platform version to 2022.3 / Java 17 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/516
 
 ## [0.22.0] - 2024-04-07
 
@@ -363,6 +366,7 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.26.1-dev-2.2025-01-19_15-53-43...HEAD
 [0.26.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.24.1...v0.25.0
 [0.24.1]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.24.0...v0.24.1
@@ -372,7 +376,7 @@
 [0.21.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.13.0...v0.20.0
 [0.13.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.12.0...v0.13.0
-[0.12.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.11.0...v0.12.0
+[0.12.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.10.0...v0.12.0
 [0.11.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.9.0...v0.9.1
@@ -395,4 +399,5 @@
 [0.3.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.0.2...v0.1.0
-[0.0.2]: https://github.com/nbadal/ktlint-intellij-plugin/compare/
+[0.0.2]: https://github.com/nbadal/ktlint-intellij-plugin/commits/v0.0.2
+[0.26.1-dev-2.2025-01-19_15-53-43]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.26.0...v0.26.1-dev-2.2025-01-19_15-53-43
