@@ -4,7 +4,7 @@ junit = "4.13.2"
 # plugins
 buildconfig = "5.5.4"
 changelog = "2.2.1"
-intelliJPlatform = "2.3.0"
+intelliJPlatform = "2.4.0"
 kotlin = "2.1.10"
 kover = "0.9.1"
 ktlint = "1.5.0"
