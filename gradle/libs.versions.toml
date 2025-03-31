@@ -2,7 +2,7 @@
 # libraries
 junit = "4.13.2"
 # plugins
-buildconfig = "5.6.0"
+buildconfig = "5.6.1"
 changelog = "2.2.1"
 intelliJPlatform = "2.4.0"
 kotlin = "2.1.20"
