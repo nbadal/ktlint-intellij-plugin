@@ -53,10 +53,6 @@ dependencies {
 
     compileOnly(project(":ktlint-lib:ruleset-0-50-0")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-0-50-0", "shadow"))
-
-    implementation("com.rollbar:rollbar-java:1.10.3") {
-        exclude(group = "org.slf4j") // Duplicated in IDE environment
-    }
 }
 
 kotlin {

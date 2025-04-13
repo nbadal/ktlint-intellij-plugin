@@ -55,13 +55,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Builds secrets file
-      - name: Build secrets file
-        env:
-          ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
-        shell: bash
-        run: echo "ROLLBAR_ACCESS_TOKEN=$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
-
       # Set environment variables
       - name: Export Properties
         id: properties
@@ -112,13 +105,6 @@ jobs:
       # Check out the current repository
       - name: Fetch Sources
         uses: actions/checkout@v4
-
-      # Builds secrets file
-      - name: Build secrets file
-        env:
-          ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
-        shell: bash
-        run: echo "ROLLBAR_ACCESS_TOKEN=$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
 
       # Set up Java environment for the next steps
       - name: Setup Java
@@ -206,14 +192,6 @@ jobs:
       # Check out the current repository
       - name: Fetch Sources
         uses: actions/checkout@v4
-
-      # Builds secrets file
-      - name: Build secrets file
-        env:
-          ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
-        shell: bash
-        run: echo "ROLLBAR_ACCESS_TOKEN=$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
-
 
       # Set up Java environment for the next steps
       - name: Setup Java
