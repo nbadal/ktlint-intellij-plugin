@@ -80,9 +80,9 @@ dependencies {
     compileOnly(project(":ktlint-lib")) // Required for IDE
     implementation(project(":ktlint-lib", "shadow"))
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
-    testImplementation("org.junit.platform:junit-platform-launcher:1.11.4")
-    testImplementation("io.mockk:mockk:1.13.16")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.12.1")
+    testImplementation("org.junit.platform:junit-platform-launcher:1.12.1")
+    testImplementation("io.mockk:mockk:1.14.0")
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html

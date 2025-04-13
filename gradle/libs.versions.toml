@@ -3,13 +3,13 @@
 junit = "4.13.2"
 # plugins
 changelog = "2.2.1"
-intelliJPlatform = "2.2.1"
-kotlin = "2.1.0"
+intelliJPlatform = "2.5.0"
+kotlin = "2.1.20"
 kover = "0.9.1"
 ktlint = "1.5.0"
 qodana = "2024.3.4"
 shadow = "8.1.1"
-slf4j="2.0.16"
+slf4j="2.0.17"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
