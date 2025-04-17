@@ -1,5 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     id("java") // Java support
     alias(libs.plugins.kotlin) // Kotlin support
@@ -48,19 +46,25 @@ kotlin {
     }
 }
 
-tasks {
-    withType<ShadowJar> {
-        relocate(
-            "com.pinterest.ktlint.logger",
-            "com.pinterest.ktlint-0-50-0.logger",
-        )
-        relocate(
-            "com.pinterest.ktlint.ruleset.standard",
-            "com.pinterest.ktlint.ruleset.standard.V0_50_0",
-        )
+tasks.shadowJar {
+    relocate(
+        "com.pinterest.ktlint.logger",
+        "com.pinterest.ktlint-0-50-0.logger",
+    )
+    relocate(
+        "com.pinterest.ktlint.ruleset.standard",
+        "com.pinterest.ktlint.ruleset.standard.V0_50_0",
+    )
 
-        minimize {
-            exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:0.50.0"))
-        }
-    }
+    // Can not use the minimize block as that would build a fat jar. The GitHub runner has too little diskspace to build the project if a
+    // fat jar is build for each version of the ktlint rulesets. Also, the non-ktlint dependencies will not be used in the final ktlint-lib
+    // jar as the files of the latest ruleset will be used instead,
+    exclude("com/sun/**")
+    exclude("gnu/**")
+    exclude("javaslang/**")
+    exclude("kotlin/**")
+    exclude("messages/**")
+    exclude("misc/**")
+    exclude("mu/**")
+    exclude("org/**")
 }
