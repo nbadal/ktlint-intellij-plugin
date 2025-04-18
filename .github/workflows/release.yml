@@ -24,25 +24,6 @@ jobs:
         with:
           ref: ${{ github.event.release.tag_name }}
 
-      # Builds secrets file
-      - name: Build secrets file
-        env:
-          ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
-        shell: bash
-        run: echo "ROLLBAR_ACCESS_TOKEN=$ROLLBAR_ACCESS_TOKEN" >> secrets.properties
-
-      # Indicate start of publish to Rollbar
-      - name: Notify start deploy to Rollbar
-        uses: rollbar/github-deploy-action@2.1.2
-        id: rollbar_pre_deploy
-        with:
-          environment: 'production'
-          version: ${{ github.event.release.tag_name }}
-          status: 'started'
-        env:
-          ROLLBAR_ACCESS_TOKEN: ${{ secrets.ACTIONS_ROLLBAR_ACCESS_TOKEN }}
-          ROLLBAR_USERNAME: ${{ github.actor }}
-
       # Set up Java environment for the next steps
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -84,19 +65,6 @@ jobs:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
         run: ./gradlew publishPlugin
-
-      # Indicate success of publish to Rollbar
-      - name: Notify finish deploy to Rollbar
-        uses: rollbar/github-deploy-action@2.1.2
-        id: rollbar_post_deploy
-        with:
-          environment: 'production'
-          version: ${{ github.event.release.tag_name }}
-          status: 'succeeded'
-        env:
-          ROLLBAR_ACCESS_TOKEN: ${{ secrets.ACTIONS_ROLLBAR_ACCESS_TOKEN }}
-          ROLLBAR_USERNAME: ${{ github.actor }}
-          DEPLOY_ID: ${{ steps.rollbar_pre_deploy.outputs.deploy_id }}
 
       # Upload artifact as a release asset
       - name: Upload Release Asset

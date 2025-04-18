@@ -3,8 +3,6 @@ import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.konan.properties.Properties
-import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -19,7 +17,6 @@ plugins {
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
     alias(libs.plugins.kover) // Gradle Kover Plugin
-    alias(libs.plugins.buildconfig) // BuildConfig - read more: https://github.com/gmazzo/gradle-buildconfig-plugin
 }
 
 // `pluginName_` variable ends with `_` because of the collision with Kotlin magic getter in the `intellij` closure.
@@ -75,7 +72,6 @@ dependencies {
         // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file for plugin from JetBrains Marketplace.
         plugins(providers.gradleProperty("platformPlugins").map { it.split(',') })
 
-        instrumentationTools()
         pluginVerifier()
         zipSigner()
         testFramework(TestFrameworkType.Platform)
@@ -83,10 +79,6 @@ dependencies {
 
     compileOnly(project(":ktlint-lib")) // Required for IDE
     implementation(project(":ktlint-lib", "shadow"))
-
-    implementation("com.rollbar:rollbar-java:1.10.3") {
-        exclude(group = "org.slf4j") // Duplicated in IDE environment
-    }
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.12.2")
     testImplementation("org.junit.platform:junit-platform-launcher:1.12.2")
@@ -191,20 +183,6 @@ fun String.takeIfVersionForChannel(channel: String): String? =
         // The version can contain a subversion which is specified after a ".", and has to be ignored
         .split('.')
         .firstOrNull { it == channel }
-
-// Configure BuildConfig generation
-buildConfig {
-    packageName("$group.${pluginName_}")
-
-    val secretsPropertiesFile = File("secrets.properties")
-    if (!secretsPropertiesFile.exists()) throw GradleException("secrets.properties not found.")
-    val props = Properties()
-    props.load(FileInputStream(secretsPropertiesFile))
-
-    buildConfigField("String", "NAME", "\"ktlint-intellij-plugin\"")
-    buildConfigField("String", "VERSION", "\"$publishPluginVersion\"")
-    buildConfigField("String", "ROLLBAR_ACCESS_TOKEN", "\"${props.getProperty("ROLLBAR_ACCESS_TOKEN")}\"")
-}
 
 // Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
 changelog {

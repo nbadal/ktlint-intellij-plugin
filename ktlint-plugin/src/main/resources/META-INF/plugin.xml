@@ -11,13 +11,13 @@
         <postFormatProcessor implementation="com.nbadal.ktlint.KtlintPostFormatProcessor" />
         <projectConfigurable displayName="KtLint" groupId="tools" id="preferences.ktlint-plugin"
                              instance="com.nbadal.ktlint.KtlintConfig"/>
-        <errorHandler implementation="com.nbadal.ktlint.KtlintErrorHandler" />
         <notificationGroup id="Ktlint Notifications" displayType="BALLOON"/>
         <actionOnSaveInfoProvider implementation="com.nbadal.ktlint.KtlintActionOnSaveInfoProvider"
                                   order="after FormatOnSaveInfoProvider"/>
         <actionOnSave implementation="com.nbadal.ktlint.KtlintActionOnSave" order="after FormatOnSaveAction"/>
     </extensions>
 
+    <!-- https://kotlin.github.io/analysis-api/declaring-k2-compatibility.html -->
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
         <supportsKotlinPluginMode supportsK2="true" />
     </extensions>
