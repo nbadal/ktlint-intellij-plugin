@@ -50,9 +50,6 @@ dependencies {
 
     compileOnly(project(":ktlint-lib:ruleset-1-0-1")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-0-1", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-0-50-0")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-0-50-0", "shadow"))
 }
 
 kotlin {
@@ -92,6 +89,6 @@ tasks {
         relocate("org.jetbrains.concurrency", "shadow.org.jetbrains.concurrency")
 
         // Ktlint-lib itself may not be minimized as this would result in exceptions when loading custom rulesets as the RulesetProviderV3
-        // can not be found
+        // cannot be found
     }
 }
