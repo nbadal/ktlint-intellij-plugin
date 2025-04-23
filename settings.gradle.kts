@@ -6,7 +6,6 @@ rootProject.name = "ktlint-intellij-plugin"
 
 include(
     "ktlint-lib",
-    "ktlint-lib:ruleset-0-50-0",
     "ktlint-lib:ruleset-1-0-1",
     "ktlint-lib:ruleset-1-1-1",
     "ktlint-lib:ruleset-1-2-0",
@@ -14,6 +13,8 @@ include(
     "ktlint-lib:ruleset-1-3-0",
     "ktlint-lib:ruleset-1-3-1",
     "ktlint-lib:ruleset-1-4-1",
+    "ktlint-lib:ruleset-1-5-0",
+    "ktlint-lib:ruleset-1-5-1-SNAPSHOT",
     // The latest released version of the ktlint ruleset is *not* build as a separate subproject, but is an integral part of the lib
     "ktlint-plugin",
 )

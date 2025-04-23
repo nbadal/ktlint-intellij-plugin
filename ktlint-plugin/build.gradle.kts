@@ -55,7 +55,7 @@ repositories {
     }
 
     // Comment out next line releasing a new version to any channel
-    // mavenLocal()
+    mavenLocal()
 }
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog

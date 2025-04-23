@@ -8,6 +8,8 @@ import com.pinterest.ktlint.ruleset.standard.V1_2_1.StandardRuleSetProvider as S
 import com.pinterest.ktlint.ruleset.standard.V1_3_0.StandardRuleSetProvider as StandardRuleSetProviderV1_3_0
 import com.pinterest.ktlint.ruleset.standard.V1_3_1.StandardRuleSetProvider as StandardRuleSetProviderV1_3_1
 import com.pinterest.ktlint.ruleset.standard.V1_4_1.StandardRuleSetProvider as StandardRuleSetProviderV1_4_1
+import com.pinterest.ktlint.ruleset.standard.V1_5_0.StandardRuleSetProvider as StandardRuleSetProviderV1_5_0
+import com.pinterest.ktlint.ruleset.standard.V1_5_1_SNAPSHOT.StandardRuleSetProvider as StandardRuleSetProviderV1_5_1_SNAPSHOT
 
 /**
  * Policies for supporting rulesets from older versions:
@@ -15,28 +17,21 @@ import com.pinterest.ktlint.ruleset.standard.V1_4_1.StandardRuleSetProvider as S
  *   * Only latest patch version of a minor release is supported
  */
 enum class KtlintRulesetVersion(
-    /**
-     * Labels are displayed in the ktlint settings screen
-     */
-    val label: String,
-    private val ruleSetProvider: RuleSetProviderV3?,
+    val ruleSetProvider: RuleSetProviderV3?,
 ) {
-    // Versions should be ordered starting with default and then sorted from the most recent to the least recent version
-    DEFAULT("default (recommended)", null),
-
-    // The latest released version of Ktlint is to be loaded via the "StandardRuleSetProvider()" constructor. So whenever adding a new
-    // release, a new ruleset subproject has to be created for the previous release.
-    V1_5_0("1.5.0", StandardRuleSetProvider()),
-
-    // For each older release that is supported, a separate ruleset subproject exists in which the StandardRuleSetProvider is relocated to
-    // a unique class name.
-    V1_4_1("1.4.1", StandardRuleSetProviderV1_4_1()),
-    V1_3_1("1.3.1", StandardRuleSetProviderV1_3_1()),
-    V1_3_0("1.3.0", StandardRuleSetProviderV1_3_0()),
-    V1_2_1("1.2.1", StandardRuleSetProviderV1_2_1()),
-    V1_2_0("1.2.0", StandardRuleSetProviderV1_2_0()),
-    V1_1_1("1.1.1", StandardRuleSetProviderV1_1_1()),
-    V1_0_1("1.0.1", StandardRuleSetProviderV1_0_1()),
+    // Versions should be ordered starting with default and then sorted from the most recent to the least recent version. All versions,
+    // except DEFAULT, are associated with a specific version of the StandardRuleSetProvider (created via a relocation in the ShadowJar of
+    // the ruleset subprojects in ktlint-lib). The version numbers should adhere to format `V1_2_3` or `V1_2_3_SNAPSHOT`.
+    DEFAULT(null), // This version is linked to the latest (non-snapshot) version
+    V1_5_1_SNAPSHOT(StandardRuleSetProviderV1_5_1_SNAPSHOT()),
+    V1_5_0(StandardRuleSetProviderV1_5_0()),
+    V1_4_1(StandardRuleSetProviderV1_4_1()),
+    V1_3_1(StandardRuleSetProviderV1_3_1()),
+    V1_3_0(StandardRuleSetProviderV1_3_0()),
+    V1_2_1(StandardRuleSetProviderV1_2_1()),
+    V1_2_0(StandardRuleSetProviderV1_2_0()),
+    V1_1_1(StandardRuleSetProviderV1_1_1()),
+    V1_0_1(StandardRuleSetProviderV1_0_1()),
 
     // Older versions are not compatible with the plugin and are therefore not supported.
     // * Version 0.50 uses mu/KotlinLogger which new minifying of the rulesets conflicts logger of 1.x versions
@@ -48,16 +43,30 @@ enum class KtlintRulesetVersion(
         ruleSetProvider?.getRuleProviders()
             ?: default.ruleSetProvider?.getRuleProviders().orEmpty()
 
+    fun label() =
+        if (this == DEFAULT) {
+            "Latest [${default.versionString()}] (recommended)"
+        } else {
+            versionString()
+        }
+
+    private fun versionString() =
+        name
+            .substringAfter("V")
+            .replace("_SNAPSHOT", " (snapshot)")
+            .replace("_", ".")
+
     companion object {
-        fun findByLabelOrDefault(label: String) = entries.firstOrNull { it.label == label } ?: DEFAULT
+        fun findByLabelOrDefault(label: String) = entries.firstOrNull { it.label() == label } ?: DEFAULT
 
         private val default =
             entries
                 .filterNot { it.ruleSetProvider == null }
+                .filterNot { it.name.endsWith("SNAPSHOT") }
                 .map { ktlintRulesetVersion ->
                     ktlintRulesetVersion to
                         ktlintRulesetVersion
-                            .label
+                            .versionString()
                             .split(".")
                             .joinToString(separator = ".") { it.format("%3d") }
                 }.sortedBy { it.second }

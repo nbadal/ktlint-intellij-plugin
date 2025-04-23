@@ -131,7 +131,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                     .tooltip(
                         "<i>${lintError.errorMessage()}</i><p>" +
                             "Manual fixing of individual Ktlint violations is not supported by version " +
-                            "'${psiFile.project.ktlintRulesetVersion().label}' of the ruleset. <strong>Upgrade the ruleset in the Ktlint " +
+                            "'${psiFile.project.ktlintRulesetVersion().label()}' of the ruleset. <strong>Upgrade the ruleset in the Ktlint " +
                             "Plugin Settings to at least 1.3.0.</strong>",
                     ).create()
             }
