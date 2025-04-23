@@ -12,23 +12,24 @@ allprojects {
         // Comment out next line before publishing to any channel
         // mavenLocal()
         // Comment out next line before publish on default channel. It is okay to keep it when publishing to beta or dev channels
-        // maven("https://oss.sonatype.org/content/repositories/snapshots")
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
 
 dependencies {
-    // Add dependencies from latest released Ktlint version. Note that the latest release version is not build as a subproject like the
-    // older released version. Reason for this is that minimizing the Shadowjar of the subprojects leads to removal of the RulesetProviderV3
-    // class which leads to exceptions when loading a custom ruleset jar.
+    // Common dependencies are included from latest released Ktlint version
     api(libs.ktlintRuleEngine)
     api(libs.ktlintCliRulesetCore)
     api(libs.ktlintCliReporterCore)
     api(libs.ktlintCliReporterBaselineCore)
 
-    // Include the ktlint ruleset baked into the latest ktlint release in the `ktlint-lib` directly
-    implementation(libs.ktlintRulesetStandard)
+    // For each rule set version, add the ruleset specific dependencies
 
-    // Be aware that the latest ktlint ruleset is not listed below because it already included by line above!
+    compileOnly(project(":ktlint-lib:ruleset-1-5-1-SNAPSHOT")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-1-5-1-SNAPSHOT", "shadow"))
+
+    compileOnly(project(":ktlint-lib:ruleset-1-5-0")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-1-5-0", "shadow"))
 
     compileOnly(project(":ktlint-lib:ruleset-1-4-1")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-4-1", "shadow"))
@@ -61,9 +62,6 @@ kotlin {
 
 tasks {
     withType<ShadowJar> {
-        // Expose all ruleset implementations:
-        mergeServiceFiles()
-
         // Relocate to prevent conflicts with same packages provided by Intellij IDEA as well. The embeddable Kotlin compiler in the Ktlint
         // jar differs from the compiler provided in the IDEA.
         // IMPORTANT: Third party suppliers of rule set need to add those relocations as well!

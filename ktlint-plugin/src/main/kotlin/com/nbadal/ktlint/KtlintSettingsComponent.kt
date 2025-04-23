@@ -96,12 +96,12 @@ class KtlintSettingsComponent(
 
     private val rulesetVersionComboBoxWithWidePopup =
         ComboBoxWithWidePopup(
-            KtlintRulesetVersion.entries.map { it.label }.toTypedArray(),
-        )
+            KtlintRulesetVersion.entries.map { it.label() }.toTypedArray(),
+        ).apply { setMinLength(40) }
     private var rulesetVersion: KtlintRulesetVersion
         get() = KtlintRulesetVersion.findByLabelOrDefault(rulesetVersionComboBoxWithWidePopup.selectedItem as String)
         set(value) {
-            rulesetVersionComboBoxWithWidePopup.selectedItem = value.label
+            rulesetVersionComboBoxWithWidePopup.selectedItem = value.label()
         }
     private val rulesetVersionPanel =
         FormBuilder
@@ -290,7 +290,7 @@ class KtlintSettingsComponent(
         }
 
         rulesetVersionComboBoxWithWidePopup.selectedItem =
-            ktlintProjectSettings.ktlintRulesetVersion?.label ?: KtlintRulesetVersion.DEFAULT.label
+            ktlintProjectSettings.ktlintRulesetVersion?.label() ?: KtlintRulesetVersion.DEFAULT.label()
         formatOnSaveCheckbox.isSelected = ktlintProjectSettings.formatOnSave
         attachToIntellijFormattingCheckbox.isSelected = ktlintProjectSettings.attachToIntellijFormat
         baselinePath = ktlintProjectSettings.baselinePath
