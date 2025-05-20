@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.5.0")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.6.0")
 }
 
 kotlin {
@@ -27,7 +27,7 @@ tasks.shadowJar {
     )
 
     minimize {
-        exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:1.5.0"))
+        exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:1.6.0"))
     }
 
     // Can not use the minimize block as that would build a fat jar. The GitHub runner has too little diskspace to build the project if a
