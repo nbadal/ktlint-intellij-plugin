@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.5.1-SNAPSHOT")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.6.0")
 }
 
 kotlin {
@@ -23,16 +23,16 @@ kotlin {
 tasks.shadowJar {
     relocate(
         "com.pinterest.ktlint.ruleset.standard",
-        "com.pinterest.ktlint.ruleset.standard.V1_5_1_SNAPSHOT",
+        "com.pinterest.ktlint.ruleset.standard.V1_6_0",
     )
 
     minimize {
-        exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:1.5.1-SNAPSHOT"))
+        exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:1.6.0"))
     }
 
-    // Can not use the minimize block as that would build a fat jar. The GitHub runner has too little diskspace to build the project if a
-    // fat jar is build for each version of the ktlint rulesets. Also, the non-ktlint dependencies will not be used in the final ktlint-lib
-    // jar as the files of the latest ruleset will be used instead,
+    // Cannot use the minimize-block as that would build a fat jar. The GitHub runner has too little diskspace to build the project if a
+    // fat jar is built for each version of the ktlint rulesets. Also, the non-ktlint dependencies will not be used in the final ktlint-lib
+    // jar as the files of the latest ruleset will be used instead.
     exclude("dev/**")
     exclude("gnu/**")
     exclude("io/**")

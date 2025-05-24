@@ -25,8 +25,8 @@ dependencies {
 
     // For each rule set version, add the ruleset specific dependencies
 
-    compileOnly(project(":ktlint-lib:ruleset-1-5-1-SNAPSHOT")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-5-1-SNAPSHOT", "shadow"))
+    compileOnly(project(":ktlint-lib:ruleset-1-6-0")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-1-6-0", "shadow"))
 
     compileOnly(project(":ktlint-lib:ruleset-1-5-0")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-5-0", "shadow"))
