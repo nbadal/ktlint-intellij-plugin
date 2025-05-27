@@ -58,7 +58,7 @@ repositories {
     // mavenLocal()
 
     // Comment out next line before publish on default channel. It is okay to keep it when publishing to beta or dev channels
-    maven("https://oss.sonatype.org/content/repositories/snapshots")
+    // maven("https://oss.sonatype.org/content/repositories/snapshots")
 }
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
