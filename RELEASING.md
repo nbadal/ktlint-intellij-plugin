@@ -7,8 +7,9 @@ Releasing a new version:
 1. Verification before starting release:
     * Check that none of the `build.gradle.kts` depends on `mavenLocal()`. Those may only be used in snapshot versions of the plugin build on the local machine.
     * Check that none of the `build.gradle.kts` depends on `maven("https://oss.sonatype.org/content/repositories/snapshots")`. Those may only be used when publishing to the beta or dev channel.
-    * Check that the ruleset for the *previous* ktlint version has been added to `ktlint-lib`. The latest ktlint version is by default included via the ktlint dependencies. Older versions need to be included explicitly. After releasing a new ktlint version, the previous ktlint still needs to be added to that list. See `README.md` in `ktlint-lib` for more information.
-2. Check whether plugin description in readme file of plugin-folder is up-to-date as this is used as description of the plugin on the Jetbrains Marketplace inside IntelliJ IDEA and for [Marketplace Overview](https://plugins.jetbrains.com/plugin/15057-ktlint?noRedirect=true).
+    * Check that the `ktlint` version in `lib.versions.toml` is updated to the latest version of ktlint.
+    * Check that the ruleset for the *latest* ktlint version has been added to `ktlint-lib`. Supported rulesets (including the ruleset of the *latest* ktlint version) have to be included explicitly. See `README.md` in `ktlint-lib` for more information.
+2. Check whether the plugin description in the readme file of the plugin-folder is up to date as this is used as the description of the plugin on the Jetbrains Marketplace inside IntelliJ IDEA and for [Marketplace Overview](https://plugins.jetbrains.com/plugin/15057-ktlint?noRedirect=true).
 3. Do not change the heading `Unreleased` in `CHANGELOG.md` as it will be updated automatically. Also, the release will be added automatically to the bottom of the `CHANGELOG.md` file.
 4. Set field `pluginVersion` in `gradle.properties` to the new version number. Note that when the version is suffixed with `-beta` it will be released on the beta channel of the plugin only. Only users that have configured the additional repository `https://plugins.jetbrains.com/plugins/list?pluginId=com.nbadal.ktlint&channel=beta` will see the new version after it is released. Same for `-dev` to publish to `dev` channel
 5. Push change and merge to main
