@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+## [0.27.0] - 2025-05-28
+
+- Upgrade Ktlint to 1.6.0 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/668
+- Update max IDE build to 252.* by @github-actions in https://github.com/nbadal/ktlint-intellij-plugin/pull/663
+- Bump io.mockk:mockk from 1.14.0 to 1.14.2 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/659
+- Bump org.jetbrains.qodana to 2025.1.1 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/660
+- Bump org.jetbrains.intellij.platform to 2.6.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/662
+- Bump org.gradle.toolchains.foojay-resolver-convention to 1.0.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/667
+- Bump org.jetbrains.kotlin.jvm from 2.1.20 to 2.1.21 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/661
+- Bump org.ec4j.core:ec4j-core from 1.1.0 to 1.1.1 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/665
+
 ## [0.26.1] - 2025-04-20
 
 - Update max IDE build to 251.* by @github-actions in https://github.com/nbadal/ktlint-intellij-plugin/pull/620
@@ -22,11 +33,6 @@
 - Bump io.mockk:mockk to 1.14.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/647
 - Bump org.gradle.toolchains.foojay-resolver-convention to 0.10.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/646
 - Bump org.junit.jupiter:junit-jupiter to 5.12.2 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/650
-- Set projectName explicitly to ktlint by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/618
-- Shadow all packages of "org.jetbrains" and "org.intellij" by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/621
-- Refactor - Rename directory "plugin" to "ktlint-plugin" by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/622
-- Fix script create-ktlint-plugin-zip.sh by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/623
-- Update max IDE build to 251.* by @github-actions in https://github.com/nbadal/ktlint-intellij-plugin/pull/620
 - Bump org.jetbrains.kotlinx.kover from 0.9.0 to 0.9.1 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/615
 - Bump io.mockk:mockk from 1.13.14 to 1.13.16 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/619
 
@@ -392,7 +398,8 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.26.1...HEAD
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.27.0...HEAD
+[0.27.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.26.1...v0.27.0
 [0.26.1]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.26.1-dev-2.2025-01-19...v0.26.1
 [0.26.1-dev-2.2025-01-19]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.26.0...v0.26.1-dev-2.2025-01-19
 [0.26.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.25.0...v0.26.0
