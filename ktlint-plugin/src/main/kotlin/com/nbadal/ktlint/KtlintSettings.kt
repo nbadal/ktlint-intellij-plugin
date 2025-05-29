@@ -161,7 +161,12 @@ class KtlintProjectSettings : PersistentStateComponent<KtlintProjectSettings> {
         this.baselinePath = state.baselinePath
         this.externalJarPaths = state.externalJarPaths
 
-        this._ruleSetProviders = RuleSetProviders(ktlintRulesetVersion ?: KtlintRulesetVersion.DEFAULT, externalJarPaths)
+        reloadRuleSetProviders()
+    }
+
+    fun reloadRuleSetProviders() {
+        _ruleSetProviders = RuleSetProviders(ktlintRulesetVersion ?: KtlintRulesetVersion.DEFAULT, externalJarPaths)
+        _ktlintRuleEngine = null
     }
 
     data class RuleSetProviders(

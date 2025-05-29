@@ -23,7 +23,15 @@ dependencies {
     api(libs.ktlintCliReporterCore)
     api(libs.ktlintCliReporterBaselineCore)
 
-    // For each rule set version, add the ruleset specific dependencies
+    // Add the latest version of ktlintRulesetStandard so that custom rulesets can be loaded. With this implementation dependency, a runtime
+    // exception is thrown when loading a custom ruleset.
+    implementation(libs.ktlintRulesetStandard)
+
+    // For each rule set version, add the ruleset dependencies
+
+    // Potentially add the SNAPSHOT version of the next release
+    // compileOnly(project(":ktlint-lib:ruleset-X-Y-X-SNAPSHOT")) // Required for IDE
+    // implementation(project(":ktlint-lib:ruleset-X-Y-Z", "shadow"))
 
     compileOnly(project(":ktlint-lib:ruleset-1-6-0")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-6-0", "shadow"))
@@ -56,7 +64,15 @@ dependencies {
 kotlin {
     jvmToolchain(17)
     compilerOptions {
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+        apiVersion.set(
+            org
+                .jetbrains
+                .kotlin
+                .gradle
+                .dsl
+                .KotlinVersion
+                .KOTLIN_2_0,
+        )
     }
 }
 

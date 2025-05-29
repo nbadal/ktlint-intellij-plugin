@@ -122,7 +122,8 @@ class KtlintSettingsComponent(
             }
     private var externalRulesetJarPaths: List<String>
         get() =
-            externalRulesetJarPathsTextFieldWithBrowseButton.text
+            externalRulesetJarPathsTextFieldWithBrowseButton
+                .text
                 .split(",")
                 .map { it.trim() }
                 .filter { it.isNotBlank() }
@@ -259,6 +260,9 @@ class KtlintSettingsComponent(
         ktlintProjectSettings.attachToIntellijFormat = attachToIntellijFormattingCheckbox.isSelected
         ktlintProjectSettings.externalJarPaths = externalRulesetJarPaths
         ktlintProjectSettings.baselinePath = baselinePath
+
+        // Reload rule providers after potential changes of the project settings
+        ktlintProjectSettings.reloadRuleSetProviders()
 
         project.resetKtlintAnnotator()
 

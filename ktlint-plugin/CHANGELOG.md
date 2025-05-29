@@ -2,9 +2,12 @@
 
 # ktlint-intellij-plugin Changelog
 
+## [Unreleased]
+
 ## [0.27.0] - 2025-05-28
 
-## What's Changed
+### What's Changed
+
 * Upgrade Ktlint to 1.6.0 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/668
 * Update max IDE build to 252.* by @github-actions in https://github.com/nbadal/ktlint-intellij-plugin/pull/663
 * Bump io.mockk:mockk from 1.14.0 to 1.14.2 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/659
@@ -16,7 +19,7 @@
 
 ## [0.26.1] - 2025-04-20
 
-## What's Changed
+### What's Changed
 
 * Update max IDE build to 251.* by @github-actions in https://github.com/nbadal/ktlint-intellij-plugin/pull/620
 * Drop support of Ktlint ruleset 0.50.0 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/commit/a35218b07906cb7dd0f5fa95772a4ea1357fcf44
@@ -27,7 +30,7 @@
 * Minimize ruleset jars by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/651
 * Remove rollbar integration by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/648
 
-## Dependency updates
+### Dependency updates
 
 * Bump org.jetbrains.kotlin.jvm to 2.1.20 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/639
 * Bump org.jetbrains.intellij.platform to 2.5.0 by @dependabot in https://github.com/nbadal/ktlint-intellij-plugin/pull/642
