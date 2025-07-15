@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.3.0")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.7.0")
 
     constraints {
         // ec4-core version 0.3.0 which is included in ktlint 1.3.0 fails on '.editorconfig' properties without value
@@ -34,7 +34,7 @@ tasks.shadowJar {
     )
 
     minimize {
-        exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:1.3.0"))
+        exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:1.7.0"))
     }
 
     // Cannot use the minimize-block as that would build a fat jar. The GitHub runner has too little diskspace to build the project if a
