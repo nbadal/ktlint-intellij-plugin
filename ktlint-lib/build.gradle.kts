@@ -33,6 +33,9 @@ dependencies {
     // compileOnly(project(":ktlint-lib:ruleset-X-Y-X-SNAPSHOT")) // Required for IDE
     // implementation(project(":ktlint-lib:ruleset-X-Y-Z", "shadow"))
 
+    compileOnly(project(":ktlint-lib:ruleset-1-7-0")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-1-7-0", "shadow"))
+
     compileOnly(project(":ktlint-lib:ruleset-1-6-0")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-6-0", "shadow"))
 
