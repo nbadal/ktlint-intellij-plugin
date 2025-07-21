@@ -68,7 +68,7 @@ Add following section to the `build.gradle.kts` of the `ktlint-lib` module:
 allprojects {
     repositories {
         mavenCentral()
-        maven("https://oss.sonatype.org/content/repositories/snapshots")
+        maven("https://central.sonatype.com/repository/maven-snapshots/")
     }
 }
 ```
@@ -81,7 +81,7 @@ allprojects {
     repositories {
         mavenCentral()
         // Comment out next line before publish on default channel. It is okay to keep it when publishing to beta or dev channels
-        maven("https://oss.sonatype.org/content/repositories/snapshots")
+        maven("https://central.sonatype.com/repository/maven-snapshots/")
         // Comment out next line before publishing to any channel
         mavenLocal()
     }
