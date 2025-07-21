@@ -9,13 +9,24 @@ plugins {
 allprojects {
     repositories {
         mavenCentral()
+        // Comment-out next line before publish on the default channel. It is okay to keep it when publishing to beta or dev channels
+        // maven("https://central.sonatype.com/repository/maven-snapshots/")
         // Comment out next line before publishing to any channel
         // mavenLocal()
-        // Comment out next line before publish on default channel. It is okay to keep it when publishing to beta or dev channels
-        // maven("https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
-
+// repositories {
+//    maven {
+//        name = 'Central Portal Snapshots'
+//        url = 'https://central.sonatype.com/repository/maven-snapshots/'
+//
+//        // Only search this repository for the specific dependency
+//        content {
+//            includeModule("<the snapshot's groupId>", "<the snapshot's artifactId>")
+//        }
+//    }
+//    mavenCentral()
+// }
 dependencies {
     // Common dependencies are included from latest released Ktlint version
     api(libs.ktlintRuleEngine)
@@ -32,6 +43,9 @@ dependencies {
     // Potentially add the SNAPSHOT version of the next release
     // compileOnly(project(":ktlint-lib:ruleset-X-Y-X-SNAPSHOT")) // Required for IDE
     // implementation(project(":ktlint-lib:ruleset-X-Y-Z", "shadow"))
+
+    compileOnly(project(":ktlint-lib:ruleset-1-7-1")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-1-7-1", "shadow"))
 
     compileOnly(project(":ktlint-lib:ruleset-1-7-0")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-7-0", "shadow"))
