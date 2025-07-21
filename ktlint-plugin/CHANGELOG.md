@@ -4,7 +4,23 @@
 
 ## [Unreleased]
 
-## [0.28.0-beta-1.2025-07-17_18-59-19] - 2025-07-17
+## [0.28.0] - 2025-07-21
+
+### What's Changed
+
+- Upgrade ktlint to version 1.7.0 by @sake in https://github.com/nbadal/ktlint-intellij-plugin/pull/686
+- Upgrade ktlint to version 1.7.1 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/691
+- Bump org.junit.platform:junit-platform-launcher to 1.13.4 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/689
+- Bump org.junit.jupiter:junit-jupiter 5.13.4 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/690
+- Bump org.jetbrains.kotlin.jvm to 2.2.0 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/680
+- Bump io.mockk:mockk to 1.14.5 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/685
+- Upgrade ktlint to version 1.7.0 by @sake in https://github.com/nbadal/ktlint-intellij-plugin/pull/686
+- Bump org.junit.jupiter:junit-jupiter from 5.13.1 to 5.13.2 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/682
+- Bump org.junit.platform:junit-platform-launcher to 1.13.2 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/681
+- Bump org.jetbrains.kotlin.jvm to 2.2.0 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/680
+- Bump io.mockk:mockk to 1.14.5 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/685
+
+## [[0.28.0-beta-1.2025-07-17]_18-59-19] - 2025-07-17
 
 ### What's Changed
 
@@ -409,7 +425,9 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.28.0-beta-1.2025-07-17_18-59-19...HEAD
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.28.0...HEAD
+[0.28.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.28.0-beta-1.2025-07-17...v0.28.0
+[0.28.0-beta-1.2025-07-17]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.27.1...v0.28.0-beta-1.2025-07-17
 [0.27.1]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.26.1...v0.27.0
 [0.26.1]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.26.0...v0.26.1
