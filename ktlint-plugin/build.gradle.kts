@@ -84,7 +84,7 @@ dependencies {
     implementation(project(":ktlint-lib", "shadow"))
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
-    testImplementation("org.junit.platform:junit-platform-launcher:1.13.3")
+    testImplementation("org.junit.platform:junit-platform-launcher:1.13.4")
     testImplementation("io.mockk:mockk:1.14.5")
 }
 
