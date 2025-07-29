@@ -3,7 +3,7 @@
 junit = "4.13.2"
 # plugins
 changelog = "2.2.1"
-intelliJPlatform = "2.6.0"
+intelliJPlatform = "2.7.0"
 kotlin = "2.2.0"
 kover = "0.9.1"
 ktlint = "1.7.1"
