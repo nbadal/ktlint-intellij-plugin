@@ -32,6 +32,8 @@ class KtlintEditorConfigOptionDescriptorProvider : EditorConfigOptionDescriptorP
     override fun getOptionDescriptors(project: Project): List<EditorConfigOptionDescriptor> {
         val editorConfigOptionDescriptors =
             mutableListOf<EditorConfigOptionDescriptor>().apply {
+                add(enableOrDisableAllRulesEditorConfigOptionDescriptor())
+                add(enableOrDisableExperimentalRulesEditorConfigOptionDescriptor())
                 addAll(enableOrDisableRulesetEditorConfigOptionDescriptor())
                 addAll(enableOrDisableRuleEditorConfigOptionDescriptors())
                 addAll(miscellaneousKtlintEditorConfigOptionDescriptor())
@@ -39,24 +41,44 @@ class KtlintEditorConfigOptionDescriptorProvider : EditorConfigOptionDescriptorP
         return editorConfigOptionDescriptors.toList()
     }
 
+    private fun enableOrDisableAllRulesEditorConfigOptionDescriptor() =
+        editorConfigOptionDescriptor(
+            key = editorConfigConstantDescriptor("ktlint", "Enables or disables all rules in all ktlint/custom rule sets"),
+            value = enabledDisabledPropertyValueDescriptor,
+        )
+
+    private fun enableOrDisableExperimentalRulesEditorConfigOptionDescriptor() =
+        // Experimental rules live inside standard ruleset, but can be enabled/disabled with separate property
+        editorConfigOptionDescriptor(
+            key =
+                editorConfigConstantDescriptor(
+                    "ktlint_experimental",
+                    "Enables or disables experimental rules in all ktlint/custom rule sets",
+                ),
+            value = enabledDisabledPropertyValueDescriptor,
+        )
+
     private fun enableOrDisableRulesetEditorConfigOptionDescriptor(): List<EditorConfigOptionDescriptor> =
         ktlintRuleIds
             .map { it.ruleSetId }
             .distinct()
-            .map { "ktlint_${it.value}" }
             .map { ktlintRuleSetId ->
                 editorConfigOptionDescriptor(
-                    key = editorConfigConstantDescriptor(ktlintRuleSetId, "Enables or disables all rules in the ktlint ruleset"),
+                    key =
+                        editorConfigConstantDescriptor(
+                            "ktlint_${ktlintRuleSetId.value}",
+                            "Enables or disables all rules in rule set '$ktlintRuleSetId'",
+                        ),
                     value = enabledDisabledPropertyValueDescriptor,
                 )
             }
 
     private fun enableOrDisableRuleEditorConfigOptionDescriptors(): List<EditorConfigOptionDescriptor> =
         ktlintRuleIds
-            .map { it.toKtlintRulePropertyName() }
             .map { ktlintRuleId ->
                 editorConfigOptionDescriptor(
-                    key = editorConfigConstantDescriptor(ktlintRuleId, "Enables or disables the ktlint rule"),
+                    key =
+                        editorConfigConstantDescriptor(ktlintRuleId.toKtlintRulePropertyName(), "Enables or disables rule '$ktlintRuleId"),
                     value = enabledDisabledPropertyValueDescriptor,
                 )
             }
