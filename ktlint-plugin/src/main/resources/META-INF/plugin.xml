@@ -5,6 +5,7 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.kotlin</depends>
+    <depends>org.editorconfig.editorconfigjetbrains</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <externalAnnotator language="kotlin" implementationClass="com.nbadal.ktlint.KtlintAnnotator" id="KtlintAnnotator"/>
@@ -20,6 +21,10 @@
     <!-- https://kotlin.github.io/analysis-api/declaring-k2-compatibility.html -->
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
         <supportsKotlinPluginMode supportsK2="true" />
+    </extensions>
+
+    <extensions defaultExtensionNs="editorconfig">
+        <optionDescriptorProvider implementation="com.nbadal.ktlint.KtlintEditorConfigOptionDescriptorProvider"/>
     </extensions>
 
     <actions>
