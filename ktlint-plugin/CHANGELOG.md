@@ -4,7 +4,17 @@
 
 ## [Unreleased]
 
-## [0.29.0-beta-1.2025-08-04_16-04-24] - 2025-08-04
+## [0.29.0] - 2025-08-19
+
+- Add support for ktlint editorconfig properties by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/697
+- Bump org.jetbrains.intellij.platform to 2.7.0 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/694
+- Bump org.jetbrains.changelog to 2.4.0 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/701
+
+### What's Changed
+
+- Add support for ktlint editorconfig properties by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/697
+
+## [[0.29.0-beta-1.2025-08-04]_16-04-24] - 2025-08-04
 
 ### What's Changed
 
@@ -428,7 +438,9 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.29.0-beta-1.2025-08-04_16-04-24...HEAD
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.29.0...HEAD
+[0.29.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.29.0-beta-1.2025-08-04...v0.29.0
+[0.29.0-beta-1.2025-08-04]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.28.0...v0.29.0-beta-1.2025-08-04
 [0.28.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.28.0-beta-1.2025-07-17...v0.28.0
 [0.28.0-beta-1.2025-07-17]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.27.1...v0.28.0-beta-1.2025-07-17
 [0.27.1]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.27.0...v0.27.1
@@ -467,5 +479,5 @@
 [0.2.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.0.2...v0.1.0
 [0.0.2]: https://github.com/nbadal/ktlint-intellij-plugin/commits/v0.0.2
-[0.28.0-beta-1.2025-07-17_18-59-19]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.27.1...v0.28.0-beta-1.2025-07-17_18-59-19
 [0.29.0-beta-1.2025-08-04_16-04-24]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.28.0...v0.29.0-beta-1.2025-08-04_16-04-24
+[0.28.0-beta-1.2025-07-17_18-59-19]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.27.1...v0.28.0-beta-1.2025-07-17_18-59-19
