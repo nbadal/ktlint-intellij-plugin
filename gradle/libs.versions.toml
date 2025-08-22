@@ -7,7 +7,7 @@ intelliJPlatform = "2.7.0"
 kotlin = "2.2.10"
 kover = "0.9.1"
 ktlint = "1.7.1"
-qodana = "2025.1.1"
+qodana = "2025.2.1"
 shadow = "8.1.1"
 slf4j="2.0.17"
 
