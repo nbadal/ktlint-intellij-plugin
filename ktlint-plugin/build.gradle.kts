@@ -1,6 +1,8 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import org.jetbrains.intellij.platform.gradle.models.ProductRelease
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.time.LocalDateTime
@@ -174,6 +176,12 @@ intellijPlatform {
     pluginVerification {
         ides {
             recommended()
+            select {
+                types = listOf(IntelliJPlatformType.IntellijIdea, IntelliJPlatformType.AndroidStudio)
+                channels = listOf(ProductRelease.Channel.RELEASE, ProductRelease.Channel.EAP)
+                sinceBuild = providers.gradleProperty("pluginSinceBuild")
+                untilBuild = providers.gradleProperty("pluginUntilBuild")
+            }
         }
     }
 }
