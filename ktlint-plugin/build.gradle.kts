@@ -177,7 +177,7 @@ intellijPlatform {
         ides {
             recommended()
             select {
-                types = listOf(IntelliJPlatformType.IntellijIdea, IntelliJPlatformType.AndroidStudio)
+                types = listOf(IntelliJPlatformType.IntellijIdea)
                 channels = listOf(ProductRelease.Channel.RELEASE, ProductRelease.Channel.EAP)
                 sinceBuild = providers.gradleProperty("pluginSinceBuild")
                 untilBuild = providers.gradleProperty("pluginUntilBuild")
