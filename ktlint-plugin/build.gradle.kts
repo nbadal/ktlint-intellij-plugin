@@ -87,7 +87,7 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter:6.0.0")
     testImplementation("org.junit.platform:junit-platform-launcher:6.0.0")
-    testImplementation("io.mockk:mockk:1.14.5")
+    testImplementation("io.mockk:mockk:1.14.6")
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
