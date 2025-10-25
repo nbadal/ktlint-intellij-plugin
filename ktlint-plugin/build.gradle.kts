@@ -179,7 +179,11 @@ intellijPlatform {
             select {
                 types = listOf(IntelliJPlatformType.IntellijIdea)
                 channels = listOf(ProductRelease.Channel.RELEASE, ProductRelease.Channel.EAP)
-                sinceBuild = providers.gradleProperty("pluginSinceBuild")
+                // When supporting too many versions, the pluginVerifier task in the build crashes because it runs out of disk space as
+                // each supported version is downloaded for verification. So in the GitHub build, we restrict the number of IDEA versions
+                // that are verified to a subset of the IDEA version in which the plugin can be used. Note that Jetbrains still performs a
+                // verification on all IDEA versions. Those results can be looked up via the plugin marketplace.
+                sinceBuild = providers.gradleProperty("verifyPluginSinceBuild")
                 untilBuild = providers.gradleProperty("pluginUntilBuild")
             }
         }
