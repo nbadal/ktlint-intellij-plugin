@@ -417,39 +417,39 @@ private class KtlintRuleEngineProvider {
         configure(project)
         return ruleSetProviders.takeIf { it.isLoaded }?.error
     }
+}
 
-    private data class RuleSetProviders(
-        val ktlintRulesetVersion: KtlintRulesetVersion,
-        val externalJarPaths: List<String>,
-    ) {
-        private var _error: String? = null
+private data class RuleSetProviders(
+    val ktlintRulesetVersion: KtlintRulesetVersion,
+    val externalJarPaths: List<String>,
+) {
+    private var _error: String? = null
 
-        val error: String?
-            get() = _error
+    val error: String?
+        get() = _error
 
-        private var _isLoaded = false
+    private var _isLoaded = false
 
-        val isLoaded: Boolean
-            get() = _isLoaded
+    val isLoaded: Boolean
+        get() = _isLoaded
 
-        val ruleProviders =
-            try {
-                _error = null
-                _isLoaded = true
-                externalJarPaths
-                    .map { File(it).toURI().toURL() }
-                    .loadCustomRuleProviders()
-                    .also { logger.info { "Loaded ${it.size} rules from custom rule providers $externalJarPaths" } }
-                    .plus(ktlintRulesetVersion.ruleProviders())
-                    .also {
-                        logger.info {
-                            "Loaded ${ktlintRulesetVersion.ruleProviders().size} rules from default ktlint ruleset version '${ktlintRulesetVersion.label()}'"
-                        }
+    val ruleProviders =
+        try {
+            _error = null
+            _isLoaded = true
+            externalJarPaths
+                .map { File(it).toURI().toURL() }
+                .loadCustomRuleProviders()
+                .also { logger.info { "Loaded ${it.size} rules from custom rule providers $externalJarPaths" } }
+                .plus(ktlintRulesetVersion.ruleProviders())
+                .also {
+                    logger.info {
+                        "Loaded ${ktlintRulesetVersion.ruleProviders().size} rules from default ktlint ruleset version '${ktlintRulesetVersion.label()}'"
                     }
-            } catch (throwable: Throwable) {
-                _isLoaded = false
-                _error = throwable.toString()
-                null
-            }
-    }
+                }
+        } catch (throwable: Throwable) {
+            _isLoaded = false
+            _error = throwable.toString()
+            null
+        }
 }
