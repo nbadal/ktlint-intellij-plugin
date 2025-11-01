@@ -34,17 +34,9 @@ import java.io.File
 private val logger = KtlintLogger("com.nbdal.ktlint.KtlintFormat")
 
 class KtlintRuleEngineWrapper internal constructor() {
-    /**
-     * The project that was used to initialize the KtlintRuleEngine
-     */
-    private lateinit var project: Project
+    private val ktlintRuleEngineProvider = KtlintRuleEngineProvider()
 
-    /**
-     * The set of ruleset providers that are loaded into the KtLintRuleEngine
-     */
-    private lateinit var ruleSetProviders: RuleSetProviders
-
-    private lateinit var ktlintRuleEngine: KtLintRuleEngine
+    private var baselinePath: String? = null
 
     /**
      * Keeps the state of the last loaded baseline. It serves as a cache so that the baseline does not need to be reloaded from the file
@@ -58,45 +50,11 @@ class KtlintRuleEngineWrapper internal constructor() {
         baselinePath: String?,
     ) {
         this.baselinePath = baselinePath
-        if (!::ruleSetProviders.isInitialized ||
-            ruleSetProviders.ktlintRulesetVersion != ktlintRulesetVersion ||
-            ruleSetProviders.externalJarPaths != externalJarPaths
-        ) {
-            logger.info("Configure KtlintRuleEngineWrapper $ktlintRulesetVersion, $externalJarPaths, $baselinePath")
-            ruleSetProviders = RuleSetProviders(ktlintRulesetVersion ?: KtlintRulesetVersion.DEFAULT, externalJarPaths)
-
-            ruleSetProviders
-                .ruleProviders
-                ?.let { ruleProviders ->
-                    ktlintRuleEngine =
-                        KtLintRuleEngine(
-                            editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
-                            ruleProviders = ruleProviders,
-                        )
-                }
-        }
-    }
-
-    fun configure(project: Project): KtlintRuleEngineWrapper {
-        if (!::project.isInitialized || this.project != project) {
-            logger.info("Configure KtlintRuleEngineWrapper for project ${project.name} (${project.basePath})")
-            with(project.config()) {
-                configure(
-                    ktlintRulesetVersion = ktlintRulesetVersion,
-                    externalJarPaths = externalJarPaths,
-                    baselinePath = baselinePath,
-                )
-            }
-            this.project = project
-        }
-        return this
+        ktlintRuleEngineProvider.configure(ktlintRulesetVersion, externalJarPaths)
     }
 
     fun ruleIdsWithAutocorrectApproveHandler(psiFile: PsiFile): Set<RuleId> =
-        configure(psiFile.project)
-            .ruleSetProviders
-            .ruleProviders
-            .orEmpty()
+        ruleProviders(psiFile.project)
             .map { it.createNewRuleInstance() }
             .filter { it is RuleAutocorrectApproveHandler }
             .map { it.ruleId }
@@ -144,21 +102,19 @@ class KtlintRuleEngineWrapper internal constructor() {
         ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
         triggeredBy: String,
     ): KtlintResult {
-        configure(psiFile.project)
-
         logger.debug { "Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'" }
 
-        ruleSetProviders
-            .takeIf { !it.isLoaded }
-            ?.let {
+        ktlintRuleEngineProvider
+            .error(psiFile.project)
+            ?.let { error ->
                 KtlintNotifier
                     .notifyError(
-                        project = project,
+                        project = psiFile.project,
                         title = "Error in external ruleset JAR",
                         message =
                             """
-                            One or more of the external rule set JAR's defined in the ktlint settings, can not be loaded.
-                            Error: ${ruleSetProviders.error.orEmpty()}
+                                One or more of the external rule set JAR's defined in the ktlint settings, can not be loaded.
+                                Error: $error
                             """.trimMargin(),
                         forceSettingsDialog = true,
                     )
@@ -167,7 +123,7 @@ class KtlintRuleEngineWrapper internal constructor() {
 
         val baselineErrors =
             with(psiFile) {
-                getBaselineErrors(virtualFile.path.pathRelativeTo(project.basePath))
+                getBaselineErrors(psiFile.project, virtualFile.path.pathRelativeTo(project.basePath))
             }
 
         val lintErrors = mutableListOf<LintError>()
@@ -178,11 +134,12 @@ class KtlintRuleEngineWrapper internal constructor() {
         // up by ktlint.
         val code =
             Code.fromSnippetWithPath(
-                content = PsiDocumentManager.getInstance(project).getDocument(psiFile)!!.text,
+                content = PsiDocumentManager.getInstance(psiFile.project).getDocument(psiFile)!!.text,
                 virtualPath = psiFile.virtualFile.toNioPath(),
             )
 
         try {
+            val ktlintRuleEngine = ktlintRuleEngineProvider.configure(psiFile.project)
             if (ktlintExecutionType == LINT) {
                 ktlintRuleEngine.lint(code) { lintError -> lintErrors.add(lintError) }
             } else {
@@ -241,7 +198,7 @@ class KtlintRuleEngineWrapper internal constructor() {
             // Most likely the file contains a compilation error which prevents it from being parsed. The user should resolve those errors.
             // The stacktrace is excluded from the message as it would distract from resolving the error.
             KtlintNotifier.notifyWarning(
-                project = project,
+                project = psiFile.project,
                 title = "Parsing error",
                 message =
                     """
@@ -252,7 +209,7 @@ class KtlintRuleEngineWrapper internal constructor() {
             return KtlintResult(FILE_RELATED_ERROR)
         } catch (ktLintRuleException: KtLintRuleException) {
             KtlintNotifier.notifyError(
-                project = project,
+                project = psiFile.project,
                 title = "KtLintRuleException",
                 message =
                     """
@@ -264,7 +221,7 @@ class KtlintRuleEngineWrapper internal constructor() {
             return KtlintResult(FILE_RELATED_ERROR)
         } catch (parseException: ParseException) {
             KtlintNotifier.notifyError(
-                project = project,
+                project = psiFile.project,
                 title = "Invalid editorconfig",
                 // The exception message already contains the path to the file, so don't repeat it
                 message =
@@ -276,7 +233,7 @@ class KtlintRuleEngineWrapper internal constructor() {
             return KtlintResult(FILE_RELATED_ERROR)
         } catch (exception: Exception) {
             KtlintNotifier.notifyError(
-                project = project,
+                project = psiFile.project,
                 title = "Invalid editorconfig",
                 message =
                     """
@@ -338,17 +295,128 @@ class KtlintRuleEngineWrapper internal constructor() {
         psiFile: PsiFile,
         code: Code,
         ktlintSuppressionAtOffset: KtlintSuppressionAtOffset,
-    ): String {
-        configure(psiFile.project)
-        return ktlintRuleEngine.insertSuppression(code, ktlintSuppressionAtOffset)
-    }
-
-    private var baselinePath: String? = null
+    ): String =
+        ktlintRuleEngineProvider
+            .configure(psiFile.project)
+            .insertSuppression(code, ktlintSuppressionAtOffset)
 
     /**
      * Clears the ".editorconfig" cache so that it gets reloaded. This should only be called after saving a modified ".editorconfig".
      */
-    fun resetKtlintRuleEngine() = ktlintRuleEngine.trimMemory()
+    fun resetKtlintRuleEngine(project: Project) =
+        ktlintRuleEngineProvider
+            .configure(project)
+            .trimMemory()
+
+    data class Baseline(
+        val baselinePath: String?,
+        val lintErrorsPerFile: Map<String, List<KtlintCliError>>,
+    )
+
+    fun getBaselineErrors(
+        project: Project,
+        filePath: String,
+    ): List<KtlintCliError> {
+        if (baseline?.baselinePath != baselinePath) {
+            baseline = loadBaseline(project)
+        }
+        return baseline
+            ?.lintErrorsPerFile
+            ?.get(filePath)
+            ?: emptyList()
+    }
+
+    private fun loadBaseline(project: Project) =
+        baselinePath
+            ?.takeIf { it.isNotBlank() }
+            ?.let { path ->
+                try {
+                    Baseline(
+                        baselinePath = baselinePath,
+                        com.pinterest.ktlint.cli.reporter.baseline
+                            .loadBaseline(path, BaselineErrorHandling.EXCEPTION)
+                            .lintErrorsPerFile
+                            .also { logger.debug { "Load baseline from file '$path'" } },
+                    )
+                } catch (e: BaselineLoaderException) {
+                    // The exception message produced by ktlint already contains sufficient context of the error
+                    val message = e.message ?: "Exception while loading baseline file '$baselinePath'"
+                    KtlintNotifier.notifyError(
+                        project = project,
+                        title = "Loading baseline",
+                        message = message,
+                        forceSettingsDialog = true,
+                    )
+                    logger.debug(e) { message }
+                    Baseline(baselinePath, emptyMap())
+                }
+            }
+            ?: Baseline(baselinePath, emptyMap())
+
+    fun ruleProviders(project: Project) =
+        ktlintRuleEngineProvider
+            .configure(project)
+            .ruleProviders
+
+    companion object {
+        val instance = KtlintRuleEngineWrapper()
+    }
+}
+
+private class KtlintRuleEngineProvider {
+    /**
+     * The project that was used to initialize the KtlintRuleEngine
+     */
+    private lateinit var project: Project
+
+    /**
+     * The set of ruleset providers that are loaded into the KtLintRuleEngine
+     */
+    private lateinit var ruleSetProviders: RuleSetProviders
+
+    private lateinit var ktlintRuleEngine: KtLintRuleEngine
+
+    fun configure(
+        ktlintRulesetVersion: KtlintRulesetVersion?,
+        externalJarPaths: List<String>,
+    ) {
+        if (!::ruleSetProviders.isInitialized ||
+            ruleSetProviders.ktlintRulesetVersion != ktlintRulesetVersion ||
+            ruleSetProviders.externalJarPaths != externalJarPaths
+        ) {
+            logger.info("Configure KtlintRuleEngineWrapper $ktlintRulesetVersion, $externalJarPaths")
+            ruleSetProviders = RuleSetProviders(ktlintRulesetVersion ?: KtlintRulesetVersion.DEFAULT, externalJarPaths)
+
+            ruleSetProviders
+                .ruleProviders
+                ?.let { ruleProviders ->
+                    ktlintRuleEngine =
+                        KtLintRuleEngine(
+                            editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
+                            ruleProviders = ruleProviders,
+                        )
+                }
+        }
+    }
+
+    fun configure(project: Project): KtLintRuleEngine {
+        if (!::project.isInitialized || this.project != project) {
+            logger.info("Configure KtlintRuleEngineWrapper for project ${project.name} (${project.basePath})")
+            with(project.config()) {
+                configure(
+                    ktlintRulesetVersion = ktlintRulesetVersion,
+                    externalJarPaths = externalJarPaths,
+                )
+            }
+            this.project = project
+        }
+        return this.ktlintRuleEngine
+    }
+
+    fun error(project: Project): String? {
+        configure(project)
+        return ruleSetProviders.takeIf { it.isLoaded }?.error
+    }
 
     private data class RuleSetProviders(
         val ktlintRulesetVersion: KtlintRulesetVersion,
@@ -383,57 +451,5 @@ class KtlintRuleEngineWrapper internal constructor() {
                 _error = throwable.toString()
                 null
             }
-    }
-
-    data class Baseline(
-        val baselinePath: String?,
-        val lintErrorsPerFile: Map<String, List<KtlintCliError>>,
-    )
-
-    fun getBaselineErrors(filePath: String): List<KtlintCliError> {
-        if (baseline?.baselinePath != baselinePath) {
-            baseline = loadBaseline()
-        }
-        return baseline
-            ?.lintErrorsPerFile
-            ?.get(filePath)
-            ?: emptyList()
-    }
-
-    private fun loadBaseline() =
-        baselinePath
-            ?.takeIf { it.isNotBlank() }
-            ?.let { path ->
-                try {
-                    Baseline(
-                        baselinePath = baselinePath,
-                        com.pinterest.ktlint.cli.reporter.baseline
-                            .loadBaseline(path, BaselineErrorHandling.EXCEPTION)
-                            .lintErrorsPerFile
-                            .also { logger.debug { "Load baseline from file '$path'" } },
-                    )
-                } catch (e: BaselineLoaderException) {
-                    // The exception message produced by ktlint already contains sufficient context of the error
-                    val message = e.message ?: "Exception while loading baseline file '$baselinePath'"
-                    KtlintNotifier.notifyError(
-                        project = project,
-                        title = "Loading baseline",
-                        message = message,
-                        forceSettingsDialog = true,
-                    )
-                    logger.debug(e) { message }
-                    Baseline(baselinePath, emptyMap())
-                }
-            }
-            ?: Baseline(baselinePath, emptyMap())
-
-    fun ruleProviders(project: Project) =
-        configure(project)
-            .ruleSetProviders
-            .ruleProviders
-            .orEmpty()
-
-    companion object {
-        val instance = KtlintRuleEngineWrapper()
     }
 }

@@ -271,7 +271,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
 
 fun Project.resetKtlintAnnotator() {
     // Reset KtlintRuleEngine as it has cached the '.editorconfig'
-    KtlintRuleEngineWrapper.instance.resetKtlintRuleEngine()
+    KtlintRuleEngineWrapper.instance.resetKtlintRuleEngine(this)
 
     // Remove user data from all open documents
     FileEditorManager
