@@ -14,12 +14,11 @@ import com.nbadal.ktlint.KtlintFileAutocorrectHandler
 import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintNotifier.notifyInformation
 import com.nbadal.ktlint.KtlintNotifier.notifyWarning
-import com.nbadal.ktlint.KtlintResult
+import com.nbadal.ktlint.KtlintRuleEngineWrapper
 import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.FILE_RELATED_ERROR
 import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.PLUGIN_CONFIGURATION_ERROR
 import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.SUCCESS
 import com.nbadal.ktlint.isEnabled
-import com.nbadal.ktlint.ktlintFormat
 import com.nbadal.ktlint.ktlintMode
 
 class FormatAction : AnAction() {
@@ -96,16 +95,18 @@ class FormatAction : AnAction() {
                     .getInstance(project)
                     .findFile(fileOrDir)
                     ?.let {
-                        ktlintFormat(
-                            it,
-                            ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
-                            triggeredBy = "FormatAction",
-                            forceFormat = true,
-                        )
+                        KtlintRuleEngineWrapper
+                            .instance
+                            .format(
+                                it,
+                                ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+                                triggeredBy = "FormatAction",
+                                forceFormat = true,
+                            )
                     }
             // In case an error occurs, a notification has already been sent by ktlintFormat above
             when (ktlintResult?.status) {
-                KtlintResult.Status.SUCCESS -> {
+                KtlintRuleEngineWrapper.KtlintResult.Status.SUCCESS -> {
                     // Status of iterator is not changed as it should only be SUCCESS when all files have been processed successful
                     if (ktlintResult.fileChangedByFormat) {
                         filesChangedByFormat += 1
@@ -114,18 +115,18 @@ class FormatAction : AnAction() {
                     return true
                 }
 
-                KtlintResult.Status.PLUGIN_CONFIGURATION_ERROR -> {
+                KtlintRuleEngineWrapper.KtlintResult.Status.PLUGIN_CONFIGURATION_ERROR -> {
                     status = PLUGIN_CONFIGURATION_ERROR
                     // As the same error will occur for every file, stop processing
                     return false
                 }
 
-                null, KtlintResult.Status.NOT_STARTED -> {
+                null, KtlintRuleEngineWrapper.KtlintResult.Status.NOT_STARTED -> {
                     // File is not a kotlin file
                     return true
                 }
 
-                KtlintResult.Status.FILE_RELATED_ERROR -> {
+                KtlintRuleEngineWrapper.KtlintResult.Status.FILE_RELATED_ERROR -> {
                     status = FILE_RELATED_ERROR
                     filesNotProcessedDueToError += 1
                     return true

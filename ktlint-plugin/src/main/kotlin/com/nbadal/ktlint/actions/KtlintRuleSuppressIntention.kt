@@ -8,10 +8,10 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION
 import com.nbadal.ktlint.KtlintFileAutocorrectHandler
+import com.nbadal.ktlint.KtlintRuleEngineWrapper
 import com.nbadal.ktlint.config
 import com.nbadal.ktlint.findElementAt
 import com.nbadal.ktlint.isEnabled
-import com.nbadal.ktlint.ktlintFormat
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtlintSuppressionAtOffset
 import com.pinterest.ktlint.rule.engine.api.LintError
@@ -60,11 +60,13 @@ class KtlintRuleSuppressIntention(
                     ?.let { updatedCode ->
                         if (updatedCode != code.content) {
                             document.setText(updatedCode)
-                            ktlintFormat(
-                                psiFile,
-                                ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
-                                triggeredBy = "KtlintSuppressIntention",
-                            )
+                            KtlintRuleEngineWrapper
+                                .instance
+                                .format(
+                                    psiFile,
+                                    ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+                                    triggeredBy = "KtlintSuppressIntention",
+                                )
                         }
                     }
             }

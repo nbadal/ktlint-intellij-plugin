@@ -20,12 +20,18 @@ class KtlintPostFormatProcessor : PostFormatProcessor {
         if (psiFile.project.isEnabled(KtlintFeature.POST_FORMAT_WITH_KTLINT) ||
             (psiFile.project.config().attachToIntellijFormat && psiFile.project.ktlintMode() == KtlintMode.MANUAL)
         ) {
-            ktlintFormat(
-                psiFile,
-                ktlintFormatAutoCorrectHandler = KtlintBlockAutocorrectHandler(rangeToReformat.startOffset, rangeToReformat.endOffset + 1),
-                triggeredBy = "KtlintPostFormatProcessor",
-                forceFormat = true,
-            )
+            KtlintRuleEngineWrapper
+                .instance
+                .format(
+                    psiFile,
+                    ktlintFormatAutoCorrectHandler =
+                        KtlintBlockAutocorrectHandler(
+                            rangeToReformat.startOffset,
+                            rangeToReformat.endOffset + 1,
+                        ),
+                    triggeredBy = "KtlintPostFormatProcessor",
+                    forceFormat = true,
+                )
         }
         return rangeToReformat
     }

@@ -274,11 +274,13 @@ class KtlintSettingsComponent(
                     .getInstance(project)
                     .findFile(virtualFile)
                     ?.let { psiFile ->
-                        ktlintFormat(
-                            psiFile,
-                            ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
-                            triggeredBy = "KtlintActionOnSave",
-                        )
+                        KtlintRuleEngineWrapper
+                            .instance
+                            .format(
+                                psiFile,
+                                ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+                                triggeredBy = "KtlintActionOnSave",
+                            )
                     }
             }
     }

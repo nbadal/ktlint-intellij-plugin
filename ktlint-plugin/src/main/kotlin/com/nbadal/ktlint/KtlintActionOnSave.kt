@@ -51,17 +51,25 @@ class KtlintActionOnSave : ActionOnSave() {
                             .getInstance(project)
                             .findFile(virtualFile)
                             ?.let { psiFile ->
-                                ktlintFormat(
-                                    psiFile,
-                                    ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
-                                    triggeredBy = "KtlintActionOnSave",
-                                )
+                                KtlintRuleEngineWrapper
+                                    .instance
+                                    .format(
+                                        psiFile,
+                                        ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+                                        triggeredBy = "KtlintActionOnSave",
+                                    )
                             }
                     }
             } else {
                 // Only format files which were modified
                 psiFiles.forEach { psiFile ->
-                    ktlintFormat(psiFile, ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler, triggeredBy = "KtlintActionOnSave")
+                    KtlintRuleEngineWrapper
+                        .instance
+                        .format(
+                            psiFile,
+                            ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+                            triggeredBy = "KtlintActionOnSave",
+                        )
                 }
             }
         }

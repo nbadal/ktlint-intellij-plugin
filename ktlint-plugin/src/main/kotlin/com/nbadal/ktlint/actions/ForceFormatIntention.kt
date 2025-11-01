@@ -8,8 +8,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintFeature
 import com.nbadal.ktlint.KtlintFileAutocorrectHandler
+import com.nbadal.ktlint.KtlintRuleEngineWrapper
 import com.nbadal.ktlint.isEnabled
-import com.nbadal.ktlint.ktlintFormat
 
 /**
  * Intention to format the code with ktlint, regardless whether the plugin is enabled/disabled.
@@ -38,11 +38,13 @@ class ForceFormatIntention :
         editor: Editor?,
         psiFile: PsiFile,
     ) {
-        ktlintFormat(
-            psiFile,
-            ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
-            triggeredBy = "ForceFormatIntention",
-            forceFormat = true,
-        )
+        KtlintRuleEngineWrapper
+            .instance
+            .format(
+                psiFile,
+                ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+                triggeredBy = "ForceFormatIntention",
+                forceFormat = true,
+            )
     }
 }

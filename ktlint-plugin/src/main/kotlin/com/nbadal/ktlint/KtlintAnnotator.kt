@@ -52,7 +52,9 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                     logger.debug { "Do not run ktlint as ktlintAnnotatorUserData has not changed on document ${psiFile.virtualFile.name}" }
                     editor.document.ktlintAnnotatorUserData?.lintErrors
                 } else {
-                    ktlintLint(psiFile, "KtlintAnnotator")
+                    KtlintRuleEngineWrapper
+                        .instance
+                        .lint(psiFile, "KtlintAnnotator")
                         .also { ktlintResult -> editor.document.setKtlintResult(ktlintResult) }
                         .lintErrors
                 }
