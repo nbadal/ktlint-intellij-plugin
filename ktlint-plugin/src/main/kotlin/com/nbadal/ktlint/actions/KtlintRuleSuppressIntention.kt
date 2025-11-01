@@ -53,11 +53,10 @@ class KtlintRuleSuppressIntention(
                         content = PsiDocumentManager.getInstance(project).getDocument(psiFile)!!.text,
                         virtualPath = psiFile.virtualFile.toNioPath(),
                     )
-                project
-                    .config()
-                    .ktlintRuleEngine
-                    ?.insertSuppression(code, lintError.toKtlintSuppressionAtOffset())
-                    ?.let { updatedCode ->
+                KtlintRuleEngineWrapper
+                    .instance
+                    .insertSuppression(psiFile, code, lintError.toKtlintSuppressionAtOffset())
+                    .let { updatedCode ->
                         if (updatedCode != code.content) {
                             document.setText(updatedCode)
                             KtlintRuleEngineWrapper

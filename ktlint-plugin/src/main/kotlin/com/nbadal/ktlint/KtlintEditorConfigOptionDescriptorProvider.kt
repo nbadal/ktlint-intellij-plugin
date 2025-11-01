@@ -2,7 +2,6 @@ package com.nbadal.ktlint
 
 import com.intellij.openapi.project.Project
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import org.ec4j.core.model.PropertyType
 import org.editorconfig.language.extensions.EditorConfigOptionDescriptorProvider
@@ -18,16 +17,18 @@ class KtlintEditorConfigOptionDescriptorProvider : EditorConfigOptionDescriptorP
     private lateinit var ktlintEditorConfigProperties: List<EditorConfigProperty<*>>
 
     override fun initialize(project: Project) {
-        val ruleProviders = project.ruleProviders()
-        ktlintRuleIds = ruleProviders.map { it.ruleId }
-        ktlintEditorConfigProperties = ruleProviders.map { it.createNewRuleInstance().usesEditorConfigProperties }.flatten().distinct()
+        KtlintRuleEngineWrapper
+            .instance
+            .ruleProviders(project)
+            .let { ruleProviders ->
+                ktlintRuleIds = ruleProviders.map { it.ruleId }
+                ktlintEditorConfigProperties =
+                    ruleProviders
+                        .map { it.createNewRuleInstance().usesEditorConfigProperties }
+                        .flatten()
+                        .distinct()
+            }
     }
-
-    private fun Project.ruleProviders(): Set<RuleProvider> =
-        config()
-            .ruleSetProviders
-            .ruleProviders
-            .orEmpty()
 
     override fun getOptionDescriptors(project: Project): List<EditorConfigOptionDescriptor> {
         val editorConfigOptionDescriptors =

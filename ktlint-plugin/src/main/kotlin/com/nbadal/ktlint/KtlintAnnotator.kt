@@ -117,7 +117,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
         errorTextRange: TextRange,
     ) {
         when {
-            lintError.ruleId in psiFile.project.config().ruleIdsWithAutocorrectApproveHandler -> {
+            lintError.ruleId in KtlintRuleEngineWrapper.instance.ruleIdsWithAutocorrectApproveHandler(psiFile) -> {
                 // Fixing of individual lint errors is supported for this rule. No tooltip needed.
                 newAnnotation(WARNING, lintError.errorMessage())
                     .range(errorTextRange)
@@ -271,7 +271,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
 
 fun Project.resetKtlintAnnotator() {
     // Reset KtlintRuleEngine as it has cached the '.editorconfig'
-    config().resetKtlintRuleEngine()
+    KtlintRuleEngineWrapper.instance.resetKtlintRuleEngine()
 
     // Remove user data from all open documents
     FileEditorManager
