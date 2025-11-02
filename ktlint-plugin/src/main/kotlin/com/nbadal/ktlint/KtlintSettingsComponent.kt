@@ -261,8 +261,13 @@ class KtlintSettingsComponent(
         ktlintProjectSettings.externalJarPaths = externalRulesetJarPaths
         ktlintProjectSettings.baselinePath = baselinePath
 
-        // Reload rule providers after potential changes of the project settings
-        ktlintProjectSettings.reloadRuleSetProviders()
+        KtlintRuleEngineWrapper
+            .instance
+            .configure(
+                ktlintRulesetVersion = rulesetVersion,
+                externalJarPaths = externalRulesetJarPaths,
+                baselinePath = baselinePath,
+            )
 
         project.resetKtlintAnnotator()
 
@@ -274,11 +279,13 @@ class KtlintSettingsComponent(
                     .getInstance(project)
                     .findFile(virtualFile)
                     ?.let { psiFile ->
-                        ktlintFormat(
-                            psiFile,
-                            ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
-                            triggeredBy = "KtlintActionOnSave",
-                        )
+                        KtlintRuleEngineWrapper
+                            .instance
+                            .format(
+                                psiFile,
+                                ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+                                triggeredBy = "KtlintActionOnSave",
+                            )
                     }
             }
     }

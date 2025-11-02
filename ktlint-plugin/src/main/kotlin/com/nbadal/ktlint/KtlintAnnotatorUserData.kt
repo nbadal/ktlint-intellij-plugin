@@ -20,7 +20,7 @@ internal val Document.ktlintAnnotatorUserData
 
 internal fun Document.removeKtlintAnnotatorUserData() = putUserData(ktlintAnnotatorUserDataKey, null)
 
-internal fun Document.setKtlintResult(ktlintResult: KtlintResult) {
+internal fun Document.setKtlintResult(ktlintResult: KtlintRuleEngineWrapper.KtlintResult) {
     val currentUserData = getUserData(ktlintAnnotatorUserDataKey)
     putUserData(
         ktlintAnnotatorUserDataKey,

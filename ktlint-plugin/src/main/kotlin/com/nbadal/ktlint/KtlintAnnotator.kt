@@ -52,7 +52,9 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                     logger.debug { "Do not run ktlint as ktlintAnnotatorUserData has not changed on document ${psiFile.virtualFile.name}" }
                     editor.document.ktlintAnnotatorUserData?.lintErrors
                 } else {
-                    ktlintLint(psiFile, "KtlintAnnotator")
+                    KtlintRuleEngineWrapper
+                        .instance
+                        .lint(psiFile, "KtlintAnnotator")
                         .also { ktlintResult -> editor.document.setKtlintResult(ktlintResult) }
                         .lintErrors
                 }
@@ -115,7 +117,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
         errorTextRange: TextRange,
     ) {
         when {
-            lintError.ruleId in psiFile.project.config().ruleIdsWithAutocorrectApproveHandler -> {
+            lintError.ruleId in KtlintRuleEngineWrapper.instance.ruleIdsWithAutocorrectApproveHandler(psiFile) -> {
                 // Fixing of individual lint errors is supported for this rule. No tooltip needed.
                 newAnnotation(WARNING, lintError.errorMessage())
                     .range(errorTextRange)
@@ -131,8 +133,8 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                     .tooltip(
                         "<i>${lintError.errorMessage()}</i><p>" +
                             "Manual fixing of individual Ktlint violations is not supported by version " +
-                            "'${psiFile.project.ktlintRulesetVersion().label()}' of the ruleset. <strong>Upgrade the ruleset in the Ktlint " +
-                            "Plugin Settings to at least 1.3.0.</strong>",
+                            "'${psiFile.project.ktlintRulesetVersion().label()}' of the ruleset. <strong>Upgrade the ruleset in the " +
+                            "Ktlint Plugin Settings to at least 1.3.0.</strong>",
                     ).create()
             }
 
@@ -269,7 +271,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
 
 fun Project.resetKtlintAnnotator() {
     // Reset KtlintRuleEngine as it has cached the '.editorconfig'
-    config().resetKtlintRuleEngine()
+    KtlintRuleEngineWrapper.instance.resetKtlintRuleEngine(this)
 
     // Remove user data from all open documents
     FileEditorManager
