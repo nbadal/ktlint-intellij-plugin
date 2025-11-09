@@ -268,15 +268,6 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             .ktlintRuleEngine()
             .insertSuppression(code, ktlintSuppressionAtOffset)
 
-    /**
-     * Clears the ".editorconfig" cache so that it gets reloaded. This should only be called after saving a modified ".editorconfig".
-     */
-    fun resetKtlintRuleEngine(project: Project) =
-        ktlintRuleWrapperConfig
-            .ktlintRuleEngineProvider(project)
-            .ktlintRuleEngine()
-            .trimMemory()
-
     fun ruleProviders(project: Project) =
         ktlintRuleWrapperConfig
             .ktlintRuleEngineProvider(project)

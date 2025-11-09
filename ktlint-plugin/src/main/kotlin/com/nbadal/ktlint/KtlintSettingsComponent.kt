@@ -4,11 +4,9 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBoxWithWidePopup
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
-import com.intellij.psi.PsiManager
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.panels.ListLayout
 import com.intellij.util.ui.FormBuilder
@@ -25,7 +23,7 @@ import java.awt.Desktop
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.net.URI
-import java.util.Objects
+import java.util.*
 import javax.swing.ButtonGroup
 import javax.swing.JComponent
 import javax.swing.JLabel
@@ -180,7 +178,9 @@ class KtlintSettingsComponent(
 
         override var rulesetVersion: KtlintRulesetVersion
             get() = KtlintRulesetVersion.findByLabelOrDefault(rulesetVersionProperty)
-            set(value) {
+            set(
+                @Suppress("unused") value,
+            ) {
                 throw UnsupportedOperationException("Can not set rulesetVersion when it is defined as shared property")
             }
     }

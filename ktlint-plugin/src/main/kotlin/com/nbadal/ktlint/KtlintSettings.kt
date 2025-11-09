@@ -5,21 +5,9 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
-import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.Tag
 import com.nbadal.ktlint.KtlintMode.NOT_INITIALIZED
-import com.pinterest.ktlint.cli.reporter.baseline.BaselineErrorHandling
-import com.pinterest.ktlint.cli.reporter.baseline.BaselineLoaderException
-import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
-import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
-import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
-import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
-import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
-import java.io.File
-
-private val logger = KtlintLogger(KtlintProjectSettings::class.qualifiedName)
 
 /**
  * Application wide configuration settings. Those settings are stored in a file  outside the '.idea' folder of the project. Those settings
