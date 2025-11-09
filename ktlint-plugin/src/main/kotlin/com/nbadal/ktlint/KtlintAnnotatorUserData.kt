@@ -1,6 +1,10 @@
 package com.nbadal.ktlint
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.Document
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.pinterest.ktlint.rule.engine.api.LintError
 
@@ -17,6 +21,22 @@ internal data class KtlintAnnotatorUserData(
 
 internal val Document.ktlintAnnotatorUserData
     get() = getUserData(ktlintAnnotatorUserDataKey)
+
+internal fun Project.resetKtlintAnnotatorUserData() {
+    // Remove user data from all open documents in the project
+    FileEditorManager
+        .getInstance(this)
+        .openFiles
+        .forEach { virtualFile ->
+            FileDocumentManager
+                .getInstance()
+                .getDocument(virtualFile)
+                ?.removeKtlintAnnotatorUserData()
+        }
+
+    // Restart code analyzer so that open files are scanned again
+    DaemonCodeAnalyzer.getInstance(this).restart()
+}
 
 internal fun Document.removeKtlintAnnotatorUserData() = putUserData(ktlintAnnotatorUserDataKey, null)
 

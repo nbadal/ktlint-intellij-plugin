@@ -13,11 +13,6 @@ import com.pinterest.ktlint.ruleset.standard.V1_6_0.StandardRuleSetProvider as S
 import com.pinterest.ktlint.ruleset.standard.V1_7_0.StandardRuleSetProvider as StandardRuleSetProviderV1_7_0
 import com.pinterest.ktlint.ruleset.standard.V1_7_1.StandardRuleSetProvider as StandardRuleSetProviderV1_7_1
 
-/**
- * Policies for supporting rulesets from older versions:
- *   * Only support for RuleSetProviderV3
- *   * Only latest patch version of a minor release is supported
- */
 enum class KtlintRulesetVersion(
     val ruleSetProvider: RuleSetProviderV3?,
 ) {
@@ -61,7 +56,9 @@ enum class KtlintRulesetVersion(
             .replace("_", ".")
 
     companion object {
-        fun findByLabelOrDefault(label: String) = entries.firstOrNull { it.label() == label } ?: DEFAULT
+        fun findByLabelOrNull(label: String) = entries.firstOrNull { it.label() == label }
+
+        fun findByLabelOrDefault(label: String) = findByLabelOrNull(label) ?: DEFAULT
 
         private val default =
             entries
