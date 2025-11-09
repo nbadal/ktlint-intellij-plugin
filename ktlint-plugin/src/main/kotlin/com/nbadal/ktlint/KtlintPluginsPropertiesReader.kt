@@ -15,20 +15,12 @@ class KtlintPluginsPropertiesReader {
     private var projectBasePath: String? = null
     private var readFromKtlintPluginPropertiesFile = false
 
-    fun reset() {
-        projectBasePath = null
-        properties = emptyMap()
-        readFromKtlintPluginPropertiesFile = false
-    }
-
     fun configure(projectBasePath: String?) {
-        if (this.projectBasePath != projectBasePath) {
-            this.projectBasePath = projectBasePath
-            properties =
-                ktlintPluginsPropertiesVirtualFile(projectBasePath)
-                    ?.readProperties()
-                    ?: emptyMap()
-        }
+        this.projectBasePath = projectBasePath
+        properties =
+            ktlintPluginsPropertiesVirtualFile(projectBasePath)
+                ?.readProperties()
+                ?: emptyMap()
     }
 
     private fun ktlintPluginsPropertiesVirtualFile(projectBasePath: String?) =

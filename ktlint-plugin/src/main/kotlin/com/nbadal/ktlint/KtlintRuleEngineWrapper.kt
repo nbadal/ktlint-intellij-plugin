@@ -391,10 +391,6 @@ private class KtlintRuleWrapperConfig {
         configure(project)
         return baselineProvider
     }
-
-    fun resetKtlintVersion() {
-        ktlintPluginsPropertiesReader.reset()
-    }
 }
 
 private class KtlintRuleEngineProvider {
