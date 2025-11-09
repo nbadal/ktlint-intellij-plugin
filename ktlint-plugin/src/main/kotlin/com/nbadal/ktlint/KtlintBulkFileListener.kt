@@ -58,17 +58,13 @@ class KtlintBulkFileListener : BulkFileListener {
                     // cases the ktlint configuration will be reset, while this might not be necessary. For example the `.editorconfig` file
                     // is changed for a non-ktlint property. Detailed checking is quite complicated, and could lead to problems when
                     // relevant cases are missed. Eagerly resetting on the other hand is not too expensive.
-
-                    // Handles cases like:
-                    // * changing the ktlint version in the `ktlint-plugin.properties` file, deleting this file, moving it out of the
-                    //   project root directory, etc.
-                    // * Changing the ktlint version in the `.idea/ktlint-plugin.xml`, or deleting this file
-                    KtlintRuleEngineWrapper
-                        .instance
-                        .resetKtlintVersion()
-
-                    // Handle changes in the `.editorconfig`
-                    event.guessProject()?.run { resetKtlintAnnotator() }
+                    event
+                        .guessProject()
+                        ?.run {
+                            KtlintRuleEngineWrapper
+                                .instance
+                                .reset(this)
+                        }
                 }
             }
     }

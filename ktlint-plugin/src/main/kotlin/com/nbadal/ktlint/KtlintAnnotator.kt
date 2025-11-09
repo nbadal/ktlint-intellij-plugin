@@ -268,22 +268,3 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 .coerceIn(0, textLength)
         }
 }
-
-fun Project.resetKtlintAnnotator() {
-    // Reset KtlintRuleEngine as it has cached the '.editorconfig'
-    KtlintRuleEngineWrapper.instance.resetKtlintRuleEngine(this)
-
-    // Remove user data from all open documents
-    FileEditorManager
-        .getInstance(this)
-        .openFiles
-        .forEach { virtualFile ->
-            FileDocumentManager
-                .getInstance()
-                .getDocument(virtualFile)
-                ?.removeKtlintAnnotatorUserData()
-        }
-
-    // Restart code analyzer so that open files are scanned again
-    DaemonCodeAnalyzer.getInstance(this).restart()
-}

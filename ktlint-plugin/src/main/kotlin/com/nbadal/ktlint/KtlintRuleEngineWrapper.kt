@@ -3,9 +3,11 @@ package com.nbadal.ktlint
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiManager
 import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintExecutionType.FORMAT
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintExecutionType.LINT
@@ -80,6 +82,28 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                 .doPostponedOperationsAndUnblockDocument(document)
         }
         return ktlintResult
+    }
+
+    fun formatAllOpenFiles(
+        project: Project,
+        ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
+        triggeredBy: String,
+    ) {
+        FileEditorManager
+            .getInstance(project)
+            .openFiles
+            .forEach { virtualFile ->
+                PsiManager
+                    .getInstance(project)
+                    .findFile(virtualFile)
+                    ?.let { psiFile ->
+                        format(
+                            psiFile = psiFile,
+                            ktlintFormatAutoCorrectHandler = ktlintFormatAutoCorrectHandler,
+                            triggeredBy = triggeredBy,
+                        )
+                    }
+            }
     }
 
     private fun executeKtlint(
@@ -269,12 +293,9 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                 NATIVE_PLUGIN_CONFIGURATION,
             )
 
-    fun resetKtlintVersion() {
-        ktlintRuleWrapperConfig.resetKtlintVersion()
-    }
-
     fun reset(project: Project) {
         ktlintRuleWrapperConfig.configure(project)
+        project.resetKtlintAnnotatorUserData()
     }
 
     internal data class KtlintVersion(

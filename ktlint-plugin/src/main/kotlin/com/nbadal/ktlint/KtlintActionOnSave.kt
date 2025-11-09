@@ -26,12 +26,6 @@ class KtlintActionOnSave : ActionOnSave() {
                     .mapNotNull { PsiManager.getInstance(project).findFile(it) }
             }
 
-        // If ktlint is not disabled, then always respond on saving the '.editorconfig' to ensure that KtlintAnnotator will pick up changes
-        // in violations due to change settings.
-        if (psiFiles.any { it.language == EDITOR_CONFIG_LANGUAGE }) {
-            project.resetKtlintAnnotator()
-        }
-
         if (project.isEnabled(FORMAT_WITH_KTLINT_ON_SAVE) && project.config().formatOnSave) {
             if (psiFiles.any { it.language == EDITOR_CONFIG_LANGUAGE }) {
                 // Save all ".editorconfig" files before processing other changed documents so the changed ".editorconfig" files are taken
@@ -42,24 +36,13 @@ class KtlintActionOnSave : ActionOnSave() {
                         FileDocumentManager.getInstance().saveDocument(it.viewProvider.document)
                     }
 
-                // Format all files in open editors
-                FileEditorManager
-                    .getInstance(project)
-                    .openFiles
-                    .forEach { virtualFile ->
-                        PsiManager
-                            .getInstance(project)
-                            .findFile(virtualFile)
-                            ?.let { psiFile ->
-                                KtlintRuleEngineWrapper
-                                    .instance
-                                    .format(
-                                        psiFile,
-                                        ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
-                                        triggeredBy = "KtlintActionOnSave",
-                                    )
-                            }
-                    }
+                KtlintRuleEngineWrapper
+                    .instance
+                    .formatAllOpenFiles(
+                        project = project,
+                        ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+                        triggeredBy = "KtlintActionOnSave",
+                    )
             } else {
                 // Only format files which were modified
                 psiFiles.forEach { psiFile ->

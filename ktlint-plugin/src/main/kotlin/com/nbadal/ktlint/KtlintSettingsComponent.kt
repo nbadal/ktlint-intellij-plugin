@@ -354,26 +354,14 @@ class KtlintSettingsComponent(
         ktlintProjectSettings.externalJarPaths = externalRulesetJarPaths
         ktlintProjectSettings.baselinePath = baselinePath
 
-        KtlintRuleEngineWrapper.instance.reset(project)
-        project.resetKtlintAnnotator()
-
-        FileEditorManager
-            .getInstance(project)
-            .openFiles
-            .forEach { virtualFile ->
-                PsiManager
-                    .getInstance(project)
-                    .findFile(virtualFile)
-                    ?.let { psiFile ->
-                        KtlintRuleEngineWrapper
-                            .instance
-                            .format(
-                                psiFile,
-                                ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
-                                triggeredBy = "KtlintActionOnSave",
-                            )
-                    }
-            }
+        with(KtlintRuleEngineWrapper.instance) {
+            reset(project)
+            formatAllOpenFiles(
+                project = project,
+                ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+                triggeredBy = "KtlintSettingsComponent",
+            )
+        }
     }
 
     fun reset() {
