@@ -46,4 +46,18 @@
         <listener class="com.nbadal.ktlint.KtlintBulkFileListener"
                   topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
     </applicationListeners>
+
+    <change-notes>
+        <![CDATA[
+<h3>Noteworthy changes:</h3>
+<ul>
+    <li>Allow to configure the Ktlint version in file <strong>ktlint-plugin.properties</strong> for synchronization with other ktlint integrations in the same project.<a href="https://github.com/nbadal/ktlint-intellij-plugin/issues/711">More information</a></li>
+    <li>Reconfigure Ktlint when switching projects or changing <strong>.editorconfig</strong></li>
+</ul>
+<h3>Requirements:</h3>
+<ul>
+    <li>Intellij IDEA Platform 2024.1 - 2025.3</li>
+</ul>
+        ]]>
+    </change-notes>
 </idea-plugin>
