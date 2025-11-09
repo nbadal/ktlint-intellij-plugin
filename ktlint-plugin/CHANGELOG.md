@@ -4,8 +4,25 @@
 
 ## [Unreleased]
 
-## [0.30.0-beta-1.2025-10-11_14-19-31] - 2025-10-11
+## [0.30.0-beta-2.2025-11-09_18-35-57] - 2025-11-09
 
+- Store/read ktlint version in property file for synchronisation with other Ktlint integration by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/744
+- Reconfigure ktlint when switching projects by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/739
+- Bump actions/checkout to 5 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/703
+- Bump org.jetbrains.qodana to 2025.2.1 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/706
+- Bump actions/setup-java to 5 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/709
+- Update max IDE build to 253.* by @github-actions[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/714
+- Change platform type from IC to IU by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/716
+- Bump gradle/actions to 5 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/719
+- Bump io.mockk:mockk to 1.14.6 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/720
+- Bump org.jetbrains.kotlinx.kover 0.9.3 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/726
+- Bump Gradle Wrapper to 8.14.3 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/730
+- Limit the number of IDEA versions that are verified in GitHub build by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/735
+- Bump actions/upload-artifact from 4 to 5 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/736
+- Bump org.junit.jupiter:junit-jupiter 6.0.1 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/741
+- Bump org.junit.platform:junit-platform-launcher 6.0.1 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/742
+- Bump org.jetbrains.intellij.platform to 2.10.4 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/740
+- Bump org.jetbrains.kotlin.jvm to 2.2.21 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/733
 - Bump actions/checkout to 5 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/703
 - Bump org.jetbrains.qodana to 2025.2.1 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/706
 - Bump actions/setup-java to 5 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/709
@@ -14,6 +31,9 @@
 - Update max IDE build to 253.* by @github-actions[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/714
 - Bump org.jetbrains.kotlinx.kover to 0.9.2 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/715
 - Change platform type from IC to IU by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/716
+
+## [[0.30.0-beta-1.2025-10-11]_14-19-31] - 2025-10-11
+
 - Bump actions/checkout to 5 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/703
 - Bump org.jetbrains.qodana to 2025.2.1 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/706
 - Bump actions/setup-java to 5 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/709
@@ -468,8 +488,9 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0-beta-1.2025-10-11_14-19-31...HEAD
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0-beta-2.2025-11-09_18-35-57...HEAD
 [0.30.0-dev-1.2025-10-06]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.29.0...v0.30.0-dev-1.2025-10-06
+[0.30.0-beta-1.2025-10-11]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0-dev-1.2025-10-06...v0.30.0-beta-1.2025-10-11
 [0.29.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.29.0-beta-1.2025-08-04...v0.29.0
 [0.29.0-beta-1.2025-08-04]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.28.0...v0.29.0-beta-1.2025-08-04
 [0.28.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.28.0-beta-1.2025-07-17...v0.28.0
@@ -511,6 +532,7 @@
 [0.1.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.0.2...v0.1.0
 [0.0.2]: https://github.com/nbadal/ktlint-intellij-plugin/commits/v0.0.2
 [0.30.0-dev-1.2025-10-06_18-30-17]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.29.0...v0.30.0-dev-1.2025-10-06_18-30-17
+[0.30.0-beta-2.2025-11-09_18-35-57]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0-beta-1.2025-10-11...v0.30.0-beta-2.2025-11-09_18-35-57
 [0.30.0-beta-1.2025-10-11_14-19-31]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0-dev-1.2025-10-06...v0.30.0-beta-1.2025-10-11_14-19-31
 [0.29.0-beta-1.2025-08-04_16-04-24]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.28.0...v0.29.0-beta-1.2025-08-04_16-04-24
 [0.28.0-beta-1.2025-07-17_18-59-19]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.27.1...v0.28.0-beta-1.2025-07-17_18-59-19
