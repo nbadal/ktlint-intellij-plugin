@@ -13,6 +13,8 @@ import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.FILE_RELATE
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.NOT_STARTED
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.PLUGIN_CONFIGURATION_ERROR
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.SUCCESS
+import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintVersion.Source.NATIVE_PLUGIN_CONFIGURATION
+import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintVersion.Source.SHARED_PLUGIN_PROPERTIES
 import com.pinterest.ktlint.cli.reporter.baseline.BaselineErrorHandling
 import com.pinterest.ktlint.cli.reporter.baseline.BaselineLoaderException
 import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
@@ -36,14 +38,6 @@ private val logger = KtlintLogger("com.nbdal.ktlint.KtlintFormat")
 
 internal class KtlintRuleEngineWrapper internal constructor() {
     private val ktlintRuleWrapperConfig = KtlintRuleWrapperConfig()
-
-    fun configure(
-        ktlintRulesetVersion: KtlintRulesetVersion?,
-        externalJarPaths: List<String>,
-        baselinePath: String?,
-    ) {
-        ktlintRuleWrapperConfig.configure(ktlintRulesetVersion, externalJarPaths, baselinePath)
-    }
 
     fun ruleIdsWithAutocorrectApproveHandler(psiFile: PsiFile): Set<RuleId> =
         ruleProviders(psiFile.project)
@@ -114,8 +108,10 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                 return KtlintResult(PLUGIN_CONFIGURATION_ERROR)
             }
 
-        val baselineErrors = ktlintRuleWrapperConfig.baselineErrors(psiFile)
-        // baselineNew.baselineErrors(psiFile)
+        val baselineErrors =
+            ktlintRuleWrapperConfig
+                .baselineProvider(psiFile.project)
+                .baselineErrors(psiFile)
         val lintErrors = mutableListOf<LintError>()
         var fileChangedByFormat = false
         // The psiFile may contain unsaved changes. Get the content via the PsiDocumentManager instead of from "psiFile.text" directly. In case
@@ -129,7 +125,10 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             )
 
         try {
-            val ktlintRuleEngine = ktlintRuleWrapperConfig.ktlintRuleEngine(psiFile.project)
+            val ktlintRuleEngine =
+                ktlintRuleWrapperConfig
+                    .ktlintRuleEngineProvider(psiFile.project)
+                    .ktlintRuleEngine()
             if (ktlintExecutionType == LINT) {
                 ktlintRuleEngine.lint(code) { lintError -> lintErrors.add(lintError) }
             } else {
@@ -241,7 +240,8 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         ktlintSuppressionAtOffset: KtlintSuppressionAtOffset,
     ): String =
         ktlintRuleWrapperConfig
-            .ktlintRuleEngine(psiFile.project)
+            .ktlintRuleEngineProvider(psiFile.project)
+            .ktlintRuleEngine()
             .insertSuppression(code, ktlintSuppressionAtOffset)
 
     /**
@@ -249,13 +249,43 @@ internal class KtlintRuleEngineWrapper internal constructor() {
      */
     fun resetKtlintRuleEngine(project: Project) =
         ktlintRuleWrapperConfig
-            .ktlintRuleEngine(project)
+            .ktlintRuleEngineProvider(project)
+            .ktlintRuleEngine()
             .trimMemory()
 
     fun ruleProviders(project: Project) =
         ktlintRuleWrapperConfig
-            .ktlintRuleEngine(project)
+            .ktlintRuleEngineProvider(project)
+            .ktlintRuleEngine()
             .ruleProviders
+
+    fun ktlintVersion(project: Project) =
+        ktlintRuleWrapperConfig
+            .ktlintPluginsPropertiesReader(project)
+            .ktlintVersion()
+            ?.let { version -> KtlintVersion(version, SHARED_PLUGIN_PROPERTIES) }
+            ?: KtlintVersion(
+                project.config().ktlintRulesetVersion?.name ?: KtlintRulesetVersion.DEFAULT.name,
+                NATIVE_PLUGIN_CONFIGURATION,
+            )
+
+    fun resetKtlintVersion() {
+        ktlintRuleWrapperConfig.resetKtlintVersion()
+    }
+
+    fun reset(project: Project) {
+        ktlintRuleWrapperConfig.configure(project)
+    }
+
+    internal data class KtlintVersion(
+        val version: String,
+        val source: Source,
+    ) {
+        enum class Source {
+            NATIVE_PLUGIN_CONFIGURATION,
+            SHARED_PLUGIN_PROPERTIES,
+        }
+    }
 
     private enum class KtlintExecutionType { LINT, FORMAT }
 
@@ -295,33 +325,58 @@ internal class KtlintRuleEngineWrapper internal constructor() {
 private class KtlintRuleWrapperConfig {
     private val ktlintRuleEngineProvider = KtlintRuleEngineProvider()
 
-    private var baselineProvider = BaselineProvider()
+    private val baselineProvider = BaselineProvider()
 
-    fun configure(
-        ktlintRulesetVersion: KtlintRulesetVersion?,
-        externalJarPaths: List<String>,
-        baselinePath: String?,
-    ) {
-        baselineProvider.configure(baselinePath)
-        ktlintRuleEngineProvider.configure(ktlintRulesetVersion, externalJarPaths)
+    private val ktlintPluginsPropertiesReader = KtlintPluginsPropertiesReader()
+
+    fun configure(project: Project) {
+        with(project.config()) {
+            baselineProvider.configure(baselinePath)
+            ktlintPluginsPropertiesReader.configure(project.basePath)
+            ktlintRuleEngineProvider.configure(ktlintRulesetVersion(), externalJarPaths)
+        }
     }
 
-    fun ktlintRuleEngineProvider(project: Project) = ktlintRuleEngineProvider.apply { configure(project) }
+    private fun KtlintProjectSettings.ktlintRulesetVersion() =
+        ktlintRulesetVersionFromSharedPropertiesFile()
+            ?: ktlintRulesetVersionFromKtlintConfiguration()
+            ?: defaultKtlintRulesetVersion()
 
-    fun ktlintRuleEngine(project: Project): KtLintRuleEngine = ktlintRuleEngineProvider.configure(project)
+    private fun ktlintRulesetVersionFromSharedPropertiesFile() =
+        ktlintPluginsPropertiesReader
+            .ktlintRulesetVersion()
+            ?.also { logger.debug { "Use Ktlint version $it defined in property shared by all ktlint plugins" } }
 
-    fun baselineErrors(psiFile: PsiFile): BaselineErrors =
-        baselineProvider
-            .configure(psiFile.project)
-            .baselineErrors(psiFile)
+    private fun KtlintProjectSettings.ktlintRulesetVersionFromKtlintConfiguration() =
+        ktlintRulesetVersion
+            ?.also { logger.debug { "Use Ktlint version $it defined in ktlint-intellij-plugin configuration" } }
+
+    private fun defaultKtlintRulesetVersion() =
+        KtlintRulesetVersion
+            .DEFAULT
+            .also { logger.debug { "Use default Ktlint version $it as ktlint-intellij-plugin configuration is not found" } }
+
+    fun ktlintRuleEngineProvider(project: Project): KtlintRuleEngineProvider {
+        configure(project)
+        return ktlintRuleEngineProvider
+    }
+
+    fun ktlintPluginsPropertiesReader(project: Project): KtlintPluginsPropertiesReader {
+        configure(project)
+        return ktlintPluginsPropertiesReader
+    }
+
+    fun baselineProvider(project: Project): BaselineProvider {
+        configure(project)
+        return baselineProvider
+    }
+
+    fun resetKtlintVersion() {
+        ktlintPluginsPropertiesReader.reset()
+    }
 }
 
 private class KtlintRuleEngineProvider {
-    /**
-     * The project that was used to initialize the KtlintRuleEngine
-     */
-    private lateinit var project: Project
-
     /**
      * The set of ruleset providers that are loaded into the KtLintRuleEngine
      */
@@ -330,7 +385,7 @@ private class KtlintRuleEngineProvider {
     private lateinit var ktlintRuleEngine: KtLintRuleEngine
 
     fun configure(
-        ktlintRulesetVersion: KtlintRulesetVersion?,
+        ktlintRulesetVersion: KtlintRulesetVersion,
         externalJarPaths: List<String>,
     ) {
         if (!::ruleSetProviders.isInitialized ||
@@ -338,7 +393,7 @@ private class KtlintRuleEngineProvider {
             ruleSetProviders.externalJarPaths != externalJarPaths
         ) {
             logger.info("Configure KtlintRuleEngineWrapper $ktlintRulesetVersion, $externalJarPaths")
-            ruleSetProviders = RuleSetProviders(ktlintRulesetVersion ?: KtlintRulesetVersion.DEFAULT, externalJarPaths)
+            ruleSetProviders = RuleSetProviders(ktlintRulesetVersion, externalJarPaths)
 
             ruleSetProviders
                 .ruleProviders
@@ -352,19 +407,7 @@ private class KtlintRuleEngineProvider {
         }
     }
 
-    fun configure(project: Project): KtLintRuleEngine {
-        if (!::project.isInitialized || this.project != project) {
-            logger.info("Configure KtlintRuleEngineWrapper for project ${project.name} (${project.basePath})")
-            with(project.config()) {
-                configure(
-                    ktlintRulesetVersion = ktlintRulesetVersion,
-                    externalJarPaths = externalJarPaths,
-                )
-            }
-            this.project = project
-        }
-        return this.ktlintRuleEngine
-    }
+    fun ktlintRuleEngine() = ktlintRuleEngine
 
     fun hasErrorLoadingExternalRulesetJar(): Boolean = errorLoadingExternalRulesetJar() != null
 
@@ -414,8 +457,6 @@ class BaselineProvider {
     private var baselinePath: String? = null
     private var error: String? = null
     private var lintErrorsPerFile: Map<String, List<KtlintCliError>> = emptyMap()
-
-    fun configure(project: Project) = apply { configure(project.config().baselinePath) }
 
     fun configure(baselinePath: String?) {
         if (baselinePath != this.baselinePath) {

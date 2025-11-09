@@ -1,5 +1,6 @@
 package com.nbadal.ktlint
 
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
@@ -9,7 +10,9 @@ import com.intellij.openapi.ui.ComboBoxWithWidePopup
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.psi.PsiManager
 import com.intellij.ui.components.JBCheckBox
+import com.intellij.ui.components.panels.ListLayout
 import com.intellij.util.ui.FormBuilder
+import com.intellij.util.ui.NamedColorUtil
 import com.intellij.util.ui.UIUtil
 import com.nbadal.ktlint.KtlintMode.DISABLED
 import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
@@ -29,6 +32,7 @@ import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JRadioButton
 import javax.swing.JSeparator
+import javax.swing.SwingConstants
 
 class KtlintSettingsComponent(
     private val project: Project,
@@ -70,14 +74,15 @@ class KtlintSettingsComponent(
             .panel
 
     private val baselinePathTextFieldWithBrowseButton =
-        TextFieldWithBrowseButton().apply {
-            val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor("xml")
-            addActionListener {
-                FileChooser.chooseFile(descriptor, project, null) {
-                    text = it.path
+        TextFieldWithBrowseButton()
+            .apply {
+                val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor("xml")
+                addActionListener {
+                    FileChooser.chooseFile(descriptor, project, null) {
+                        text = it.path
+                    }
                 }
             }
-        }
     private var baselinePath: String?
         get() =
             baselinePathTextFieldWithBrowseButton
@@ -94,21 +99,109 @@ class KtlintSettingsComponent(
             .addTooltip(message("baselineToolTip"))
             .panel
 
-    private val rulesetVersionComboBoxWithWidePopup =
-        ComboBoxWithWidePopup(
-            KtlintRulesetVersion.entries.map { it.label() }.toTypedArray(),
-        ).apply { setMinLength(40) }
-    private var rulesetVersion: KtlintRulesetVersion
-        get() = KtlintRulesetVersion.findByLabelOrDefault(rulesetVersionComboBoxWithWidePopup.selectedItem as String)
-        set(value) {
-            rulesetVersionComboBoxWithWidePopup.selectedItem = value.label()
-        }
-    private val rulesetVersionPanel =
-        FormBuilder
-            .createFormBuilder()
-            .addLabeledComponent(JLabel(message("rulesetVersionLabel")), rulesetVersionComboBoxWithWidePopup)
-            .addTooltip(message("rulesetVersionTooltip"))
-            .panel
+    private abstract class RulesetComponent {
+        abstract fun getPanel(): JPanel
+
+        abstract var rulesetVersion: KtlintRulesetVersion
+    }
+
+    private class KtlintPluginRulesetVersionComponent : RulesetComponent() {
+        private val rulesetVersionComboBoxWithWidePopup =
+            ComboBoxWithWidePopup(
+                KtlintRulesetVersion.entries.map { it.label() }.toTypedArray(),
+            ).apply { setMinLength(40) }
+
+        override var rulesetVersion: KtlintRulesetVersion
+            get() = KtlintRulesetVersion.findByLabelOrDefault(rulesetVersionComboBoxWithWidePopup.selectedItem as String)
+            set(value) {
+                rulesetVersionComboBoxWithWidePopup.selectedItem = value.label()
+            }
+
+        override fun getPanel(): JPanel =
+            FormBuilder
+                .createFormBuilder()
+                .addLabeledComponent(
+                    JLabel(message("rulesetVersionLabel")),
+                    FormBuilder
+                        .createFormBuilder()
+                        .addComponent(
+                            JPanel(ListLayout.horizontal(horGap = 10))
+                                .apply {
+                                    add(rulesetVersionComboBoxWithWidePopup)
+                                    add(
+                                        JLabel(AllIcons.General.ContextHelp)
+                                            .apply {
+                                                toolTipText =
+                                                    message(
+                                                        "rulesetVersionEditableContextHelp",
+                                                        KTLINT_PLUGINS_VERSION_PROPERTY,
+                                                        KTLINT_PLUGINS_PROPERTIES_FILE_NAME,
+                                                    )
+                                            },
+                                    )
+                                },
+                        ).panel,
+                ).addTooltip(message("rulesetVersionTooltip"))
+                .panel
+    }
+
+    private class AllKtlintPluginsSharedRulesetVersionComponent(
+        private val rulesetVersionProperty: String,
+    ) : RulesetComponent() {
+        override fun getPanel(): JPanel =
+            FormBuilder
+                .createFormBuilder()
+                .addLabeledComponent(
+                    JLabel(message("rulesetVersionLabel")),
+                    JPanel(ListLayout.horizontal(horGap = 10))
+                        .apply {
+                            add(JLabel(rulesetVersionProperty))
+                            add(
+                                JLabel(AllIcons.General.ContextHelp)
+                                    .apply {
+                                        toolTipText =
+                                            message(
+                                                "rulesetVersionNonEditableContextHelp",
+                                                KTLINT_PLUGINS_VERSION_PROPERTY,
+                                                KTLINT_PLUGINS_PROPERTIES_FILE_NAME,
+                                            )
+                                    },
+                            )
+                            if (KtlintRulesetVersion.entries.none { it.label() == rulesetVersionProperty }) {
+                                add(
+                                    JLabel(message("unsupportedRulesetVersionError"), AllIcons.General.Error, SwingConstants.LEFT)
+                                        .apply {
+                                            setForeground(NamedColorUtil.getErrorForeground())
+                                        },
+                                )
+                            }
+                        },
+                ).panel
+
+        override var rulesetVersion: KtlintRulesetVersion
+            get() = KtlintRulesetVersion.findByLabelOrDefault(rulesetVersionProperty)
+            set(value) {
+                throw UnsupportedOperationException("Can not set rulesetVersion when it is defined as shared property")
+            }
+    }
+
+    private val rulesetComponent =
+        KtlintRuleEngineWrapper
+            .instance
+            .ktlintVersion(project)
+            .let { ktlintVersion ->
+                when (ktlintVersion.source) {
+                    KtlintRuleEngineWrapper.KtlintVersion.Source.SHARED_PLUGIN_PROPERTIES -> {
+                        AllKtlintPluginsSharedRulesetVersionComponent(ktlintVersion.version)
+                    }
+
+                    else -> {
+                        KtlintPluginRulesetVersionComponent()
+                    }
+                }
+            }
+
+    private val rulesetVersionPanel = rulesetComponent.getPanel()
 
     private val externalRulesetJarPathsTextFieldWithBrowseButton =
         TextFieldWithBrowseButton()
@@ -255,20 +348,13 @@ class KtlintSettingsComponent(
         KtlintApplicationSettings.getInstance().state.showBanner = showBannerCheckBox.isSelected
 
         ktlintProjectSettings.ktlintMode = ktlintMode
-        ktlintProjectSettings.ktlintRulesetVersion = rulesetVersion
+        ktlintProjectSettings.ktlintRulesetVersion = rulesetComponent.rulesetVersion
         ktlintProjectSettings.formatOnSave = formatOnSaveCheckbox.isSelected
         ktlintProjectSettings.attachToIntellijFormat = attachToIntellijFormattingCheckbox.isSelected
         ktlintProjectSettings.externalJarPaths = externalRulesetJarPaths
         ktlintProjectSettings.baselinePath = baselinePath
 
-        KtlintRuleEngineWrapper
-            .instance
-            .configure(
-                ktlintRulesetVersion = rulesetVersion,
-                externalJarPaths = externalRulesetJarPaths,
-                baselinePath = baselinePath,
-            )
-
+        KtlintRuleEngineWrapper.instance.reset(project)
         project.resetKtlintAnnotator()
 
         FileEditorManager
@@ -300,8 +386,9 @@ class KtlintSettingsComponent(
             else -> Unit
         }
 
-        rulesetVersionComboBoxWithWidePopup.selectedItem =
-            ktlintProjectSettings.ktlintRulesetVersion?.label() ?: KtlintRulesetVersion.DEFAULT.label()
+        if (rulesetComponent is KtlintPluginRulesetVersionComponent) {
+            rulesetComponent.rulesetVersion = ktlintProjectSettings.ktlintRulesetVersion ?: KtlintRulesetVersion.DEFAULT
+        }
         formatOnSaveCheckbox.isSelected = ktlintProjectSettings.formatOnSave
         attachToIntellijFormattingCheckbox.isSelected = ktlintProjectSettings.attachToIntellijFormat
         baselinePath = ktlintProjectSettings.baselinePath
@@ -322,7 +409,7 @@ class KtlintSettingsComponent(
             !(
                 Objects.equals(KtlintApplicationSettings.getInstance().state.showBanner, showBannerCheckBox.isSelected) &&
                     Objects.equals(ktlintProjectSettings.ktlintMode, ktlintMode) &&
-                    Objects.equals(ktlintProjectSettings.ktlintRulesetVersion, rulesetVersion) &&
+                    Objects.equals(ktlintProjectSettings.ktlintRulesetVersion, rulesetComponent.rulesetVersion) &&
                     Objects.equals(ktlintProjectSettings.formatOnSave, formatOnSaveCheckbox.isSelected) &&
                     Objects.equals(ktlintProjectSettings.attachToIntellijFormat, attachToIntellijFormattingCheckbox.isSelected) &&
                     Objects.equals(ktlintProjectSettings.baselinePath, baselinePath) &&

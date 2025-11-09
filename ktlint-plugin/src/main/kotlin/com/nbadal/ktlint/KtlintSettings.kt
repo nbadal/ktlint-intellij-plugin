@@ -100,13 +100,5 @@ class KtlintProjectSettings : PersistentStateComponent<KtlintProjectSettings> {
         this.formatOnSave = state.formatOnSave
         this.baselinePath = state.baselinePath
         this.externalJarPaths = state.externalJarPaths
-
-        KtlintRuleEngineWrapper
-            .instance
-            .configure(
-                ktlintRulesetVersion = state.ktlintRulesetVersion,
-                externalJarPaths = state.externalJarPaths,
-                baselinePath = state.baselinePath,
-            )
     }
 }
