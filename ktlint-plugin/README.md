@@ -8,7 +8,9 @@
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/15057.svg)](https://plugins.jetbrains.com/plugin/15057)
 [![GitHub license](https://img.shields.io/github/license/nbadal/ktlint-intellij-plugin.svg)](https://github.com/nbadal/ktlint-intellij-plugin/blob/master/LICENSE.md)
 
-<!-- Plugin description -->
+## Plugin description
+
+<!-- Plugin description start -->
 Formats code with [KtLint](https://pinterest.github.io/ktlint/) after IntelliJ IDEA formatting or on save of file.
 
 Ktlint is an anti bikeshedding linter/formatter for Kotlin code based on the [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html), [Androids Kotlin Style guide](https://developer.android.com/kotlin/style-guide), and other best practices.
@@ -25,6 +27,19 @@ The plugin currently runs with ktlint version `1.7.1` by default (see ktlint pre
 
 Enable and configure in `Preferences` > `Tools` > `KtLint`.
 <!-- Plugin description end -->
+
+## Change notes
+
+<!-- Plugin change-notes start -->
+# Noteworthy changes
+
+* Allow to configure the Ktlint version in file `ktlint-plugin.properties` for synchronization with other ktlint integrations in the same project. [More information](https://github.com/nbadal/ktlint-intellij-plugin/issues/711)
+* Allow toReconfigure Ktlint when switching projects or changing `.editorconfig`
+
+# Requirements
+
+* IntelliJ IDEAIntellij IDEA Platform 2024.1 - 2025.3
+<!-- Plugin change-notes end -->
 
 ## Feature set
 

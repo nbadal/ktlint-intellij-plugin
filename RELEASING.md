@@ -9,12 +9,11 @@ Releasing a new version:
     * Check that none of the `build.gradle.kts` depends on `maven("https://central.sonatype.com/repository/maven-snapshots/")`. Those may only be used when publishing to the beta or dev channel.
     * Check that the `ktlint` version in `lib.versions.toml` is updated to the latest version of ktlint.
     * Check that the ruleset for the *latest* ktlint version has been added to `ktlint-lib`. Supported rulesets (including the ruleset of the *latest* ktlint version) have to be included explicitly. See `README.md` in `ktlint-lib` for more information.
-2. Check whether the plugin description in the readme file of the plugin-folder is up to date as this is used as the description of the plugin on the Jetbrains Marketplace inside IntelliJ IDEA and for [Marketplace Overview](https://plugins.jetbrains.com/plugin/15057-ktlint?noRedirect=true).
-3. Check that the change notes (functional changes and requirements) in the `plugin.xml` file are up to date as those are used for the Jetbrains Marketplace inside IntelliJ IDEA and for [Marketplace Overview](https://plugins.jetbrains.com/plugin/15057-ktlint?noRedirect=true).
-4. Do not change the heading `Unreleased` in `CHANGELOG.md` as it will be updated automatically. Also, the release will be added automatically to the bottom of the `CHANGELOG.md` file.
-5. Set field `pluginVersion` in `gradle.properties` to the new version number. Note that when the version is suffixed with `-beta` it will be released on the beta channel of the plugin only. Only users that have configured the additional repository `https://plugins.jetbrains.com/plugins/list?pluginId=com.nbadal.ktlint&channel=beta` will see the new version after it is released. Same for `-dev` to publish to `dev` channel
-6. Push change and merge to main
-7. Create a new release on the [release page](https://github.com/nbadal/ktlint-intellij-plugin/releases)
+2. Check whether the plugin description and changes notes in the readme file of the plugin-folder is up to date as this is used as the description of the plugin on the Jetbrains Marketplace inside IntelliJ IDEA and for [Marketplace Overview](https://plugins.jetbrains.com/plugin/15057-ktlint?noRedirect=true).
+3. Do not change the heading `Unreleased` in `CHANGELOG.md` as it will be updated automatically. Also, the release will be added automatically to the bottom of the `CHANGELOG.md` file.
+4. Set field `pluginVersion` in `gradle.properties` to the new version number. Note that when the version is suffixed with `-beta` it will be released on the beta channel of the plugin only. Only users that have configured the additional repository `https://plugins.jetbrains.com/plugins/list?pluginId=com.nbadal.ktlint&channel=beta` will see the new version after it is released. Same for `-dev` to publish to `dev` channel
+5. Push change and merge to main
+6. Create a new release on the [release page](https://github.com/nbadal/ktlint-intellij-plugin/releases)
    * Choose a new tag for the release which is to be created during release:
      * For default channel, use format "<major>.<minor>.<patch>"
      * For beta channel, use format "<major>.<minor>.<patch>-beta-<sequence-number>"
@@ -24,7 +23,7 @@ Releasing a new version:
    * For beta and dev channels mark the release as "pre-release"
    * Do not upload the ZIP file containing the plugin, as it will be published via the marketplace.
    * Click button "Publish release"
-8. Check that a "Release" workflow is started on the [actions page](https://github.com/nbadal/ktlint-intellij-plugin/actions/workflows/release.yml) 
-9. Check that the release is available on [Marketplace Versions](https://plugins.jetbrains.com/plugin/15057-ktlint/versions?noRedirect=true). For the "default" channel it might take a couple of business day before the plugin is actually released due to a manual review by Jetbrains.
-10. Check that screenshots on the [Marketplace Overview](https://plugins.jetbrains.com/plugin/15057-ktlint?noRedirect=true) are up-to-date.
-11. Announce release on Ktlint Slack channel
+7. Check that a "Release" workflow is started on the [actions page](https://github.com/nbadal/ktlint-intellij-plugin/actions/workflows/release.yml) 
+8. Check that the release is available on [Marketplace Versions](https://plugins.jetbrains.com/plugin/15057-ktlint/versions?noRedirect=true). For the "default" channel it might take a couple of business day before the plugin is actually released due to a manual review by Jetbrains.
+9. Check that screenshots on the [Marketplace Overview](https://plugins.jetbrains.com/plugin/15057-ktlint?noRedirect=true) are up-to-date.
+10. Announce release on Ktlint Slack channel
