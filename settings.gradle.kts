@@ -17,5 +17,6 @@ include(
     "ktlint-lib:ruleset-1-6-0",
     "ktlint-lib:ruleset-1-7-0",
     "ktlint-lib:ruleset-1-7-1",
+    "ktlint-lib:ruleset-1-8-0",
     "ktlint-plugin",
 )
