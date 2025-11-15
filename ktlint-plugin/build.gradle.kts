@@ -101,38 +101,10 @@ intellijPlatform {
         version = publishPluginVersion
 
         // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
-        description =
-            providers
-                .fileContents(layout.projectDirectory.file("README.md"))
-                .asText
-                .map {
-                    val start = "<!-- Plugin description -->"
-                    val end = "<!-- Plugin description end -->"
+        description = pluginReadmeSection("description")
 
-                    with(it.lines()) {
-                        if (!containsAll(listOf(start, end))) {
-                            throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
-                        }
-                        subList(indexOf(start) + 1, indexOf(end)).joinToString("\n").let(::markdownToHTML)
-                    }
-                }
-
-        val changelog = project.changelog // local variable for configuration cache compatibility
-        // Get the latest available change notes from the changelog file
-        changeNotes =
-            // Use publishPluginVersion which contains the build timestamp for release to non-default channel
-            // Original:
-            //     providers.gradleProperty("pluginVersion").map { pluginVersion ->
-            publishPluginVersion.let { pluginVersion ->
-                with(changelog) {
-                    renderItem(
-                        (getOrNull(pluginVersion) ?: getUnreleased())
-                            .withHeader(false)
-                            .withEmptySections(false),
-                        Changelog.OutputType.HTML,
-                    )
-                }
-            }
+        // Extract the <!-- Plugin change-notes --> section from README.md and provide for the plugin's manifest
+        changeNotes = pluginReadmeSection("change-notes")
 
         ideaVersion {
             sinceBuild = providers.gradleProperty("pluginSinceBuild")
@@ -198,6 +170,24 @@ fun String.takeIfVersionForChannel(channel: String): String? =
         // The version can contain a subversion which is specified after a ".", and has to be ignored
         .split('.')
         .firstOrNull { it == channel }
+
+fun pluginReadmeSection(section: String) =
+    providers
+        .fileContents(layout.projectDirectory.file("README.md"))
+        .asText
+        .map {
+            val start = "<!-- Plugin $section start -->"
+            val end = "<!-- Plugin $section end -->"
+
+            with(it.lines()) {
+                if (!containsAll(listOf(start, end))) {
+                    throw GradleException("Plugin $section section not found in README.md:\n$start ... $end")
+                }
+                subList(indexOf(start) + 1, indexOf(end))
+                    .joinToString("\n")
+                    .let(::markdownToHTML)
+            }
+        }
 
 // Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
 changelog {
