@@ -9,7 +9,6 @@ kover = "0.9.3"
 ktlint = "1.7.1"
 qodana = "2025.2.1"
 shadow = "8.1.1"
-slf4j="2.0.17"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -18,7 +17,6 @@ ktlintCliRulesetCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-rul
 ktlintCliReporterCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-reporter-core", version.ref = "ktlint" }
 ktlintCliReporterBaselineCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-reporter-baseline", version.ref = "ktlint" }
 ktlintRulesetStandard = {  group = "com.pinterest.ktlint", name = "ktlint-ruleset-standard", version.ref = "ktlint" }
-slf4j-api = {  group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 
 [plugins]
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
