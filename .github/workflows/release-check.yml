@@ -9,7 +9,7 @@ jobs:
   release-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Check for new release
         id: check
         run: ./check-release.sh
