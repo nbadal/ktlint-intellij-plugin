@@ -12,7 +12,10 @@
         <postFormatProcessor implementation="com.nbadal.ktlint.KtlintPostFormatProcessor" />
         <projectConfigurable displayName="KtLint" groupId="tools" id="preferences.ktlint-plugin"
                              instance="com.nbadal.ktlint.KtlintConfig"/>
+        <notificationGroup id="Ktlint Baseline" displayType="STICKY_BALLOON"/>
+        <notificationGroup id="Ktlint Configuration" displayType="STICKY_BALLOON"/>
         <notificationGroup id="Ktlint Notifications" displayType="BALLOON"/>
+        <notificationGroup id="Ktlint Rule Exception" displayType="STICKY_BALLOON"/>
         <actionOnSaveInfoProvider implementation="com.nbadal.ktlint.KtlintActionOnSaveInfoProvider"
                                   order="after FormatOnSaveInfoProvider"/>
         <actionOnSave implementation="com.nbadal.ktlint.KtlintActionOnSave" order="after FormatOnSaveAction"/>

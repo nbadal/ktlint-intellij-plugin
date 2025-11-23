@@ -12,6 +12,7 @@ import com.intellij.psi.PsiManager
 import com.nbadal.ktlint.KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT
 import com.nbadal.ktlint.KtlintFileAutocorrectHandler
 import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
+import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.DEFAULT
 import com.nbadal.ktlint.KtlintNotifier.notifyInformation
 import com.nbadal.ktlint.KtlintNotifier.notifyWarning
 import com.nbadal.ktlint.KtlintRuleEngineWrapper
@@ -57,6 +58,7 @@ class FormatAction : AnAction() {
         when (ktlintFormatContentIterator.status) {
             SUCCESS -> {
                 notifyInformation(
+                    notificationGroup = DEFAULT,
                     project = project,
                     title = "Format with Ktlint",
                     message = message,
@@ -65,6 +67,7 @@ class FormatAction : AnAction() {
 
             FILE_RELATED_ERROR -> {
                 notifyWarning(
+                    notificationGroup = DEFAULT,
                     project = project,
                     title = "Format with Ktlint",
                     message = message,
