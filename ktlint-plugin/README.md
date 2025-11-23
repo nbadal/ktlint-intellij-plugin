@@ -23,7 +23,7 @@ In the 'manual' mode, ktlint format is not run automatically. Format can still b
 
 This plugin was formerly known as the "Ktlint (unofficial)" plugin, developed by [Nick Badal](https://github.com/nbadal). In collaboration with KtLint maintainer [Paul Dingemans](https://github.com/paul-dingemans), the plugin has now been reworked and rebranded as (official) "KtLint" Plugin. The plugin now puts more focus on the automatic formatting of Kotlin code. This results in more consistent code, better performance in IntelliJ IDEA, and developers spending less time on fixing errors which can be autocorrected. Finally, the plugin will be updated in same release cycle as KtLint itself.
 
-The plugin currently runs with ktlint version `1.7.1` by default (see ktlint preferences to alter the ruleset version). K2 mode is supported starting from Intellij IDEA version 2024.2.1.
+The plugin currently runs with ktlint version `1.8.0` by default (see ktlint preferences to alter the ruleset version). K2 mode is supported starting from Intellij IDEA version 2024.2.1.
 
 Enable and configure in `Preferences` > `Tools` > `KtLint`.
 <!-- Plugin description end -->
@@ -33,8 +33,9 @@ Enable and configure in `Preferences` > `Tools` > `KtLint`.
 <!-- Plugin change-notes start -->
 # Noteworthy changes
 
+* Add Ktlint ruleset 1.8.0
 * Allow to configure the Ktlint version in file `ktlint-plugin.properties` for synchronization with other ktlint integrations in the same project. [More information](https://github.com/nbadal/ktlint-intellij-plugin/issues/711)
-* Allow toReconfigure Ktlint when switching projects or changing `.editorconfig`
+* Reconfigure Ktlint when switching projects or changing `.editorconfig`
 
 # Requirements
 
