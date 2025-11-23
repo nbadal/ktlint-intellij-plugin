@@ -35,7 +35,7 @@ Enable and configure in `Preferences` > `Tools` > `KtLint`.
 
 * Add Ktlint ruleset 1.8.0
 * Allow to configure the Ktlint version in file `ktlint-plugin.properties` for synchronization with other ktlint integrations in the same project. [More information](https://github.com/nbadal/ktlint-intellij-plugin/issues/711)
-* Allow toReconfigure Ktlint when switching projects or changing `.editorconfig`
+* Reconfigure Ktlint when switching projects or changing `.editorconfig`
 
 # Requirements
 
