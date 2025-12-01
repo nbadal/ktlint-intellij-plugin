@@ -23,7 +23,7 @@ object KtlintNotifier {
         RULE("Ktlint Rule"),
 
         // Default message are shown as normal balloons which disappear automatically. These should be used for less important messages.
-        DEFAULT("Ktlint Notifications"),
+        DEFAULT("Ktlint Generic"),
     }
 
     fun notifyError(
