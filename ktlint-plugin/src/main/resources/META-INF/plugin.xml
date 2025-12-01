@@ -12,13 +12,14 @@
         <postFormatProcessor implementation="com.nbadal.ktlint.KtlintPostFormatProcessor" />
         <projectConfigurable displayName="KtLint" groupId="tools" id="preferences.ktlint-plugin"
                              instance="com.nbadal.ktlint.KtlintConfig"/>
-        <notificationGroup id="Ktlint Baseline" displayType="STICKY_BALLOON"/>
-        <notificationGroup id="Ktlint Configuration" displayType="STICKY_BALLOON"/>
-        <notificationGroup id="Ktlint Notifications" displayType="BALLOON"/>
-        <notificationGroup id="Ktlint Rule Exception" displayType="STICKY_BALLOON"/>
         <actionOnSaveInfoProvider implementation="com.nbadal.ktlint.KtlintActionOnSaveInfoProvider"
                                   order="after FormatOnSaveInfoProvider"/>
         <actionOnSave implementation="com.nbadal.ktlint.KtlintActionOnSave" order="after FormatOnSaveAction"/>
+
+        <!-- Keep ids of the notificationGroups in sync with KtlintNotifier enum -->
+        <notificationGroup id="Ktlint Configuration" displayType="STICKY_BALLOON"/>
+        <notificationGroup id="Ktlint Rule" displayType="STICKY_BALLOON"/>
+        <notificationGroup id="Ktlint Generic" displayType="BALLOON"/>
     </extensions>
 
     <!-- https://kotlin.github.io/analysis-api/declaring-k2-compatibility.html -->

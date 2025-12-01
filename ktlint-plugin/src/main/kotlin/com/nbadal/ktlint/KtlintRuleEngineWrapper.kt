@@ -42,6 +42,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
 import org.ec4j.core.parser.ParseException
 import java.io.File
+import java.lang.IllegalStateException
 
 private val logger = KtlintLogger("com.nbdal.ktlint.KtlintFormat")
 
@@ -247,16 +248,25 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             )
             return KtlintResult(FILE_RELATED_ERROR)
         } catch (exception: Exception) {
-            KtlintNotifier.notifyError(
-                notificationGroup = DEFAULT,
-                project = psiFile.project,
-                title = "Uncategorized error",
-                message =
-                    """
-                    An error occurred while processing file '${psiFile.virtualFile.path}':
-                    ${exception.stackTraceToString()}
-                    """.trimIndent(),
-            )
+            if (exception is IllegalStateException && exception.message?.startsWith("Skipping rule(s)") == true) {
+                KtlintNotifier.notifyError(
+                    notificationGroup = CONFIGURATION,
+                    project = psiFile.project,
+                    title = "Invalid editorconfig configuration",
+                    message = exception.message!!,
+                )
+            } else {
+                KtlintNotifier.notifyError(
+                    notificationGroup = DEFAULT,
+                    project = psiFile.project,
+                    title = "Uncategorized error",
+                    message =
+                        """
+                        An error occurred while processing file '${psiFile.virtualFile.path}':
+                        ${exception.stackTraceToString()}
+                        """.trimIndent(),
+                )
+            }
             return KtlintResult(FILE_RELATED_ERROR)
         }
     }
