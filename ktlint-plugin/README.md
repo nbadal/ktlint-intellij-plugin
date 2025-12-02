@@ -33,9 +33,8 @@ Enable and configure in `Preferences` > `Tools` > `KtLint`.
 <!-- Plugin change-notes start -->
 # Noteworthy changes
 
-* Add Ktlint ruleset 1.8.0
-* Allow to configure the Ktlint version in file `ktlint-plugin.properties` for synchronization with other ktlint integrations in the same project. [More information](https://github.com/nbadal/ktlint-intellij-plugin/issues/711)
-* Reconfigure Ktlint when switching projects or changing `.editorconfig`
+* Align notification groups with KtlintNotifier. Errors of certain notification groups were not displayed correctly.
+* Clear Ktlint Editorconfig Cache on save of ".editorconfig" so that changes to that file are applied
 
 # Requirements
 
