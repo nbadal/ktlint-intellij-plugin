@@ -14,7 +14,7 @@ dependencies {
 
     constraints {
         // ec4-core version 0.3.0 which is included in ktlint 1.2.0 fails on '.editorconfig' properties without value
-        implementation("org.ec4j.core:ec4j-core:1.1.1") {
+        implementation("org.ec4j.core:ec4j-core:1.2.0") {
             because("Allows '.editorconfig' properties to be defined without any value")
         }
     }
