@@ -230,8 +230,8 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                 title = "KtLintRuleException",
                 message =
                     """
-                    An error occurred in a rule. Please see stacktrace below for rule that caused the problem and contact maintainer of the
-                    rule when the error can be reproduced.
+                    An error occurred while processing file '${psiFile.virtualFile.path}'. Please see stacktrace below for the rule that 
+                    caused the problem, and then contact maintainer of the rule when the error can be reproduced.
                     ${ktLintRuleException.stackTraceToString()}
                     """.trimIndent(),
             )
