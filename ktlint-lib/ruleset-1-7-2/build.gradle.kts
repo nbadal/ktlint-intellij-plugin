@@ -10,24 +10,32 @@ repositories {
 }
 
 dependencies {
-    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.7.0")
+    implementation("com.pinterest.ktlint:ktlint-ruleset-standard:1.7.2")
 }
 
 kotlin {
     jvmToolchain(17)
     compilerOptions {
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+        apiVersion.set(
+            org
+                .jetbrains
+                .kotlin
+                .gradle
+                .dsl
+                .KotlinVersion
+                .KOTLIN_2_0,
+        )
     }
 }
 
 tasks.shadowJar {
     relocate(
         "com.pinterest.ktlint.ruleset.standard",
-        "com.pinterest.ktlint.ruleset.standard.V1_7_0",
+        "com.pinterest.ktlint.ruleset.standard.V1_7_2",
     )
 
     minimize {
-        exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:1.7.0"))
+        exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:1.7.2"))
     }
 
     // Cannot use the minimize-block as that would build a fat jar. The GitHub runner has too little diskspace to build the project if a

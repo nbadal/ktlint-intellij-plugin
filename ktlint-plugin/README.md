@@ -33,8 +33,7 @@ Enable and configure in `Preferences` > `Tools` > `KtLint`.
 <!-- Plugin change-notes start -->
 # Noteworthy changes
 
-* Align notification groups with KtlintNotifier. Errors of certain notification groups were not displayed correctly.
-* Clear Ktlint Editorconfig Cache on save of ".editorconfig" so that changes to that file are applied
+* Fix backwards compatibility issue for users that cannot yet upgrade from ktlint version `1.7.x` to `1.8.x`. Versions `1.7.0` and `1.7.1` are now replaced with `1.7.2`.
 
 # Requirements
 

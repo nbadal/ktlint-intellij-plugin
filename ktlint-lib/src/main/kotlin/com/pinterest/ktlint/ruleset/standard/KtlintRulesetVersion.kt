@@ -10,20 +10,21 @@ import com.pinterest.ktlint.ruleset.standard.V1_3_1.StandardRuleSetProvider as S
 import com.pinterest.ktlint.ruleset.standard.V1_4_1.StandardRuleSetProvider as StandardRuleSetProviderV1_4_1
 import com.pinterest.ktlint.ruleset.standard.V1_5_0.StandardRuleSetProvider as StandardRuleSetProviderV1_5_0
 import com.pinterest.ktlint.ruleset.standard.V1_6_0.StandardRuleSetProvider as StandardRuleSetProviderV1_6_0
-import com.pinterest.ktlint.ruleset.standard.V1_7_0.StandardRuleSetProvider as StandardRuleSetProviderV1_7_0
-import com.pinterest.ktlint.ruleset.standard.V1_7_1.StandardRuleSetProvider as StandardRuleSetProviderV1_7_1
+import com.pinterest.ktlint.ruleset.standard.V1_7_2.StandardRuleSetProvider as StandardRuleSetProviderV1_7_2
 import com.pinterest.ktlint.ruleset.standard.V1_8_0.StandardRuleSetProvider as StandardRuleSetProviderV1_8_0
 
 enum class KtlintRulesetVersion(
     val ruleSetProvider: RuleSetProviderV3?,
+    val alternativeRulesetVersion: KtlintRulesetVersion? = null,
 ) {
     // Versions should be ordered starting with default and then sorted from the most recent to the least recent version. All versions,
     // except DEFAULT, are associated with a specific version of the StandardRuleSetProvider (created via a relocation in the ShadowJar of
     // the ruleset subprojects in ktlint-lib). The version numbers should adhere to format `V1_2_3` or `V1_2_3_SNAPSHOT`.
     DEFAULT(null), // This version is linked to the latest (non-snapshot) version
     V1_8_0(StandardRuleSetProviderV1_8_0()),
-    V1_7_1(StandardRuleSetProviderV1_7_1()),
-    V1_7_0(StandardRuleSetProviderV1_7_0()),
+    V1_7_2(StandardRuleSetProviderV1_7_2()),
+    V1_7_1(StandardRuleSetProviderV1_7_2(), V1_7_2),
+    V1_7_0(StandardRuleSetProviderV1_7_2(), V1_7_2),
     V1_6_0(StandardRuleSetProviderV1_6_0()),
     V1_5_0(StandardRuleSetProviderV1_5_0()),
     V1_4_1(StandardRuleSetProviderV1_4_1()),

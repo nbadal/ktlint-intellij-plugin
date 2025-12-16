@@ -107,13 +107,37 @@ class KtlintSettingsComponent(
         private val rulesetVersionComboBoxWithWidePopup =
             ComboBoxWithWidePopup(
                 KtlintRulesetVersion.entries.map { it.label() }.toTypedArray(),
-            ).apply { setMinLength(40) }
+            ).apply {
+                @Suppress("UsePropertyAccessSyntax")
+                setMinLength(40)
+                addActionListener { event ->
+                    val selectedItem = (event.source as ComboBoxWithWidePopup<*>).selectedItem as String
+                    KtlintRulesetVersion
+                        .findByLabelOrDefault(selectedItem)
+                        .alternativeRulesetVersion
+                        .let { alternativeRulesetVersion ->
+                            if (alternativeRulesetVersion == null) {
+                                alternativeVersionUsedJLabel.apply { isVisible = false }
+                            } else {
+                                alternativeVersionUsedJLabel
+                                    .apply {
+                                        isVisible = true
+                                        text = message("usingAlternativeRulesetVersionWarning", alternativeRulesetVersion.label())
+                                    }
+                            }
+                        }
+                }
+            }
 
         override var rulesetVersion: KtlintRulesetVersion
             get() = KtlintRulesetVersion.findByLabelOrDefault(rulesetVersionComboBoxWithWidePopup.selectedItem as String)
             set(value) {
                 rulesetVersionComboBoxWithWidePopup.selectedItem = value.label()
             }
+
+        private val alternativeVersionUsedJLabel =
+            JLabel("", AllIcons.General.Warning, SwingConstants.LEFT)
+                .apply { isVisible = false }
 
         override fun getPanel(): JPanel =
             FormBuilder
@@ -137,6 +161,7 @@ class KtlintSettingsComponent(
                                                     )
                                             },
                                     )
+                                    add(alternativeVersionUsedJLabel)
                                 },
                         ).panel,
                 ).addTooltip(message("rulesetVersionTooltip"))
@@ -167,12 +192,27 @@ class KtlintSettingsComponent(
                             )
                             if (KtlintRulesetVersion.entries.none { it.label() == rulesetVersionProperty }) {
                                 add(
-                                    JLabel(message("unsupportedRulesetVersionError"), AllIcons.General.Error, SwingConstants.LEFT)
+                                    JLabel(message("unsupportedRulesetVersionError", ""), AllIcons.General.Error, SwingConstants.LEFT)
                                         .apply {
                                             setForeground(NamedColorUtil.getErrorForeground())
                                         },
                                 )
                             }
+                            KtlintRulesetVersion
+                                .entries
+                                .firstOrNull { it.label() == rulesetVersionProperty }
+                                ?.alternativeRulesetVersion
+                                ?.let { alternativeRulesetVersion ->
+                                    add(
+                                        JLabel(
+                                            message("usingAlternativeRulesetVersionWarning", alternativeRulesetVersion.label()),
+                                            AllIcons.General.Warning,
+                                            SwingConstants.LEFT,
+                                        ).apply {
+                                            setForeground(NamedColorUtil.getErrorForeground())
+                                        },
+                                    )
+                                }
                         },
                 ).panel
 
