@@ -1,4 +1,14 @@
-# Plugin set
+# Ktlint IntelliJ Plugin users
+
+Formats code with [KtLint](https://pinterest.github.io/ktlint/) after IntelliJ IDEA formatting or on save of file.
+
+Ktlint is an anti bikeshedding linter/formatter for Kotlin code based on the [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html), [Androids Kotlin Style guide](https://developer.android.com/kotlin/style-guide), and other best practices.
+
+The plugin can best be installed via the `Settings` > `Plugins` dialog in IntelliJ IDEA. If you want to be able to install the beta versions of the plugin, you need to add the plugin repository (`Settings` > `Plugins` > Gear icon > `Manage plugin repositories`) with id `https://plugins.jetbrains.com/plugins/list?channel=beta&pluginId=com.nbadal.ktlint`.
+
+Alternatively, you can manually download the plugin from the [Jetbrains Marketplace](https://plugins.jetbrains.com/plugin/15057-ktlint). 
+
+# Ktlint IntelliJ Plugin developers
 
 Contrary to the [default plugin setup](https://github.com/JetBrains/intellij-platform-plugin-template) this plugin is set up as a multi-module project. This is required as the Ktlint artifact for the KtlintRuleEngine encloses the embeddable Kotlin compiler which conflicts with the IDE compiler.
 
