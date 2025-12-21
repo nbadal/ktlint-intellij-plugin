@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.30.2-beta.2025-12-17_07-09-04] - 2025-12-17
+
+- Add Ktlint ruleset version 1.7.2 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/777
+
 ## [0.30.1] - 2025-12-02
 
 - Fix notification group by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/761
@@ -514,7 +518,7 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.1...HEAD
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.2-beta.2025-12-17_07-09-04...HEAD
 [0.30.1]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0-beta-2.2025-11-09...v0.30.0
 [0.30.0-dev-1.2025-10-06]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.29.0...v0.30.0-dev-1.2025-10-06
@@ -560,6 +564,7 @@
 [0.2.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.0.2...v0.1.0
 [0.0.2]: https://github.com/nbadal/ktlint-intellij-plugin/commits/v0.0.2
+[0.30.2-beta.2025-12-17_07-09-04]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.1...v0.30.2-beta.2025-12-17_07-09-04
 [0.30.0-dev-1.2025-10-06_18-30-17]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.29.0...v0.30.0-dev-1.2025-10-06_18-30-17
 [0.30.0-beta-2.2025-11-09_18-35-57]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0-beta-1.2025-10-11...v0.30.0-beta-2.2025-11-09_18-35-57
 [0.30.0-beta-1.2025-10-11_14-19-31]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0-dev-1.2025-10-06...v0.30.0-beta-1.2025-10-11_14-19-31
