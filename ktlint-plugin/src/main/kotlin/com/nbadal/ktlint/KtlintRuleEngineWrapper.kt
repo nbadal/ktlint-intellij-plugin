@@ -43,6 +43,7 @@ import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
 import org.ec4j.core.parser.ParseException
 import java.io.File
 import java.lang.IllegalStateException
+import java.nio.file.Path
 
 private val logger = KtlintLogger("com.nbdal.ktlint.KtlintFormat")
 
@@ -100,6 +101,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         FileEditorManager
             .getInstance(project)
             .openFiles
+            .filter { it.isKotlinFile() }
             .forEach { virtualFile ->
                 PsiManager
                     .getInstance(project)
@@ -156,7 +158,8 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         val code =
             Code.fromSnippetWithPath(
                 content = PsiDocumentManager.getInstance(psiFile.project).getDocument(psiFile)!!.text,
-                virtualPath = psiFile.virtualFile.toNioPath(),
+                // For compatibility with unit tests the NioPath cannot be directly determined via the virtual file
+                virtualPath = Path.of(psiFile.virtualFile.path),
             )
 
         try {

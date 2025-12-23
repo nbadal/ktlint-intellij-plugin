@@ -1,6 +1,6 @@
 root = true
 
 [*.{kt,kts}]
-ktlint_code_style = kotlin_official
+ktlint_code_style = ktlint_official
 ktlint_standard = enabled
 ktlint_experimental = enabled

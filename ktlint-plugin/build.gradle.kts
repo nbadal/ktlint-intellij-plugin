@@ -66,6 +66,7 @@ repositories {
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
     testImplementation(libs.junit)
+    testImplementation(libs.assertj.core)
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
@@ -85,8 +86,7 @@ dependencies {
     compileOnly(project(":ktlint-lib")) // Required for IDE
     implementation(project(":ktlint-lib", "shadow"))
 
-    testImplementation("org.junit.jupiter:junit-jupiter:6.0.1")
-    testImplementation("org.junit.platform:junit-platform-launcher:6.0.1")
+    testImplementation("junit:junit:4.13.2")
     testImplementation("io.mockk:mockk:1.14.7")
 }
 

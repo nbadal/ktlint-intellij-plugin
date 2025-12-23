@@ -1,5 +1,6 @@
 [versions]
 # libraries
+assertj = "3.26.3"
 junit = "4.13.2"
 # plugins
 changelog = "2.5.0"
@@ -12,6 +13,7 @@ shadow = "8.1.1"
 slf4j="2.0.17"
 
 [libraries]
+assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ktlintRuleEngine = {  group = "com.pinterest.ktlint", name = "ktlint-rule-engine", version.ref = "ktlint" }
 ktlintCliRulesetCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-ruleset-core", version.ref = "ktlint" }
