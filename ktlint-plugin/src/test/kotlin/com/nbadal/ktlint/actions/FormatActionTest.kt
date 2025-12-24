@@ -1,0 +1,179 @@
+package com.nbadal.ktlint.actions
+
+import com.intellij.notification.NotificationType
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.ex.ActionUtil
+import com.intellij.testFramework.TestActionEvent
+import com.nbadal.ktlint.KtlintFeature
+import com.nbadal.ktlint.KtlintMode
+import com.nbadal.ktlint.isEnabled
+import io.mockk.every
+import io.mockk.mockk
+import org.assertj.core.api.Assertions.assertThat
+import testhelper.KtlintRuleEngineTestCase
+import testhelper.SimpleNotification
+
+class FormatActionTest : KtlintRuleEngineTestCase() {
+    override fun setUp() {
+        super.setUp()
+        every { project.isEnabled(KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT) } returns true
+        with(ActionManager.getInstance()) {
+            if (getAction("Ktlint.Format") == null) {
+                registerAction("Ktlint.Format", FormatAction())
+            }
+        }
+    }
+
+    fun testKtlintFormatActionIsNotVisibleWhenFeatureIsDisabled() {
+        // Disable the required feature
+        every { project.isEnabled(KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT) } returns false
+        // Setup a file for which the menu option would be shown if the feature was enabled
+        createKotlinFile("Foo.kt")
+        configureFiles()
+
+        val presentation = myFixture.testAction(FormatAction())
+
+        assertThat(presentation.isVisible).isFalse
+        assertThat(notifications).isEmpty()
+    }
+
+    fun testKtlintFormatActionIsNotVisibleWhenNoFileIsSelected() {
+        val presentation = myFixture.testAction(FormatAction())
+
+        assertThat(presentation.isVisible).isFalse
+        assertThat(notifications).isEmpty()
+    }
+
+    fun testKtlintFormatActionOnKotlinFile() {
+        val kotlinFile = createKotlinFile("Foo.kt")
+        configureFiles()
+
+        val presentation = myFixture.testAction(FormatAction())
+
+        assertThat(presentation.isEnabledAndVisible).isTrue
+        assertThat(kotlinFile.isFormattedWithKtlint()).isTrue()
+        assertThat(notifications).containsExactly(
+            SimpleNotification(
+                NotificationType.INFORMATION,
+                "Format with Ktlint",
+                "Formatting is completed. " +
+                    "1 files have been formatted. " +
+                    "Files might still contain ktlint violations which can not be autocorrected.",
+            ),
+        )
+    }
+
+    fun testKtlintFormatOnKotlinScriptFile() {
+        val kotlinScriptFile = createKotlinFile("Bar.kts")
+        configureFiles()
+
+        val presentation = myFixture.testAction(FormatAction())
+
+        assertThat(presentation.isEnabledAndVisible).isTrue
+        assertThat(kotlinScriptFile.isFormattedWithKtlint()).isTrue()
+        assertThat(notifications).containsExactly(
+            SimpleNotification(
+                NotificationType.INFORMATION,
+                "Format with Ktlint",
+                "Formatting is completed. " +
+                    "1 files have been formatted. " +
+                    "Files might still contain ktlint violations which can not be autocorrected.",
+            ),
+        )
+    }
+
+    fun testDoNotPerformKtlintFormatActionOnNonKotlinDocument() {
+        val file = createFile("some-file.txt", "some text")
+        // Retrieve file timestamp after configuration as the file is being copied resulting in the timestamp to be changed
+        val timeStamp = configureFiles().first().timeStamp
+
+        val presentation = myFixture.testAction(FormatAction())
+
+        assertThat(presentation.isEnabledAndVisible).isFalse
+        // When the action is not applicable, the file is not changed
+        assertThat(file.timeStamp).isEqualTo(timeStamp)
+        assertThat(notifications).isEmpty()
+    }
+
+    fun testKtlintFormatActionEnabledAndVisibleOnDirectory() {
+        // In this test we want to simulate that a directory is selected in the project tree. For this the virtual file array in the data
+        // object of the events should only contain the virtual file of that directory. The myFixture of the base test class does not seem
+        // to support this. So analog to the CodeInsightTestFixtureImpl class, a test event is created in which the virtual file array is
+        // mocked.
+        val formatAction = FormatAction()
+        val dataContext =
+            mockk<DataContext> {
+                every { getData(CommonDataKeys.PROJECT) } returns project
+                every { getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) } returns
+                    arrayOf(
+                        mockk {
+                            every { isDirectory } returns true
+                        },
+                    )
+            }
+        val anActionEvent = TestActionEvent.createTestEvent(formatAction, dataContext, null)
+
+        ActionUtil.performDumbAwareUpdate(formatAction, anActionEvent, false)
+        assertThat(anActionEvent.presentation.isEnabledAndVisible).isTrue
+    }
+
+    fun testKtlintFormatActionOnKotlinFileWhichCannotBeParsed() {
+        createFile("Foo.kt", "fun cannotBeParsed(")
+        configureFiles()
+
+        val presentation = myFixture.testAction(FormatAction())
+
+        assertThat(presentation.isEnabledAndVisible).isTrue
+        assertThat(notifications).containsExactly(
+            SimpleNotification(
+                NotificationType.WARNING,
+                "Format with Ktlint",
+                "Formatting is completed. 1 files have not been formatted due to an error.",
+            ),
+        )
+    }
+
+    fun testKtlintFormatActionOnKotlinFileWhenDistractFreeModeIsNotEnabled() {
+        every { configMock.ktlintMode } returns KtlintMode.MANUAL
+
+        createFile("Foo.kt", "fun foo() = 42")
+        configureFiles()
+
+        val presentation = myFixture.testAction(FormatAction())
+
+        assertThat(presentation.isEnabledAndVisible).isTrue
+        assertThat(notifications).containsExactly(
+            SimpleNotification(
+                NotificationType.INFORMATION,
+                "Format with Ktlint",
+                "Formatting is completed. " +
+                    "1 files have been formatted. " +
+                    "Files might still contain ktlint violations which can not be autocorrected. " +
+                    "Get more value out of ktlint by enabling automatic formatting by using the 'distract free' mode.",
+            ),
+        )
+    }
+
+    fun testKtlintFormatActionOnKotlinFileWithKtlintExternalRulesetConfiguredWrongly() {
+        every { configMock.externalJarPaths } returns listOf("/some/non-existing/ruleset.jar")
+
+        createFile("Foo.kt", "fun foo() = 42")
+        configureFiles()
+
+        val presentation = myFixture.testAction(FormatAction())
+
+        assertThat(presentation.isEnabledAndVisible).isTrue
+        assertThat(notifications).containsExactly(
+            SimpleNotification(
+                NotificationType.INFORMATION,
+                "Format with Ktlint",
+                "Formatting is completed. " +
+                    "1 files have been formatted. " +
+                    "Files might still contain ktlint violations which can not be autocorrected. " +
+                    "Get more value out of ktlint by enabling automatic formatting by using the 'distract free' mode.",
+            ),
+        )
+    }
+}

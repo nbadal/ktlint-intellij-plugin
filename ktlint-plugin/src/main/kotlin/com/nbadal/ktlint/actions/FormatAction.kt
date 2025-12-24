@@ -20,19 +20,27 @@ import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchS
 import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.PLUGIN_CONFIGURATION_ERROR
 import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.SUCCESS
 import com.nbadal.ktlint.isEnabled
+import com.nbadal.ktlint.isKotlinFile
 import com.nbadal.ktlint.ktlintMode
 
 class FormatAction : AnAction() {
     override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
 
     override fun update(event: AnActionEvent) {
-        val project = event.getData(CommonDataKeys.PROJECT) ?: return
-        val files = event.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: return
-
-        event.presentation.apply {
-            isEnabledAndVisible = project.isEnabled(SHOW_MENU_OPTION_FORMAT_WITH_KTLINT) && files.isNotEmpty()
+        event.apply {
+            presentation.isEnabledAndVisible = showMenuOptionFormatWithKtlint() && isDirectoryOrKotlinFileSelected()
         }
     }
+
+    private fun AnActionEvent.showMenuOptionFormatWithKtlint() =
+        getData(CommonDataKeys.PROJECT)
+            ?.run { isEnabled(SHOW_MENU_OPTION_FORMAT_WITH_KTLINT) }
+            ?: false
+
+    private fun AnActionEvent.isDirectoryOrKotlinFileSelected() =
+        getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)
+            ?.any { it.isDirectory || it.isKotlinFile() }
+            ?: false
 
     override fun actionPerformed(event: AnActionEvent) {
         val files = event.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: return
