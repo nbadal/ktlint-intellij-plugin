@@ -156,23 +156,29 @@ class FormatActionTest : KtlintRuleEngineTestCase() {
         )
     }
 
-    fun testKtlintFormatActionOnKotlinFileWithKtlintExternalRulesetConfiguredWrongly() {
+    fun testKtlintFormatActionOnKotlinFileWithInvalidExternalRuleset() {
         every { configMock.externalJarPaths } returns listOf("/some/non-existing/ruleset.jar")
 
-        createFile("Foo.kt", "fun foo() = 42")
+        val kotlinFile = createKotlinFile("Foo.kt")
         configureFiles()
 
         val presentation = myFixture.testAction(FormatAction())
 
         assertThat(presentation.isEnabledAndVisible).isTrue
+        assertThat(kotlinFile.isFormattedWithKtlint()).isTrue()
         assertThat(notifications).containsExactly(
+            SimpleNotification(
+                NotificationType.ERROR,
+                "Invalid external ruleset JAR",
+                "An error occurred while reading external ruleset file '/some/non-existing/ruleset.jar'. " +
+                    "No ktlint ruleset can be loaded from this file.",
+            ),
             SimpleNotification(
                 NotificationType.INFORMATION,
                 "Format with Ktlint",
                 "Formatting is completed. " +
                     "1 files have been formatted. " +
-                    "Files might still contain ktlint violations which can not be autocorrected. " +
-                    "Get more value out of ktlint by enabling automatic formatting by using the 'distract free' mode.",
+                    "Files might still contain ktlint violations which can not be autocorrected.",
             ),
         )
     }

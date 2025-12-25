@@ -17,7 +17,6 @@ import com.nbadal.ktlint.KtlintNotifier.notifyInformation
 import com.nbadal.ktlint.KtlintNotifier.notifyWarning
 import com.nbadal.ktlint.KtlintRuleEngineWrapper
 import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.FILE_RELATED_ERROR
-import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.PLUGIN_CONFIGURATION_ERROR
 import com.nbadal.ktlint.actions.FormatAction.KtlintFormatContentIterator.BatchStatus.SUCCESS
 import com.nbadal.ktlint.isEnabled
 import com.nbadal.ktlint.isKotlinFile
@@ -81,10 +80,6 @@ class FormatAction : AnAction() {
                     message = message,
                 )
             }
-
-            PLUGIN_CONFIGURATION_ERROR -> {
-                // Notification is already sent by plugin
-            }
         }
     }
 
@@ -126,12 +121,6 @@ class FormatAction : AnAction() {
                     return true
                 }
 
-                KtlintRuleEngineWrapper.KtlintResult.Status.PLUGIN_CONFIGURATION_ERROR -> {
-                    status = PLUGIN_CONFIGURATION_ERROR
-                    // As the same error will occur for every file, stop processing
-                    return false
-                }
-
                 null, KtlintRuleEngineWrapper.KtlintResult.Status.NOT_STARTED -> {
                     // File is not a kotlin file
                     return true
@@ -145,6 +134,6 @@ class FormatAction : AnAction() {
             }
         }
 
-        enum class BatchStatus { SUCCESS, PLUGIN_CONFIGURATION_ERROR, FILE_RELATED_ERROR }
+        enum class BatchStatus { SUCCESS, FILE_RELATED_ERROR }
     }
 }
