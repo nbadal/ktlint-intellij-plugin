@@ -1,5 +1,9 @@
 root = true
 
+[**/src/test/kotlin/**.{kt,kts}]
+# Ktlint does not accept backtick naming for test functions when using JUnit4
+ktlint_standard_function-naming=disabled
+
 [*.{kt,kts}]
 ktlint_code_style = ktlint_official
 ktlint_standard = enabled
