@@ -26,7 +26,7 @@ class FormatActionTest : KtlintRuleEngineTestCase() {
         }
     }
 
-    fun testKtlintFormatActionIsNotVisibleWhenFeatureIsDisabled() {
+    fun `test Given disabled feature then the format action is not visible`() {
         // Disable the required feature
         every { project.isEnabled(KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT) } returns false
         // Setup a file for which the menu option would be shown if the feature was enabled
@@ -39,14 +39,14 @@ class FormatActionTest : KtlintRuleEngineTestCase() {
         assertThat(notifications).isEmpty()
     }
 
-    fun testKtlintFormatActionIsNotVisibleWhenNoFileIsSelected() {
+    fun `test Given no selected file then the format action is not visible`() {
         val presentation = myFixture.testAction(FormatAction())
 
         assertThat(presentation.isVisible).isFalse
         assertThat(notifications).isEmpty()
     }
 
-    fun testKtlintFormatActionOnKotlinFile() {
+    fun `test Given a kotlin file then the file is formatted`() {
         val kotlinFile = createKotlinFile("Foo.kt")
         configureFiles()
 
@@ -65,7 +65,7 @@ class FormatActionTest : KtlintRuleEngineTestCase() {
         )
     }
 
-    fun testKtlintFormatOnKotlinScriptFile() {
+    fun `test Given a kotlin script file then the file is formatted`() {
         val kotlinScriptFile = createKotlinFile("Bar.kts")
         configureFiles()
 
@@ -84,7 +84,7 @@ class FormatActionTest : KtlintRuleEngineTestCase() {
         )
     }
 
-    fun testDoNotPerformKtlintFormatActionOnNonKotlinDocument() {
+    fun `test Given a non-kotlin file then the file is not formatted`() {
         val file = createFile("some-file.txt", "some text")
         // Retrieve file timestamp after configuration as the file is being copied resulting in the timestamp to be changed
         val timeStamp = configureFiles().first().timeStamp
@@ -97,7 +97,7 @@ class FormatActionTest : KtlintRuleEngineTestCase() {
         assertThat(notifications).isEmpty()
     }
 
-    fun testKtlintFormatActionEnabledAndVisibleOnDirectory() {
+    fun `test Given a directory is selected then the format action is enabled and visible`() {
         // In this test we want to simulate that a directory is selected in the project tree. For this the virtual file array in the data
         // object of the events should only contain the virtual file of that directory. The myFixture of the base test class does not seem
         // to support this. So analog to the CodeInsightTestFixtureImpl class, a test event is created in which the virtual file array is
@@ -116,10 +116,11 @@ class FormatActionTest : KtlintRuleEngineTestCase() {
         val anActionEvent = TestActionEvent.createTestEvent(formatAction, dataContext, null)
 
         ActionUtil.performDumbAwareUpdate(formatAction, anActionEvent, false)
+
         assertThat(anActionEvent.presentation.isEnabledAndVisible).isTrue
     }
 
-    fun testKtlintFormatActionOnKotlinFileWhichCannotBeParsed() {
+    fun `test Given a kotlin file which can not be parsed then a warning is shown`() {
         createFile("Foo.kt", "fun cannotBeParsed(")
         configureFiles()
 
@@ -135,9 +136,8 @@ class FormatActionTest : KtlintRuleEngineTestCase() {
         )
     }
 
-    fun testKtlintFormatActionOnKotlinFileWhenDistractFreeModeIsNotEnabled() {
+    fun `test Given that distract free mode is not enabled then the notification contains a suggestion to enable it`() {
         every { configMock.ktlintMode } returns KtlintMode.MANUAL
-
         createFile("Foo.kt", "fun foo() = 42")
         configureFiles()
 
@@ -156,9 +156,8 @@ class FormatActionTest : KtlintRuleEngineTestCase() {
         )
     }
 
-    fun testKtlintFormatActionOnKotlinFileWithInvalidExternalRuleset() {
+    fun `test Given a kotlin file and an invalid external ruleset then the file is formatted and an error is shown`() {
         every { configMock.externalJarPaths } returns listOf("/some/non-existing/ruleset.jar")
-
         val kotlinFile = createKotlinFile("Foo.kt")
         configureFiles()
 
