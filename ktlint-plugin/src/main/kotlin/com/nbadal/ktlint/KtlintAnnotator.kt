@@ -18,6 +18,7 @@ import com.nbadal.ktlint.actions.KtlintAutocorrectIntention
 import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
 import com.nbadal.ktlint.actions.ShowAllKtlintViolationsIntention
 import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 
 internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
@@ -30,8 +31,23 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
     ): List<LintError>? =
         when {
             hasErrors -> {
-                // Ignore ktlint when other errors (for example compilation errors) are found
-                null
+                // Ignore ktlint when other errors (for example compilation errors) are found. It is very distracting to see multiple ktlint
+                // violations while typing in code that cannot yet be compiled.
+                if (psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) ||
+                    editor.document.ktlintAnnotatorUserData?.displayAllKtlintViolations == true
+                ) {
+                    listOf(
+                        LintError(
+                            line = 1,
+                            col = 1,
+                            ruleId = RuleId("ktlint:ktlint-intellij-plugin"),
+                            detail = "Code is not scanned for Ktlint violations as long as errors are found in this file",
+                            canBeAutoCorrected = false,
+                        ),
+                    )
+                } else {
+                    null
+                }
             }
 
             psiFile.project.isEnabled(DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR) ||
