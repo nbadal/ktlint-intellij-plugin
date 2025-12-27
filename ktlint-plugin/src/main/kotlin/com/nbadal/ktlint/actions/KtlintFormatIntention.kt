@@ -12,20 +12,21 @@ import com.nbadal.ktlint.KtlintRuleEngineWrapper
 import com.nbadal.ktlint.isEnabled
 
 /**
- * Intention to format the code with ktlint, regardless whether the plugin is enabled/disabled.
+ * When Ktlint is not run automatically, it will add a file analysis problem when at least one ktlint violation is found in the file that
+ * could have been autocorrected. This intention invokes ktlint format on the file, regardless whether the plugin is enabled/disabled.
  */
-class ForceFormatIntention :
+class KtlintFormatIntention :
     BaseIntentionAction(),
     LowPriorityAction {
     override fun getFamilyName() = "KtLint"
 
-    override fun getText() = "Ktlint format file"
+    override fun getText() = "Format file with Ktlint"
 
     override fun isAvailable(
         project: Project,
         editor: Editor?,
         psiFile: PsiFile,
-    ): Boolean = project.isEnabled(KtlintFeature.SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT)
+    ): Boolean = project.isEnabled(KtlintFeature.SHOW_PROBLEM_WITH_NUMBER_OF_KTLINT_VIOLATIONS_THAT_CAN_BE_AUTOCORRECTED)
 
     /**
      * As [isAvailable] return true always, the [invoke] is also called when previewing the result of the intention unless this function
@@ -43,7 +44,7 @@ class ForceFormatIntention :
             .format(
                 psiFile,
                 ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
-                triggeredBy = "ForceFormatIntention",
+                triggeredBy = "KtlintFormatIntention",
                 forceFormat = true,
             )
     }

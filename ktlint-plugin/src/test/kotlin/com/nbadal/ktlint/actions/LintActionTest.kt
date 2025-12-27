@@ -1,10 +1,6 @@
 package com.nbadal.ktlint.actions
 
 import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.fileEditor.FileEditor
-import com.intellij.testFramework.EditorTestUtil
-import com.intellij.testFramework.utils.editor.getVirtualFile
-import com.intellij.testFramework.utils.vfs.getPsiFile
 import com.nbadal.ktlint.KtlintFeature.DISPLAY_ALL_VIOLATIONS
 import com.nbadal.ktlint.isEnabled
 import com.nbadal.ktlint.ktlintAnnotatorUserData
