@@ -44,7 +44,7 @@ import java.io.File
 import java.lang.IllegalStateException
 import java.nio.file.Path
 
-private val logger = KtlintLogger("com.nbdal.ktlint.KtlintFormat")
+private val logger = KtlintLogger()
 
 internal class KtlintRuleEngineWrapper internal constructor() {
     private val ktlintRuleWrapperConfig = KtlintRuleWrapperConfig()

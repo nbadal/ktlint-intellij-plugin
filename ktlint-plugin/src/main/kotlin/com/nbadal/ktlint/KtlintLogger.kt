@@ -1,13 +1,9 @@
 package com.nbadal.ktlint
 
-import com.intellij.openapi.diagnostic.DefaultLogger
-import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.kotlin.utils.PrintingLogger
 
 @Suppress("unused")
-class KtlintLogger(
-    qualifiedName: String?,
-) : PrintingLogger(System.out) { // { qualifiedName ?: "ktlint-intellij-plugin") {
+class KtlintLogger : PrintingLogger(System.out) {
     fun debug(
         throwable: Throwable? = null,
         message: () -> String?,

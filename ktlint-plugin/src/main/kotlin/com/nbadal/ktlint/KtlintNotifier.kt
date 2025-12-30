@@ -8,7 +8,7 @@ import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.notification.NotificationType.WARNING
 import com.intellij.openapi.project.Project
 
-private val logger = KtlintLogger(KtlintProjectSettings::class.qualifiedName)
+private val logger = KtlintLogger()
 
 object KtlintNotifier {
     // Notification groups should be used for related notifications. Note that a user is abled to disable notifications per group only.
