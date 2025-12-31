@@ -1,4 +1,3 @@
-import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
@@ -84,10 +83,9 @@ dependencies {
     }
 
     compileOnly(project(":ktlint-lib")) // Required for IDE
-    implementation(project(":ktlint-lib", "shadow"))
-
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("io.mockk:mockk:1.14.7")
+    implementation(project(":ktlint-lib", "shadow")) {
+        exclude(group = "org.jetbrains.kotlin")
+    }
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
