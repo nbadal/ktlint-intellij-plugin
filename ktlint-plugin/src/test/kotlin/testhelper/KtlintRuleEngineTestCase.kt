@@ -68,7 +68,9 @@ abstract class KtlintRuleEngineTestCase : BasePlatformTestCase() {
     }
 
     override fun tearDown() {
-        messageBusConnection.disconnect()
+        if (::messageBusConnection.isInitialized) {
+            messageBusConnection.disconnect()
+        }
         unmockkStatic("com.nbadal.ktlint.UtilsKt")
         super.tearDown()
     }
