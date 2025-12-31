@@ -8,6 +8,7 @@ intelliJPlatform = "2.10.5"
 kotlin = "2.2.21"
 kover = "0.9.4"
 ktlint = "1.8.0"
+mockk = "1.14.7"
 qodana = "2025.2.4"
 shadow = "8.1.1"
 slf4j="2.0.17"
@@ -20,6 +21,7 @@ ktlintCliRulesetCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-rul
 ktlintCliReporterCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-reporter-core", version.ref = "ktlint" }
 ktlintCliReporterBaselineCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-reporter-baseline", version.ref = "ktlint" }
 ktlintRulesetStandard = {  group = "com.pinterest.ktlint", name = "ktlint-ruleset-standard", version.ref = "ktlint" }
+mockk = {  group = "io.mockk", name = "mockk", version.ref = "mockk" }
 slf4j-api = {  group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 
 [plugins]
