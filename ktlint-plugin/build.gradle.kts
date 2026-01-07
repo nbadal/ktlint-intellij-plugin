@@ -85,7 +85,7 @@ dependencies {
     compileOnly(project(":ktlint-lib")) // Required for IDE
     implementation(project(":ktlint-lib", "shadow"))
 
-    testImplementation("org.junit.jupiter:junit-jupiter:6.0.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.0.2")
     testImplementation("org.junit.platform:junit-platform-launcher:6.0.1")
     testImplementation("io.mockk:mockk:1.14.7")
 }
