@@ -118,6 +118,7 @@ tasks {
         // IMPORTANT: Third party suppliers of rule set need to add those relocations as well!
         relocate("org.jetbrains.org", "shadow.org.jetbrains.org")
         relocate("org.jetbrains.concurrency", "shadow.org.jetbrains.concurrency")
+        relocate("org.jetbrains.kotlin", "shadow.org.jetbrains.kotlin")
 
         // Ktlint-lib itself may not be minimized as this would result in exceptions when loading custom rulesets as the RulesetProviderV3
         // cannot be found

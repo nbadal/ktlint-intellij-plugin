@@ -9,7 +9,7 @@ import java.net.URLClassLoader
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 
-private val logger = KtlintLogger("com.nbdal.ktlint.KtlintLoadRuleProviders")
+private val logger = KtlintLogger()
 
 /**
  * Loads the rule providers from the given list of JAR [URL]s. Rules from the [RuleSetId.STANDARD] will be excluded. The rules provided via
