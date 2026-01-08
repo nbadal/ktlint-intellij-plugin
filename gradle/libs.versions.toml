@@ -5,11 +5,11 @@ junit = "4.13.2"
 # plugins
 changelog = "2.5.0"
 intelliJPlatform = "2.10.5"
-kotlin = "2.2.21"
+kotlin = "2.3.0"
 kover = "0.9.4"
 ktlint = "1.8.0"
 mockk = "1.14.7"
-qodana = "2025.2.4"
+qodana = "2025.3.1"
 shadow = "8.3.9"
 slf4j="2.0.17"
 
