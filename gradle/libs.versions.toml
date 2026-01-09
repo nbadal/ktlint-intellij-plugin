@@ -1,6 +1,6 @@
 [versions]
 # libraries
-assertj = "3.26.3"
+assertj = "3.27.6"
 junit = "4.13.2"
 # plugins
 changelog = "2.5.0"
