@@ -22,7 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 
 internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
-    private val logger = KtlintLogger()
+    private val logger = KtlintLibLogger()
 
     override fun collectInformation(
         psiFile: PsiFile,

@@ -1,6 +1,5 @@
 package com.nbadal.ktlint
 
-import com.nbadal.ktlint.actions.FormatAction
 import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
@@ -8,10 +7,10 @@ import java.net.URL
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 
-private val logger = KtlintLogger()
+private val logger = KtlintLibLogger()
 
 /**
- * Loads the rule providers from the given list of JAR [URL]s. Rules from the [RuleSetId.STANDARD] will be excluded. The rules provided via
+ * Loads the rule providers from the given list of JAR [URL]s. Rules from the [RuleSetId.Companion.STANDARD] will be excluded. The rules provided via
  * ktlint will be loaded separately. So technically it is possible that the custom ruleset provides the standard rules of a different ktlint
  * version than the ktlint version the user has selected in the Ktlint plugin preferences.
  */

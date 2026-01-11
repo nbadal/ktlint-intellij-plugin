@@ -28,9 +28,7 @@ import com.pinterest.ktlint.cli.reporter.baseline.BaselineLoaderException
 import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.rule.engine.api.Code
-import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
-import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.api.KtlintSuppressionAtOffset
 import com.pinterest.ktlint.rule.engine.api.LintError
@@ -40,11 +38,10 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
 import org.ec4j.core.parser.ParseException
-import java.io.File
 import java.lang.IllegalStateException
 import java.nio.file.Path
 
-private val logger = KtlintLogger()
+private val logger = KtlintLibLogger()
 
 internal class KtlintRuleEngineWrapper internal constructor() {
     private val ktlintRuleWrapperConfig = KtlintRuleWrapperConfig()
@@ -412,77 +409,6 @@ private class KtlintRuleWrapperConfig {
         configure(project)
         return baselineProvider
     }
-}
-
-private class KtlintRuleEngineProvider {
-    /**
-     * The set of ruleset providers that are loaded into the KtLintRuleEngine
-     */
-    private lateinit var ruleSetProviders: RuleSetProviders
-
-    private lateinit var _ktlintRuleEngine: KtLintRuleEngine
-
-    val ktlintRuleEngine: KtLintRuleEngine
-        get() = _ktlintRuleEngine
-
-    fun configure(
-        ktlintRulesetVersion: KtlintRulesetVersion,
-        externalJarPaths: List<String>,
-    ) {
-        if (!::ruleSetProviders.isInitialized ||
-            ruleSetProviders.ktlintRulesetVersion != ktlintRulesetVersion ||
-            ruleSetProviders.externalJarPaths != externalJarPaths
-        ) {
-            logger.info("Configure KtlintRuleEngineWrapper $ktlintRulesetVersion, $externalJarPaths")
-            ruleSetProviders = RuleSetProviders(ktlintRulesetVersion, externalJarPaths)
-            _ktlintRuleEngine =
-                KtLintRuleEngine(
-                    editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
-                    ruleProviders = ruleSetProviders.ruleProviders,
-                )
-        }
-    }
-
-    fun errorLoadingExternalRulesetJar(): String? = ruleSetProviders.errorLoadingExternalRulesetJar
-}
-
-private data class RuleSetProviders(
-    val ktlintRulesetVersion: KtlintRulesetVersion,
-    val externalJarPaths: List<String>,
-) {
-    private var _errorLoadingExternalRulesetJar: String? = null
-
-    val errorLoadingExternalRulesetJar: String?
-        get() = _errorLoadingExternalRulesetJar
-
-    val ruleProviders =
-        externalJarPaths
-            .flatMap { externalJarRuleProviders(it) }
-            .plus(standardKtlintRuleProviders())
-            .toSet()
-
-    private fun externalJarRuleProviders(path: String) =
-        try {
-            listOf(File(path).toURI().toURL())
-                .loadCustomRuleProviders()
-                .also { logger.info { "Loaded ${it.size} rules from custom rule provider $path" } }
-        } catch (throwable: Throwable) {
-            logger.error(throwable) { "Cannot load external ruleset jar '$path" }
-            // It is not possible to direct call KtlintNotifier to display a notification. This results in endless loop while trying to load
-            // the settings dialog
-            _errorLoadingExternalRulesetJar =
-                "An error occurred while reading external ruleset file '$path'. No ktlint ruleset can be loaded from this file."
-            emptyList()
-        }
-
-    private fun standardKtlintRuleProviders() =
-        ktlintRulesetVersion
-            .ruleProviders()
-            .also {
-                logger.info {
-                    "Loaded ${ktlintRulesetVersion.ruleProviders().size} rules from default ktlint ruleset version '${ktlintRulesetVersion.label()}'"
-                }
-            }
 }
 
 /**

@@ -12,7 +12,7 @@ import java.nio.file.Path
 const val KTLINT_PLUGINS_PROPERTIES_FILE_NAME = "ktlint-plugins.properties"
 const val KTLINT_PLUGINS_VERSION_PROPERTY = "ktlint-version"
 
-private val logger = KtlintLogger()
+private val logger = KtlintLibLogger()
 
 class KtlintPluginsPropertiesReader {
     private var properties: Map<String, String> = emptyMap()
