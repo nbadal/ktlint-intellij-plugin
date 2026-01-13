@@ -1,7 +1,7 @@
 package com.nbadal.ktlint
 
 import com.intellij.openapi.project.Project
-import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
+import com.nbadal.ktlint.KtlintRulesetVersion
 
 fun Project.config(): KtlintProjectSettings = getService(KtlintProjectSettings::class.java)
 

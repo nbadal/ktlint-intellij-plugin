@@ -9,13 +9,11 @@ import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION
 import com.nbadal.ktlint.KtlintFileAutocorrectHandler
 import com.nbadal.ktlint.KtlintRuleEngineWrapper
-import com.nbadal.ktlint.config
+import com.nbadal.ktlint.connector.Code
+import com.nbadal.ktlint.connector.LintError
+import com.nbadal.ktlint.connector.SuppressionAtOffset
 import com.nbadal.ktlint.findElementAt
 import com.nbadal.ktlint.isEnabled
-import com.pinterest.ktlint.rule.engine.api.Code
-import com.pinterest.ktlint.rule.engine.api.KtlintSuppressionAtOffset
-import com.pinterest.ktlint.rule.engine.api.LintError
-import com.pinterest.ktlint.rule.engine.api.insertSuppression
 
 class KtlintRuleSuppressIntention(
     private val lintError: LintError,
@@ -46,12 +44,12 @@ class KtlintRuleSuppressIntention(
             ?.let { document ->
                 // The psiFile may contain unsaved changes. So create a snippet based on content of the psiFile
                 val code =
-                    Code.fromSnippetWithPath(
+                    Code(
                         // Get the content via the PsiDocumentManager instead of from "psiFile.text" directly. In case the content of an
                         // active editor window is changed via a global find and replace, the document text is updated but the Psi (and
                         // PsiFile) have not yet been changed.
                         content = PsiDocumentManager.getInstance(project).getDocument(psiFile)!!.text,
-                        virtualPath = psiFile.virtualFile.toNioPath(),
+                        filePath = psiFile.virtualFile.toNioPath(),
                     )
                 KtlintRuleEngineWrapper
                     .instance
@@ -72,7 +70,7 @@ class KtlintRuleSuppressIntention(
     }
 
     private fun LintError.toKtlintSuppressionAtOffset() =
-        KtlintSuppressionAtOffset(
+        SuppressionAtOffset(
             line = line,
             col = col,
             ruleId = ruleId,

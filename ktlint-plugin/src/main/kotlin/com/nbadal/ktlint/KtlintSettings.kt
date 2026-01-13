@@ -7,7 +7,7 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.util.xmlb.annotations.Tag
 import com.nbadal.ktlint.KtlintMode.NOT_INITIALIZED
-import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
+import com.nbadal.ktlint.KtlintRulesetVersion
 
 /**
  * Application wide configuration settings. Those settings are stored in a file  outside the '.idea' folder of the project. Those settings

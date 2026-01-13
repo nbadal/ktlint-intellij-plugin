@@ -1,6 +1,6 @@
 package com.nbadal.ktlint
 
-import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
+import com.nbadal.ktlint.KtlintRulesetVersion
 import java.io.File
 
 data class RuleSetProviders(

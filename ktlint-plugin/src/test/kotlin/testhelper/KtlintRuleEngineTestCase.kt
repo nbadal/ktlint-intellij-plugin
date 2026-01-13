@@ -13,8 +13,8 @@ import com.intellij.testFramework.utils.vfs.getDocument
 import com.intellij.util.messages.MessageBusConnection
 import com.nbadal.ktlint.KtlintMode
 import com.nbadal.ktlint.KtlintProjectSettings
+import com.nbadal.ktlint.KtlintRulesetVersion
 import com.nbadal.ktlint.config
-import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic

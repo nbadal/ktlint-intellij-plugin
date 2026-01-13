@@ -7,9 +7,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintRuleEngineWrapper
 import com.nbadal.ktlint.KtlintViolationAutocorrectHandler
-import com.nbadal.ktlint.config
+import com.nbadal.ktlint.connector.LintError
 import com.nbadal.ktlint.findElementAt
-import com.pinterest.ktlint.rule.engine.api.LintError
 
 class KtlintAutocorrectIntention(
     private val lintError: LintError,
