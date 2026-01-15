@@ -44,7 +44,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
     fun ruleIdsWithAutocorrectApproveHandler(psiFile: PsiFile): Set<RuleId> =
         ktlintRuleWrapperConfig
             .configure(psiFile.project)
-            .ktlintRuleEngineProvider
+            .ktlintConnectorProvider
             .ktlintConnector
             .ruleIdsWithAutocorrectApproveHandler()
 
@@ -117,7 +117,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
 
         ktlintRuleWrapperConfig
             .configure(psiFile.project)
-            .ktlintRuleEngineProvider
+            .ktlintConnectorProvider
             .errorLoadingExternalRulesetJar()
             ?.let { error ->
                 // Report the external ruleset that was not loaded successfully. But continue with format of file with the rule providers
@@ -155,7 +155,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             val ktlintRuleEngineExecutor =
                 ktlintRuleWrapperConfig
                     .configure(psiFile.project)
-                    .ktlintRuleEngineProvider
+                    .ktlintConnectorProvider
                     .ktlintConnector
             if (ktlintExecutionType == LINT) {
                 ktlintRuleEngineExecutor.lint(code) { lintError -> lintErrors.add(lintError) }
@@ -272,7 +272,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
     ): String =
         ktlintRuleWrapperConfig
             .configure(psiFile.project)
-            .ktlintRuleEngineProvider
+            .ktlintConnectorProvider
             .ktlintConnector
             .insertSuppression(code, suppressionAtOffset)
 
@@ -294,7 +294,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
     fun getEditorConfigOptionDescriptors(project: Project): List<KtlintEditorConfigOptionDescriptor> =
         ktlintRuleWrapperConfig
             .configure(project)
-            .ktlintRuleEngineProvider
+            .ktlintConnectorProvider
             .ktlintConnector
             .getEditorConfigOptionDescriptors()
 
@@ -339,10 +339,10 @@ internal class KtlintRuleEngineWrapper internal constructor() {
 }
 
 private class KtlintRuleWrapperConfig {
-    private lateinit var _ktlintRuleEngineProvider: KtlintRuleEngineProvider
+    private lateinit var _ktlintConnectorProvider: KtlintConnectorProvider
 
-    val ktlintRuleEngineProvider: KtlintRuleEngineProvider
-        get() = _ktlintRuleEngineProvider
+    val ktlintConnectorProvider: KtlintConnectorProvider
+        get() = _ktlintConnectorProvider
 
     private lateinit var baselineProvider: BaselineProvider
 
@@ -355,11 +355,11 @@ private class KtlintRuleWrapperConfig {
     fun reset(project: Project?) {
         // Ktlint has a static cache which is shared across all instances of the KtlintRuleEngine. Creates a new KtlintRuleEngine to load
         // changes in the editorconfig is therefore not sufficient. The memory needs to be cleared explicitly.
-        if (::_ktlintRuleEngineProvider.isInitialized) {
-            _ktlintRuleEngineProvider.ktlintConnector.trimMemory()
+        if (::_ktlintConnectorProvider.isInitialized) {
+            _ktlintConnectorProvider.ktlintConnector.trimMemory()
         }
 
-        _ktlintRuleEngineProvider = KtlintRuleEngineProvider()
+        _ktlintConnectorProvider = KtlintConnectorProvider()
         baselineProvider = BaselineProvider()
         ktlintPluginsPropertiesReader = KtlintPluginsPropertiesReader()
         if (project != null) {
@@ -371,8 +371,8 @@ private class KtlintRuleWrapperConfig {
         apply {
             with(project.config()) {
                 ktlintPluginsPropertiesReader.configure(project)
-                _ktlintRuleEngineProvider.configure(ktlintRulesetVersion(), externalJarPaths)
-                baselineProvider.configure(_ktlintRuleEngineProvider.ktlintConnector, baselinePath)
+                _ktlintConnectorProvider.configure(ktlintRulesetVersion(), externalJarPaths)
+                baselineProvider.configure(_ktlintConnectorProvider.ktlintConnector, baselinePath)
             }
         }
 

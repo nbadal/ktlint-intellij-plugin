@@ -1,5 +1,9 @@
 package com.nbadal.ktlint.connector
 
+import java.io.File
+import java.net.URLClassLoader
+import java.util.*
+
 /**
  * The [KtlintConnector] is an abstraction that aims to decouple the Ktlint Core code in the "ktlint-lib" module from the IntelliJ IDEA
  * plugin code in mode "ktlint-plugin".
@@ -76,6 +80,11 @@ interface KtlintConnector {
 
     fun loadBaselineErrorsToIgnore(baselinePath: String): List<BaselineError>
 
+    fun loadRulesets(
+        ktlintVersion: String,
+        externalJarPaths: List<String>,
+    )
+
     class ParseException(
         line: Int,
         col: Int,
@@ -94,4 +103,24 @@ interface KtlintConnector {
         message: String,
         cause: Throwable,
     ) : RuntimeException(message, cause)
+
+    companion object {
+        fun getInstance() = loadKtlintConnectorImpl()
+    }
 }
+
+fun loadKtlintConnectorImpl(): KtlintConnector? =
+    try {
+        with(KtlintConnector::class.java) {
+            ServiceLoader
+                .load(this, URLClassLoader(arrayOf(File("jar:ktlint-lib.jar").toURI().toURL()), this.classLoader))
+                .firstOrNull()
+        }
+    } catch (e: ServiceConfigurationError) {
+        throw KtlintConnectorException("Failed to load KtlintConnector", e)
+    }
+
+class KtlintConnectorException(
+    message: String,
+    throwable: Throwable? = null,
+) : RuntimeException(message, throwable)

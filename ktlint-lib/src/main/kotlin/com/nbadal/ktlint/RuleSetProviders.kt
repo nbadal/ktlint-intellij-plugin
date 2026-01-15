@@ -1,6 +1,5 @@
 package com.nbadal.ktlint
 
-import com.nbadal.ktlint.KtlintRulesetVersion
 import java.io.File
 
 data class RuleSetProviders(
