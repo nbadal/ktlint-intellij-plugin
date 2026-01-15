@@ -23,13 +23,12 @@ import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.NOT_STARTED
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.SUCCESS
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintVersion.Source.NATIVE_PLUGIN_CONFIGURATION
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintVersion.Source.SHARED_PLUGIN_PROPERTIES
-import com.nbadal.ktlint.KtlintRulesetVersion
 import com.nbadal.ktlint.connector.AutocorrectDecision
 import com.nbadal.ktlint.connector.BaselineError
 import com.nbadal.ktlint.connector.Code
+import com.nbadal.ktlint.connector.KtlintConnector
+import com.nbadal.ktlint.connector.KtlintConnector.BaselineLoadingException
 import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor
-import com.nbadal.ktlint.connector.KtlintRuleEngineExecutor
-import com.nbadal.ktlint.connector.KtlintRuleEngineExecutor.BaselineLoadingException
 import com.nbadal.ktlint.connector.LintError
 import com.nbadal.ktlint.connector.RuleId
 import com.nbadal.ktlint.connector.SuppressionAtOffset
@@ -46,7 +45,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         ktlintRuleWrapperConfig
             .configure(psiFile.project)
             .ktlintRuleEngineProvider
-            .ktlintRuleEngineExecutor
+            .ktlintConnector
             .ruleIdsWithAutocorrectApproveHandler()
 
     fun lint(
@@ -157,7 +156,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                 ktlintRuleWrapperConfig
                     .configure(psiFile.project)
                     .ktlintRuleEngineProvider
-                    .ktlintRuleEngineExecutor
+                    .ktlintConnector
             if (ktlintExecutionType == LINT) {
                 ktlintRuleEngineExecutor.lint(code) { lintError -> lintErrors.add(lintError) }
             } else {
@@ -212,11 +211,11 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                 lintErrors.filterNot { baselineErrors.contains(it) },
                 fileChangedByFormat,
             )
-        } catch (_: KtlintRuleEngineExecutor.ParseException) {
+        } catch (_: KtlintConnector.ParseException) {
             // ParseException occur very frequently while typing code, and a save operation is executed while code cannot be compiled at
             // that moment. Display a notification is distracting, and not helpful.
             return KtlintResult(FILE_RELATED_ERROR)
-        } catch (ktLintRuleException: KtlintRuleEngineExecutor.RuleException) {
+        } catch (ktLintRuleException: KtlintConnector.RuleException) {
             KtlintNotifier.notifyError(
                 notificationGroup = RULE,
                 project = psiFile.project,
@@ -274,7 +273,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         ktlintRuleWrapperConfig
             .configure(psiFile.project)
             .ktlintRuleEngineProvider
-            .ktlintRuleEngineExecutor
+            .ktlintConnector
             .insertSuppression(code, suppressionAtOffset)
 
     fun ktlintVersion(project: Project) =
@@ -296,7 +295,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         ktlintRuleWrapperConfig
             .configure(project)
             .ktlintRuleEngineProvider
-            .ktlintRuleEngineExecutor
+            .ktlintConnector
             .getEditorConfigOptionDescriptors()
 
     internal data class KtlintVersion(
@@ -357,7 +356,7 @@ private class KtlintRuleWrapperConfig {
         // Ktlint has a static cache which is shared across all instances of the KtlintRuleEngine. Creates a new KtlintRuleEngine to load
         // changes in the editorconfig is therefore not sufficient. The memory needs to be cleared explicitly.
         if (::_ktlintRuleEngineProvider.isInitialized) {
-            _ktlintRuleEngineProvider.ktlintRuleEngineExecutor.trimMemory()
+            _ktlintRuleEngineProvider.ktlintConnector.trimMemory()
         }
 
         _ktlintRuleEngineProvider = KtlintRuleEngineProvider()
@@ -373,7 +372,7 @@ private class KtlintRuleWrapperConfig {
             with(project.config()) {
                 ktlintPluginsPropertiesReader.configure(project)
                 _ktlintRuleEngineProvider.configure(ktlintRulesetVersion(), externalJarPaths)
-                baselineProvider.configure(_ktlintRuleEngineProvider.ktlintRuleEngineExecutor, baselinePath)
+                baselineProvider.configure(_ktlintRuleEngineProvider.ktlintConnector, baselinePath)
             }
         }
 
@@ -417,7 +416,7 @@ class BaselineProvider {
     private var baselineErrors: List<BaselineError> = emptyList()
 
     fun configure(
-        ktlintRuleEngineExecutor: KtlintRuleEngineExecutor,
+        ktlintConnector: KtlintConnector,
         baselinePath: String?,
     ) {
         if (baselinePath != this.baselinePath) {
@@ -427,7 +426,7 @@ class BaselineProvider {
             if (baselinePath != null) {
                 try {
                     baselineErrors =
-                        ktlintRuleEngineExecutor
+                        ktlintConnector
                             .loadBaselineErrorsToIgnore(baselinePath)
                             .also { logger.debug { "Load baseline from file '$baselinePath'" } }
                 } catch (e: BaselineLoadingException) {

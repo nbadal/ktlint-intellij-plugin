@@ -1,6 +1,10 @@
 package com.nbadal.ktlint.connector
 
-interface KtlintRuleEngineExecutor {
+/**
+ * The [KtlintConnector] is an abstraction that aims to decouple the Ktlint Core code in the "ktlint-lib" module from the IntelliJ IDEA
+ * plugin code in mode "ktlint-plugin".
+ */
+interface KtlintConnector {
     /**
      * Check the [code] for lint errors. If [code] is path as file reference then the '.editorconfig' files on the path to file are taken
      * into account. For each lint violation found, the [callback] is invoked.

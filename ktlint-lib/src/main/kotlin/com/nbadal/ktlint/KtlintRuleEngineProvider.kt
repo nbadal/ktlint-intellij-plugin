@@ -3,10 +3,10 @@ package com.nbadal.ktlint
 import com.nbadal.ktlint.connector.AutocorrectDecision
 import com.nbadal.ktlint.connector.BaselineError
 import com.nbadal.ktlint.connector.Code
+import com.nbadal.ktlint.connector.KtlintConnector
 import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor
 import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnableOrDisableDescriptor
 import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnumDescriptor
-import com.nbadal.ktlint.connector.KtlintRuleEngineExecutor
 import com.nbadal.ktlint.connector.LintError
 import com.nbadal.ktlint.connector.RuleId
 import com.nbadal.ktlint.connector.SuppressionAtOffset
@@ -24,16 +24,16 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import org.ec4j.core.model.PropertyType.LowerCasingPropertyType
 
-open class KtlintRuleEngineProvider {
+class KtlintRuleEngineProvider {
     /**
      * The set of ruleset providers that are loaded into the KtLintRuleEngine
      */
     private lateinit var ruleSetProviders: RuleSetProviders
 
-    private lateinit var _ktlintRuleEngineExecutor: KtlintRuleEngineExecutor
+    private lateinit var _ktlintConnector: KtlintConnector
 
-    val ktlintRuleEngineExecutor: KtlintRuleEngineExecutor
-        get() = _ktlintRuleEngineExecutor
+    val ktlintConnector: KtlintConnector
+        get() = _ktlintConnector
 
     fun configure(
         ktlintRulesetVersion: KtlintRulesetVersion,
@@ -45,8 +45,8 @@ open class KtlintRuleEngineProvider {
         ) {
             ktlintLibLogger.info("Configure KtlintRuleEngineWrapper $ktlintRulesetVersion, $externalJarPaths")
             ruleSetProviders = RuleSetProviders(ktlintRulesetVersion, externalJarPaths)
-            _ktlintRuleEngineExecutor =
-                object : KtlintRuleEngineExecutor {
+            _ktlintConnector =
+                object : KtlintConnector {
                     val ktlintRuleEngine =
                         KtLintRuleEngine(
                             editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
@@ -60,13 +60,13 @@ open class KtlintRuleEngineProvider {
                         try {
                             ktlintRuleEngine.lint(code.toKtlintCoreCode())
                         } catch (ktlintParseException: KtLintParseException) {
-                            throw KtlintRuleEngineExecutor.ParseException(
+                            throw KtlintConnector.ParseException(
                                 line = ktlintParseException.line,
                                 col = ktlintParseException.col,
                                 message = ktlintParseException.message,
                             )
                         } catch (ktlintRuleException: KtLintRuleException) {
-                            throw KtlintRuleEngineExecutor.RuleException(
+                            throw KtlintConnector.RuleException(
                                 line = ktlintRuleException.line,
                                 col = ktlintRuleException.col,
                                 ruleId = ktlintRuleException.ruleId,
@@ -91,13 +91,13 @@ open class KtlintRuleEngineProvider {
                                 callback(ktlintCoreLintError.toLintError()).toKtlintCoreAutocorrectDecision()
                             }
                         } catch (ktlintParseException: KtLintParseException) {
-                            throw KtlintRuleEngineExecutor.ParseException(
+                            throw KtlintConnector.ParseException(
                                 line = ktlintParseException.line,
                                 col = ktlintParseException.col,
                                 message = ktlintParseException.message,
                             )
                         } catch (ktlintRuleException: KtLintRuleException) {
-                            throw KtlintRuleEngineExecutor.RuleException(
+                            throw KtlintConnector.RuleException(
                                 line = ktlintRuleException.line,
                                 col = ktlintRuleException.col,
                                 ruleId = ktlintRuleException.ruleId,
@@ -184,7 +184,7 @@ open class KtlintRuleEngineProvider {
                                     }
                                 }
                         } catch (e: BaselineLoaderException) {
-                            throw KtlintRuleEngineExecutor.BaselineLoadingException(
+                            throw KtlintConnector.BaselineLoadingException(
                                 // The exception message produced by ktlint already contains sufficient context of the error, but it is
                                 // missing the baseline path
                                 e.message ?: "Exception while loading baseline file '$baselinePath'",
