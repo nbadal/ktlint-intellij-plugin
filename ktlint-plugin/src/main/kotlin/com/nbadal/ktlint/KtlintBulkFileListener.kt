@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileMoveEvent
 import com.intellij.openapi.vfs.newvfs.events.VFilePropertyChangeEvent
 
-private val logger = KtlintLibLogger()
+private val logger = KtlintLogger()
 
 class KtlintBulkFileListener : BulkFileListener {
     private val projectLocator = ProjectLocator.getInstance()

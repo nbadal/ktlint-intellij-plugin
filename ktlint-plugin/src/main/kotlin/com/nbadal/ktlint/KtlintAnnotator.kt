@@ -22,7 +22,7 @@ import com.nbadal.ktlint.connector.RuleId
 import com.nbadal.ktlint.connector.RuleSetId
 
 internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
-    private val logger = KtlintLibLogger()
+    private val logger = KtlintLogger()
 
     override fun collectInformation(
         psiFile: PsiFile,

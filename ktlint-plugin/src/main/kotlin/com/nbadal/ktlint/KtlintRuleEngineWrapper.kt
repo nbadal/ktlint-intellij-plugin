@@ -36,7 +36,7 @@ import org.ec4j.core.parser.ParseException
 import java.lang.IllegalStateException
 import java.nio.file.Path
 
-private val logger = KtlintLibLogger()
+private val logger = KtlintLogger()
 
 internal class KtlintRuleEngineWrapper internal constructor() {
     private val ktlintRuleWrapperConfig = KtlintRuleWrapperConfig()

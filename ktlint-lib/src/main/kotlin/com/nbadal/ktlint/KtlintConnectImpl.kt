@@ -4,7 +4,6 @@ import com.nbadal.ktlint.connector.AutocorrectDecision
 import com.nbadal.ktlint.connector.BaselineError
 import com.nbadal.ktlint.connector.Code
 import com.nbadal.ktlint.connector.KtlintConnector
-import com.nbadal.ktlint.connector.KtlintConnectorException
 import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor
 import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnableOrDisableDescriptor
 import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnumDescriptor
@@ -15,7 +14,7 @@ import com.pinterest.ktlint.cli.reporter.baseline.BaselineErrorHandling
 import com.pinterest.ktlint.cli.reporter.baseline.BaselineLoaderException
 import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
-import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
+import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
@@ -37,14 +36,10 @@ class KtlintConnectImpl : KtlintConnector {
     ) {
         ruleSetProviders = RuleSetProviders(KtlintRulesetVersion.findByLabelOrDefault(ktlintVersion), externalJarPaths)
         ktlintRuleEngine =
-            if (ruleSetProviders.errorLoadingExternalRulesetJar == null) {
-                KtLintRuleEngine(
-                    editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
-                    ruleProviders = ruleSetProviders.ruleProviders,
-                )
-            } else {
-                throw KtlintConnectorException("Cannot start KtlintRuleEngine: ${ruleSetProviders.errorLoadingExternalRulesetJar}")
-            }
+            KtLintRuleEngine(
+                editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
+                ruleProviders = ruleSetProviders.ruleProviders,
+            )
     }
 
     override fun lint(

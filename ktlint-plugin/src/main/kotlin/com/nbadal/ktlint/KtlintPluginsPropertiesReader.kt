@@ -6,13 +6,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.CONFIGURATION
-import com.nbadal.ktlint.KtlintRulesetVersion
 import java.nio.file.Path
 
 const val KTLINT_PLUGINS_PROPERTIES_FILE_NAME = "ktlint-plugins.properties"
 const val KTLINT_PLUGINS_VERSION_PROPERTY = "ktlint-version"
 
-private val logger = KtlintLibLogger()
+private val logger = KtlintLogger()
 
 class KtlintPluginsPropertiesReader {
     private var properties: Map<String, String> = emptyMap()
