@@ -1,4 +1,4 @@
-package com.nbadal.ktlint
+package com.nbadal.ktlint.lib
 
 import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
 import com.pinterest.ktlint.ruleset.standard.V1_0_1.StandardRuleSetProvider as StandardRuleSetProviderV1_0_1

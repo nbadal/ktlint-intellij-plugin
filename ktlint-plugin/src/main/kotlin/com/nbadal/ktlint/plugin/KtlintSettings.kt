@@ -6,7 +6,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.util.xmlb.annotations.Tag
-import com.nbadal.ktlint.KtlintRulesetVersion
+import com.nbadal.ktlint.lib.KtlintRulesetVersion
 
 /**
  * Application wide configuration settings. Those settings are stored in a file  outside the '.idea' folder of the project. Those settings

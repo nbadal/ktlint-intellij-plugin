@@ -12,8 +12,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
-import com.nbadal.ktlint.KtlintConnectorProvider
-import com.nbadal.ktlint.KtlintRulesetVersion
 import com.nbadal.ktlint.connector.AutocorrectDecision
 import com.nbadal.ktlint.connector.BaselineError
 import com.nbadal.ktlint.connector.Code
@@ -23,6 +21,8 @@ import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor
 import com.nbadal.ktlint.connector.LintError
 import com.nbadal.ktlint.connector.RuleId
 import com.nbadal.ktlint.connector.SuppressionAtOffset
+import com.nbadal.ktlint.lib.KtlintConnectorProvider
+import com.nbadal.ktlint.lib.KtlintRulesetVersion
 import org.ec4j.core.parser.ParseException
 import java.lang.IllegalStateException
 import java.nio.file.Path

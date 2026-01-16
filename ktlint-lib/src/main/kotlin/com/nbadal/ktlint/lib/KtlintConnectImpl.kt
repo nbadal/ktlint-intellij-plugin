@@ -1,4 +1,4 @@
-package com.nbadal.ktlint
+package com.nbadal.ktlint.lib
 
 import com.nbadal.ktlint.connector.AutocorrectDecision
 import com.nbadal.ktlint.connector.BaselineError

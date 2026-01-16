@@ -12,7 +12,7 @@ import com.intellij.ui.components.panels.ListLayout
 import com.intellij.util.ui.FormBuilder
 import com.intellij.util.ui.NamedColorUtil
 import com.intellij.util.ui.UIUtil
-import com.nbadal.ktlint.KtlintRulesetVersion
+import com.nbadal.ktlint.lib.KtlintRulesetVersion
 import java.awt.Cursor
 import java.awt.Desktop
 import java.awt.event.MouseAdapter

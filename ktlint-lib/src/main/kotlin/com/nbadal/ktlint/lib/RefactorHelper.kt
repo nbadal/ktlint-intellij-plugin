@@ -1,4 +1,4 @@
-package com.nbadal.ktlint
+package com.nbadal.ktlint.lib
 
 import com.nbadal.ktlint.connector.LintError
 import com.nbadal.ktlint.connector.RuleId
