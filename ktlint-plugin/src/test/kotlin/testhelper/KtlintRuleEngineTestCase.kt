@@ -11,10 +11,10 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.testFramework.utils.vfs.getDocument
 import com.intellij.util.messages.MessageBusConnection
-import com.nbadal.ktlint.KtlintMode
-import com.nbadal.ktlint.KtlintProjectSettings
 import com.nbadal.ktlint.KtlintRulesetVersion
-import com.nbadal.ktlint.config
+import com.nbadal.ktlint.plugin.KtlintMode
+import com.nbadal.ktlint.plugin.KtlintProjectSettings
+import com.nbadal.ktlint.plugin.config
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic

@@ -8,13 +8,13 @@
     <depends>org.editorconfig.editorconfigjetbrains</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <externalAnnotator language="kotlin" implementationClass="com.nbadal.ktlint.KtlintAnnotator" id="KtlintAnnotator"/>
-        <postFormatProcessor implementation="com.nbadal.ktlint.KtlintPostFormatProcessor" />
+        <externalAnnotator language="kotlin" implementationClass="com.nbadal.ktlint.plugin.KtlintAnnotator" id="KtlintAnnotator"/>
+        <postFormatProcessor implementation="com.nbadal.ktlint.plugin.KtlintPostFormatProcessor" />
         <projectConfigurable displayName="KtLint" groupId="tools" id="preferences.ktlint-plugin"
-                             instance="com.nbadal.ktlint.KtlintConfig"/>
-        <actionOnSaveInfoProvider implementation="com.nbadal.ktlint.KtlintActionOnSaveInfoProvider"
+                             instance="com.nbadal.ktlint.plugin.KtlintConfig"/>
+        <actionOnSaveInfoProvider implementation="com.nbadal.ktlint.plugin.KtlintActionOnSaveInfoProvider"
                                   order="after FormatOnSaveInfoProvider"/>
-        <actionOnSave implementation="com.nbadal.ktlint.KtlintActionOnSave" order="after FormatOnSaveAction"/>
+        <actionOnSave implementation="com.nbadal.ktlint.plugin.KtlintActionOnSave" order="after FormatOnSaveAction"/>
 
         <!-- Keep ids of the notificationGroups in sync with KtlintNotifier enum -->
         <notificationGroup id="Ktlint Configuration" displayType="STICKY_BALLOON"/>
@@ -28,26 +28,26 @@
     </extensions>
 
     <extensions defaultExtensionNs="editorconfig">
-        <optionDescriptorProvider implementation="com.nbadal.ktlint.KtlintEditorConfigOptionDescriptorProvider"/>
+        <optionDescriptorProvider implementation="com.nbadal.ktlint.plugin.KtlintEditorConfigOptionDescriptorProvider"/>
     </extensions>
 
     <actions>
-        <action id="Ktlint.Lint" class="com.nbadal.ktlint.actions.LintAction"
+        <action id="Ktlint.Lint" class="com.nbadal.ktlint.plugin.actions.LintAction"
                 text="Show All Ktlint Violations In File" description="Show all Ktlint violations in the current file">
             <add-to-group group-id="RefactoringMenu" />
         </action>
-        <action id="Ktlint.Format" class="com.nbadal.ktlint.actions.FormatAction"
+        <action id="Ktlint.Format" class="com.nbadal.ktlint.plugin.actions.FormatAction"
                 text="Format With Ktlint" description="Apply ktlint formatting to file">
             <add-to-group group-id="RefactoringMenu" />
         </action>
     </actions>
 
     <projectListeners>
-        <listener class="com.nbadal.ktlint.KtlintFileEditorManagerListener" topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" />
+        <listener class="com.nbadal.ktlint.plugin.KtlintFileEditorManagerListener" topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" />
     </projectListeners>
 
     <applicationListeners>
-        <listener class="com.nbadal.ktlint.KtlintBulkFileListener"
+        <listener class="com.nbadal.ktlint.plugin.KtlintBulkFileListener"
                   topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
     </applicationListeners>
 
