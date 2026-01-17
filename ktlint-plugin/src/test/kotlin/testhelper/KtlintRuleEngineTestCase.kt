@@ -12,11 +12,9 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.testFramework.utils.vfs.getDocument
 import com.intellij.util.messages.MessageBusConnection
 import com.nbadal.ktlint.connector.KtlintVersion
-import com.nbadal.ktlint.lib.KtlintRulesetVersion
 import com.nbadal.ktlint.plugin.KtlintMode
 import com.nbadal.ktlint.plugin.KtlintProjectSettings
 import com.nbadal.ktlint.plugin.config
-import com.nbadal.ktlint.plugin.toKtlintVersion
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
