@@ -5,6 +5,7 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
+import com.nbadal.ktlint.connector.KtlintVersion
 import com.nbadal.ktlint.lib.KtlintRulesetVersion
 import java.nio.file.Path
 
@@ -56,7 +57,7 @@ class KtlintPluginsPropertiesReader {
                 key to value
             }
 
-    fun ktlintVersion() = properties[KTLINT_PLUGINS_VERSION_PROPERTY]
+    fun ktlintVersion() = properties[KTLINT_PLUGINS_VERSION_PROPERTY]?.let { KtlintVersion(it) }
 
     fun ktlintRulesetVersion(): KtlintRulesetVersion? {
         if (!readFromKtlintPluginPropertiesFile) {
@@ -64,8 +65,8 @@ class KtlintPluginsPropertiesReader {
             return null
         }
 
-        val ktlintVersionLabel = ktlintVersion()
-        return if (ktlintVersionLabel.isNullOrBlank()) {
+        val ktlintVersion = ktlintVersion()
+        return if (ktlintVersion == null) {
             logger.debug {
                 "No value found for property '$KTLINT_PLUGINS_VERSION_PROPERTY' in file '$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' " +
                     "in ${project?.basePath}"
@@ -73,16 +74,16 @@ class KtlintPluginsPropertiesReader {
             null
         } else {
             KtlintRulesetVersion.Companion
-                .findByLabelOrNull(ktlintVersionLabel)
+                .findByLabelOrNull(ktlintVersion.value) // TODO: replace by checking with KtlintConnector supports this version
                 ?.also {
                     logger.debug {
-                        "Found Ktlint version '$ktlintVersionLabel' defined in property '$KTLINT_PLUGINS_VERSION_PROPERTY' in file " +
+                        "Found Ktlint version '${ktlintVersion.value}' defined in property '$KTLINT_PLUGINS_VERSION_PROPERTY' in file " +
                             "'$KTLINT_PLUGINS_PROPERTIES_FILE_NAME'"
                     }
                 }
                 ?: null.also {
                     logger.debug {
-                        "Ktlint version '$ktlintVersionLabel' defined in property '$KTLINT_PLUGINS_VERSION_PROPERTY' in file " +
+                        "Ktlint version '${ktlintVersion.value}' defined in property '$KTLINT_PLUGINS_VERSION_PROPERTY' in file " +
                             "'$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' is not supported by this version of the ktlint-intellij-plugin."
                     }
                     if (showErrorOnUnsupportedKtlintVersion) {
@@ -102,7 +103,7 @@ class KtlintPluginsPropertiesReader {
                                 title = "Unsupported Ktlint version",
                                 message =
                                     """
-                                    Ktlint version <strong>$ktlintVersionLabel</strong> is not supported by current version 
+                                    Ktlint version <strong>${ktlintVersion.value}</strong> is not supported by current version 
                                     (<strong>$ktlintPluginVersion</strong>) of Ktlint Intelli Plugin.
                                     """.trimIndent(),
                             )

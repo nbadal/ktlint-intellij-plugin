@@ -18,6 +18,7 @@ import com.nbadal.ktlint.connector.Code
 import com.nbadal.ktlint.connector.KtlintConnector
 import com.nbadal.ktlint.connector.KtlintConnector.BaselineLoadingException
 import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor
+import com.nbadal.ktlint.connector.KtlintVersion
 import com.nbadal.ktlint.connector.LintError
 import com.nbadal.ktlint.connector.RuleId
 import com.nbadal.ktlint.connector.SuppressionAtOffset
@@ -258,13 +259,13 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             .ktlintConnector(psiFile.project)
             .insertSuppression(code, suppressionAtOffset)
 
-    fun ktlintVersion(project: Project) =
+    fun ktlintVersionConfiguration(project: Project) =
         ktlintRuleWrapperConfig
             .ktlintPluginsPropertiesReader(project)
             .ktlintVersion()
             ?.let { version -> KtlintVersionConfiguration(version, KtlintVersionConfiguration.Location.SHARED_PLUGIN_PROPERTIES) }
             ?: KtlintVersionConfiguration(
-                project.config().ktlintVersion?.value ?: KtlintRulesetVersion.DEFAULT.name,
+                project.config().ktlintVersion ?: KtlintVersion.DEFAULT,
                 KtlintVersionConfiguration.Location.NATIVE_PLUGIN_CONFIGURATION,
             )
 
@@ -279,7 +280,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             .getEditorConfigOptionDescriptors()
 
     internal data class KtlintVersionConfiguration(
-        val version: String, // TODO: Change to KtlintVersion
+        val ktlintVersion: KtlintVersion,
         val location: Location,
     ) {
         enum class Location {
