@@ -11,10 +11,12 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.testFramework.utils.vfs.getDocument
 import com.intellij.util.messages.MessageBusConnection
+import com.nbadal.ktlint.connector.KtlintVersion
 import com.nbadal.ktlint.lib.KtlintRulesetVersion
 import com.nbadal.ktlint.plugin.KtlintMode
 import com.nbadal.ktlint.plugin.KtlintProjectSettings
 import com.nbadal.ktlint.plugin.config
+import com.nbadal.ktlint.plugin.toKtlintVersion
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -32,7 +34,7 @@ abstract class KtlintRuleEngineTestCase : BasePlatformTestCase() {
             every { attachToIntellijFormat } returns true
             every { baselinePath } returns null
             every { ktlintMode } returns KtlintMode.DISTRACT_FREE
-            every { ktlintRulesetVersion } returns KtlintRulesetVersion.DEFAULT
+            every { ktlintVersion } returns KtlintVersion.DEFAULT
             every { externalJarPaths } returns emptyList()
         }
     private val files = mutableListOf<VirtualFile>()
@@ -48,7 +50,7 @@ abstract class KtlintRuleEngineTestCase : BasePlatformTestCase() {
 
         // Mock extension functions defined in Utils.kt.
         // The string is the fully qualified name of the class generated from the file.
-        mockkStatic("com.nbadal.ktlint.UtilsKt")
+        mockkStatic("com.nbadal.ktlint.plugin.UtilsKt")
         every { project.config() } returns configMock
 
         // Listen to all notifications
@@ -71,7 +73,7 @@ abstract class KtlintRuleEngineTestCase : BasePlatformTestCase() {
         if (::messageBusConnection.isInitialized) {
             messageBusConnection.disconnect()
         }
-        unmockkStatic("com.nbadal.ktlint.UtilsKt")
+        unmockkStatic("com.nbadal.ktlint.plugin.UtilsKt")
         super.tearDown()
     }
 

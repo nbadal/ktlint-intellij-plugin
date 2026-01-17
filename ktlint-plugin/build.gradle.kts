@@ -83,7 +83,7 @@ dependencies {
         testFramework(TestFrameworkType.Platform)
     }
 
-//    implementation(project(":ktlint-connector"))
+    implementation(project(":ktlint-connector"))
 
     compileOnly(project(":ktlint-lib")) // Required for IDE
     implementation(project(":ktlint-lib", "shadow")) {

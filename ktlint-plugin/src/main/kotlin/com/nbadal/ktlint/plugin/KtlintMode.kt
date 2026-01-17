@@ -17,7 +17,7 @@ enum class KtlintMode(
     ),
 
     /**
-     *  Ktlint is fully enabled for the project. Source code will be formatted automatically. Violations which can be autocorrected,
+     *  Ktlint is fully enabled for the project. Location code will be formatted automatically. Violations which can be autocorrected,
      * are not displayed.
      */
     DISTRACT_FREE(

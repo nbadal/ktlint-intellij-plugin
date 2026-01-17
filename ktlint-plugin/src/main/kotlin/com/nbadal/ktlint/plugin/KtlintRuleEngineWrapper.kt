@@ -262,10 +262,10 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         ktlintRuleWrapperConfig
             .ktlintPluginsPropertiesReader(project)
             .ktlintVersion()
-            ?.let { version -> KtlintVersion(version, KtlintVersion.Source.SHARED_PLUGIN_PROPERTIES) }
-            ?: KtlintVersion(
-                project.config().ktlintRulesetVersion?.name ?: KtlintRulesetVersion.DEFAULT.name,
-                KtlintVersion.Source.NATIVE_PLUGIN_CONFIGURATION,
+            ?.let { version -> KtlintVersionConfiguration(version, KtlintVersionConfiguration.Location.SHARED_PLUGIN_PROPERTIES) }
+            ?: KtlintVersionConfiguration(
+                project.config().ktlintVersion?.value ?: KtlintRulesetVersion.DEFAULT.name,
+                KtlintVersionConfiguration.Location.NATIVE_PLUGIN_CONFIGURATION,
             )
 
     fun reset(project: Project) {
@@ -278,11 +278,11 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             .ktlintConnector(project)
             .getEditorConfigOptionDescriptors()
 
-    internal data class KtlintVersion(
-        val version: String,
-        val source: Source,
+    internal data class KtlintVersionConfiguration(
+        val version: String, // TODO: Change to KtlintVersion
+        val location: Location,
     ) {
-        enum class Source {
+        enum class Location {
             NATIVE_PLUGIN_CONFIGURATION,
             SHARED_PLUGIN_PROPERTIES,
         }
@@ -358,7 +358,7 @@ private class KtlintRuleWrapperConfig {
 
     private fun KtlintProjectSettings.ktlintRulesetVersion() =
         ktlintRulesetVersionFromSharedPropertiesFile()
-            ?: ktlintRulesetVersionFromKtlintConfiguration()
+            ?: ktlintRulesetVersionFromKtlintConfiguration()?.toKtlintRulesetVersion()
             ?: defaultKtlintRulesetVersion()
 
     private fun ktlintRulesetVersionFromSharedPropertiesFile() =
@@ -367,7 +367,7 @@ private class KtlintRuleWrapperConfig {
             ?.also { logger.debug { "Use Ktlint version $it defined in property shared by all ktlint plugins" } }
 
     private fun KtlintProjectSettings.ktlintRulesetVersionFromKtlintConfiguration() =
-        ktlintRulesetVersion
+        ktlintVersion
             ?.also { logger.debug { "Use Ktlint version $it defined in ktlint-intellij-plugin configuration" } }
 
     private fun defaultKtlintRulesetVersion() =

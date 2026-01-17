@@ -18,7 +18,7 @@ import java.awt.Desktop
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.net.URI
-import java.util.*
+import java.util.Objects
 import javax.swing.ButtonGroup
 import javax.swing.JComponent
 import javax.swing.JLabel
@@ -235,8 +235,8 @@ class KtlintSettingsComponent(
             .instance
             .ktlintVersion(project)
             .let { ktlintVersion ->
-                when (ktlintVersion.source) {
-                    KtlintRuleEngineWrapper.KtlintVersion.Source.SHARED_PLUGIN_PROPERTIES -> {
+                when (ktlintVersion.location) {
+                    KtlintRuleEngineWrapper.KtlintVersionConfiguration.Location.SHARED_PLUGIN_PROPERTIES -> {
                         AllKtlintPluginsSharedRulesetVersionComponent(ktlintVersion.version)
                     }
 
@@ -395,7 +395,7 @@ class KtlintSettingsComponent(
         KtlintApplicationSettings.getInstance().state.showBanner = showBannerCheckBox.isSelected
 
         ktlintProjectSettings.ktlintMode = ktlintMode
-        ktlintProjectSettings.ktlintRulesetVersion = rulesetComponent.rulesetVersion
+        ktlintProjectSettings.ktlintVersion = rulesetComponent.rulesetVersion.toKtlintVersion()
         ktlintProjectSettings.formatOnSave = formatOnSaveCheckbox.isSelected
         ktlintProjectSettings.attachToIntellijFormat = attachToIntellijFormattingCheckbox.isSelected
         ktlintProjectSettings.externalJarPaths = externalRulesetJarPaths
@@ -422,7 +422,7 @@ class KtlintSettingsComponent(
         }
 
         if (rulesetComponent is KtlintPluginRulesetVersionComponent) {
-            rulesetComponent.rulesetVersion = ktlintProjectSettings.ktlintRulesetVersion ?: KtlintRulesetVersion.DEFAULT
+            rulesetComponent.rulesetVersion = ktlintProjectSettings.ktlintVersion?.toKtlintRulesetVersion() ?: KtlintRulesetVersion.DEFAULT
         }
         formatOnSaveCheckbox.isSelected = ktlintProjectSettings.formatOnSave
         attachToIntellijFormattingCheckbox.isSelected = ktlintProjectSettings.attachToIntellijFormat
@@ -444,7 +444,7 @@ class KtlintSettingsComponent(
             !(
                 Objects.equals(KtlintApplicationSettings.getInstance().state.showBanner, showBannerCheckBox.isSelected) &&
                     Objects.equals(ktlintProjectSettings.ktlintMode, ktlintMode) &&
-                    Objects.equals(ktlintProjectSettings.ktlintRulesetVersion, rulesetComponent.rulesetVersion) &&
+                    Objects.equals(ktlintProjectSettings.ktlintVersion, rulesetComponent.rulesetVersion) &&
                     Objects.equals(ktlintProjectSettings.formatOnSave, formatOnSaveCheckbox.isSelected) &&
                     Objects.equals(ktlintProjectSettings.attachToIntellijFormat, attachToIntellijFormattingCheckbox.isSelected) &&
                     Objects.equals(ktlintProjectSettings.baselinePath, baselinePath) &&
