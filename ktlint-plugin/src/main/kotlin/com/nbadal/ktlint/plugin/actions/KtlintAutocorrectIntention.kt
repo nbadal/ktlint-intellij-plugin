@@ -23,7 +23,7 @@ class KtlintAutocorrectIntention(
         editor: Editor?,
         psiFile: PsiFile,
     ): Boolean {
-        if (lintError.ruleId !in KtlintRuleEngineWrapper.Companion.instance.ruleIdsWithAutocorrectApproveHandler(psiFile)) {
+        if (lintError.ruleId !in KtlintRuleEngineWrapper.instance.ruleIdsWithAutocorrectApproveHandler(psiFile)) {
             // This rule does not implement the AutocorrectApproveHandler. As of that it is not able to autocorrect only this specific lint
             // error in case the PsiFile contains multiple errors which are emitted by the same rule.
             return false

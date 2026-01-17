@@ -26,21 +26,51 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProper
 import org.ec4j.core.model.PropertyType.LowerCasingPropertyType
 
 class KtlintConnectImpl : KtlintConnector {
-    private lateinit var ruleSetProviders: RuleSetProviders
+    private val externalRuleSetJarLoader = ExternalRuleSetJarLoader()
+    private var externalRuleSetJarRuleProviders = emptySet<RuleProvider>()
+
+    private val standardRuleSetLoader = StandardRuleSetLoader()
+    private var standardRuleProviders = emptySet<RuleProvider>()
 
     private lateinit var ktlintRuleEngine: KtLintRuleEngine
 
-    override fun loadRulesets(
-        ktlintVersion: String,
-        externalJarPaths: List<String>,
-    ) {
-        ruleSetProviders = RuleSetProviders(KtlintRulesetVersion.findByLabelOrDefault(ktlintVersion), externalJarPaths)
-        ktlintRuleEngine =
-            KtLintRuleEngine(
-                editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
-                ruleProviders = ruleSetProviders.ruleProviders,
-            )
+    override fun loadExternalRulesetJars(externalJarPaths: List<String>) =
+        externalRuleSetJarLoader
+            .loadRuleProviders(externalJarPaths)
+            .takeIf { (ruleProviders, _) -> ruleProviders != externalRuleSetJarRuleProviders }
+            ?.let { externalRuleSetJarLoaderResult ->
+                externalRuleSetJarRuleProviders = externalRuleSetJarLoaderResult.ruleProviders
+                resetKtlintRuleEngine()
+                externalRuleSetJarLoaderResult.errors
+            }
+            // TODO: validate assumption below
+            // Only report the errors back when the list of external ruleSet jars has been changed, to avoid that user is constantly being
+            // notified about this
+            ?: emptyList()
+
+    override fun loadRulesets(ktlintVersion: String) {
+        standardRuleSetLoader
+            .loadRuleProviders(KtlintRulesetVersion.findByLabelOrDefault(ktlintVersion))
+        standardRuleSetLoader
+            .loadRuleProviders(KtlintRulesetVersion.findByLabelOrDefault(ktlintVersion))
+            .takeIf { ruleProviders -> ruleProviders != standardRuleProviders }
+            ?.let { ruleProviders ->
+                this.standardRuleProviders = ruleProviders
+                resetKtlintRuleEngine()
+            }
     }
+
+    private fun resetKtlintRuleEngine() =
+        standardRuleProviders
+            .plus(externalRuleSetJarRuleProviders)
+            .takeUnless { it.isEmpty() }
+            ?.let { ruleProviders ->
+                ktlintRuleEngine =
+                    KtLintRuleEngine(
+                        editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
+                        ruleProviders = ruleProviders,
+                    )
+            }
 
     override fun lint(
         code: Code,

@@ -2,13 +2,18 @@ package com.nbadal.ktlint.connector
 
 import java.io.File
 import java.net.URLClassLoader
-import java.util.*
+import java.util.ServiceConfigurationError
+import java.util.ServiceLoader
 
 /**
  * The [KtlintConnector] is an abstraction that aims to decouple the Ktlint Core code in the "ktlint-lib" module from the IntelliJ IDEA
  * plugin code in mode "ktlint-plugin".
  */
 interface KtlintConnector {
+    fun loadRulesets(ktlintVersion: String)
+
+    fun loadExternalRulesetJars(externalJarPaths: List<String>): List<String>
+
     /**
      * Check the [code] for lint errors. If [code] is path as file reference then the '.editorconfig' files on the path to file are taken
      * into account. For each lint violation found, the [callback] is invoked.
@@ -80,11 +85,6 @@ interface KtlintConnector {
 
     fun loadBaselineErrorsToIgnore(baselinePath: String): List<BaselineError>
 
-    fun loadRulesets(
-        ktlintVersion: String,
-        externalJarPaths: List<String>,
-    )
-
     class ParseException(
         line: Int,
         col: Int,
@@ -105,16 +105,19 @@ interface KtlintConnector {
     ) : RuntimeException(message, cause)
 
     companion object {
-        fun getInstance() = loadKtlintConnectorImpl()
+        private val _instance = loadKtlintConnectorImpl()
+
+        // TODO: replace function with variable
+        fun getInstance() = _instance
     }
 }
 
-fun loadKtlintConnectorImpl(): KtlintConnector? =
+fun loadKtlintConnectorImpl(): KtlintConnector =
     try {
         with(KtlintConnector::class.java) {
             ServiceLoader
                 .load(this, URLClassLoader(arrayOf(File("jar:ktlint-lib.jar").toURI().toURL()), this.classLoader))
-                .firstOrNull()
+                .single()
         }
     } catch (e: ServiceConfigurationError) {
         throw KtlintConnectorException("Failed to load KtlintConnector", e)

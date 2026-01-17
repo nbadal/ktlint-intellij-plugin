@@ -21,7 +21,6 @@ import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor
 import com.nbadal.ktlint.connector.LintError
 import com.nbadal.ktlint.connector.RuleId
 import com.nbadal.ktlint.connector.SuppressionAtOffset
-import com.nbadal.ktlint.lib.KtlintConnectorProvider
 import com.nbadal.ktlint.lib.KtlintRulesetVersion
 import org.ec4j.core.parser.ParseException
 import java.lang.IllegalStateException
@@ -34,9 +33,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
 
     fun ruleIdsWithAutocorrectApproveHandler(psiFile: PsiFile): Set<RuleId> =
         ktlintRuleWrapperConfig
-            .configure(psiFile.project)
-            .ktlintConnectorProvider
-            .ktlintConnector
+            .ktlintConnector(psiFile.project)
             .ruleIdsWithAutocorrectApproveHandler()
 
     fun lint(
@@ -106,11 +103,12 @@ internal class KtlintRuleEngineWrapper internal constructor() {
     ): KtlintResult {
         logger.debug { "Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'" }
 
-        ktlintRuleWrapperConfig
-            .configure(psiFile.project)
-            .ktlintConnectorProvider
-            .errorLoadingExternalRulesetJar()
-            ?.let { error ->
+        val ktlintConnector = ktlintRuleWrapperConfig.ktlintConnector(psiFile.project)
+
+        ktlintConnector
+            .loadExternalRulesetJars(externalJarPaths = psiFile.project.config().externalJarPaths)
+            .takeIf { it.isNotEmpty() }
+            ?.let { errors ->
                 // Report the external ruleset that was not loaded successfully. But continue with format of file with the rule providers
                 // that have been loaded successfully.
                 KtlintNotifier
@@ -118,7 +116,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                         notificationGroup = KtlintNotifier.KtlintNotificationGroup.RULE,
                         project = psiFile.project,
                         title = "Invalid external ruleset JAR",
-                        message = error,
+                        message = errors.joinToString(separator = "\n"),
                     ) {
                         addAction(OpenSettingsAction(psiFile.project))
                     }
@@ -143,18 +141,13 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             )
 
         try {
-            val ktlintRuleEngineExecutor =
-                ktlintRuleWrapperConfig
-                    .configure(psiFile.project)
-                    .ktlintConnectorProvider
-                    .ktlintConnector
             if (ktlintExecutionType == KtlintExecutionType.LINT) {
-                ktlintRuleEngineExecutor.lint(code) { lintError -> lintErrors.add(lintError) }
+                ktlintConnector.lint(code) { lintError -> lintErrors.add(lintError) }
             } else {
                 val formattedCode =
                     when (ktlintFormatAutoCorrectHandler) {
                         is KtlintFileAutocorrectHandler -> {
-                            ktlintRuleEngineExecutor.format(code) { lintError ->
+                            ktlintConnector.format(code) { lintError ->
                                 if (baselineErrors.contains(lintError)) {
                                     AutocorrectDecision.NO_AUTOCORRECT
                                 } else {
@@ -165,7 +158,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                         }
 
                         is KtlintBlockAutocorrectHandler -> {
-                            ktlintRuleEngineExecutor.format(code) { lintError ->
+                            ktlintConnector.format(code) { lintError ->
                                 if (baselineErrors.contains(lintError)) {
                                     AutocorrectDecision.NO_AUTOCORRECT
                                 } else {
@@ -182,7 +175,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                         }
 
                         is KtlintViolationAutocorrectHandler -> {
-                            ktlintRuleEngineExecutor.format(code) { lintError ->
+                            ktlintConnector.format(code) { lintError ->
                                 if (lintError == ktlintFormatAutoCorrectHandler.lintError) {
                                     AutocorrectDecision.ALLOW_AUTOCORRECT
                                 } else {
@@ -262,9 +255,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         suppressionAtOffset: SuppressionAtOffset,
     ): String =
         ktlintRuleWrapperConfig
-            .configure(psiFile.project)
-            .ktlintConnectorProvider
-            .ktlintConnector
+            .ktlintConnector(psiFile.project)
             .insertSuppression(code, suppressionAtOffset)
 
     fun ktlintVersion(project: Project) =
@@ -284,9 +275,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
 
     fun getEditorConfigOptionDescriptors(project: Project): List<KtlintEditorConfigOptionDescriptor> =
         ktlintRuleWrapperConfig
-            .configure(project)
-            .ktlintConnectorProvider
-            .ktlintConnector
+            .ktlintConnector(project)
             .getEditorConfigOptionDescriptors()
 
     internal data class KtlintVersion(
@@ -330,11 +319,6 @@ internal class KtlintRuleEngineWrapper internal constructor() {
 }
 
 private class KtlintRuleWrapperConfig {
-    private lateinit var _ktlintConnectorProvider: KtlintConnectorProvider
-
-    val ktlintConnectorProvider: KtlintConnectorProvider
-        get() = _ktlintConnectorProvider
-
     private lateinit var baselineProvider: BaselineProvider
 
     private lateinit var ktlintPluginsPropertiesReader: KtlintPluginsPropertiesReader
@@ -344,16 +328,13 @@ private class KtlintRuleWrapperConfig {
     }
 
     fun reset(project: Project?) {
-        // Ktlint has a static cache which is shared across all instances of the KtlintRuleEngine. Creates a new KtlintRuleEngine to load
-        // changes in the editorconfig is therefore not sufficient. The memory needs to be cleared explicitly.
-        if (::_ktlintConnectorProvider.isInitialized) {
-            _ktlintConnectorProvider.ktlintConnector.trimMemory()
-        }
-
-        _ktlintConnectorProvider = KtlintConnectorProvider()
-        baselineProvider = BaselineProvider()
-        ktlintPluginsPropertiesReader = KtlintPluginsPropertiesReader()
-        if (project != null) {
+        if (project == null) {
+            baselineProvider = BaselineProvider()
+            ktlintPluginsPropertiesReader = KtlintPluginsPropertiesReader()
+        } else {
+            // Ktlint has a static cache which is shared across all instances of the KtlintRuleEngine. Creates a new KtlintRuleEngine to load
+            // changes in the editorconfig is therefore not sufficient. The memory needs to be cleared explicitly.
+            KtlintConnector.getInstance().trimMemory()
             configure(project)
         }
     }
@@ -361,11 +342,19 @@ private class KtlintRuleWrapperConfig {
     fun configure(project: Project): KtlintRuleWrapperConfig =
         apply {
             with(project.config()) {
+                baselineProvider.configure(baselinePath)
                 ktlintPluginsPropertiesReader.configure(project)
-                _ktlintConnectorProvider.configure(ktlintRulesetVersion(), externalJarPaths)
-                baselineProvider.configure(_ktlintConnectorProvider.ktlintConnector, baselinePath)
+                KtlintConnector.getInstance().let { ktlintConnector ->
+                    ktlintConnector.loadRulesets(ktlintRulesetVersion().label())
+                    ktlintConnector.loadExternalRulesetJars(externalJarPaths)
+                }
             }
         }
+
+    fun ktlintConnector(project: Project): KtlintConnector {
+        configure(project)
+        return KtlintConnector.getInstance()
+    }
 
     private fun KtlintProjectSettings.ktlintRulesetVersion() =
         ktlintRulesetVersionFromSharedPropertiesFile()
@@ -406,10 +395,7 @@ class BaselineProvider {
     private var error: String? = null
     private var baselineErrors: List<BaselineError> = emptyList()
 
-    fun configure(
-        ktlintConnector: KtlintConnector,
-        baselinePath: String?,
-    ) {
+    fun configure(baselinePath: String?) {
         if (baselinePath != this.baselinePath) {
             this.baselinePath = baselinePath
             error = null
@@ -417,7 +403,8 @@ class BaselineProvider {
             if (baselinePath != null) {
                 try {
                     baselineErrors =
-                        ktlintConnector
+                        KtlintConnector
+                            .getInstance()
                             .loadBaselineErrorsToIgnore(baselinePath)
                             .also { logger.debug { "Load baseline from file '$baselinePath'" } }
                 } catch (e: BaselineLoadingException) {
