@@ -14,7 +14,7 @@ import com.nbadal.ktlint.lib.KtlintRulesetVersion
  */
 @Service(Service.Level.APP)
 @State(
-    name = "com.nbadal.ktlint.lib.KtlintApplicationSettings",
+    name = "com.nbadal.ktlint.KtlintApplicationSettings",
     // Application wide ktlint settings are stored in a file outside the '.idea' folder of the project.
     storages = [Storage("ktlint-plugin.xml")],
 )
@@ -45,7 +45,7 @@ class KtlintApplicationSettings : PersistentStateComponent<KtlintApplicationSett
  */
 @Service(Service.Level.PROJECT)
 @State(
-    name = "com.nbadal.ktlint.lib.KtlintProjectSettings",
+    name = "com.nbadal.ktlint.KtlintProjectSettings",
     // Project specific application settings are stored in a file inside the '.idea' folder of the project.
     storages = [Storage("ktlint-plugin.xml")],
 )

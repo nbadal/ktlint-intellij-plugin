@@ -28,5 +28,5 @@ class KtlintConfig(
 
     override fun getDisplayName() = "KtLint"
 
-    override fun getId() = "com.nbadal.ktlint.lib.config"
+    override fun getId() = "com.nbadal.ktlint.config"
 }
