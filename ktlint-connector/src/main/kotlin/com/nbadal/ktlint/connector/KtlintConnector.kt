@@ -10,7 +10,7 @@ import java.util.ServiceLoader
  * plugin code in mode "ktlint-plugin".
  */
 interface KtlintConnector {
-    fun loadRulesets(ktlintVersion: String)
+    fun loadRulesets(ktlintVersion: KtlintVersion)
 
     fun loadExternalRulesetJars(externalJarPaths: List<String>): List<String>
 

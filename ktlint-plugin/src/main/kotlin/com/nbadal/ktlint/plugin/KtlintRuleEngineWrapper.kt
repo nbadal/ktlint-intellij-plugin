@@ -22,7 +22,7 @@ import com.nbadal.ktlint.connector.KtlintVersion
 import com.nbadal.ktlint.connector.LintError
 import com.nbadal.ktlint.connector.RuleId
 import com.nbadal.ktlint.connector.SuppressionAtOffset
-import com.nbadal.ktlint.lib.KtlintRulesetVersion
+import com.nbadal.ktlint.plugin.KtlintRuleEngineWrapper.KtlintVersionConfiguration.Location
 import org.ec4j.core.parser.ParseException
 import java.lang.IllegalStateException
 import java.nio.file.Path
@@ -263,10 +263,10 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         ktlintRuleWrapperConfig
             .ktlintPluginsPropertiesReader(project)
             .ktlintVersion()
-            ?.let { version -> KtlintVersionConfiguration(version, KtlintVersionConfiguration.Location.SHARED_PLUGIN_PROPERTIES) }
+            ?.let { ktlintVersion -> KtlintVersionConfiguration(ktlintVersion, Location.SHARED_PLUGIN_PROPERTIES) }
             ?: KtlintVersionConfiguration(
                 project.config().ktlintVersion ?: KtlintVersion.DEFAULT,
-                KtlintVersionConfiguration.Location.NATIVE_PLUGIN_CONFIGURATION,
+                Location.NATIVE_PLUGIN_CONFIGURATION,
             )
 
     fun reset(project: Project) {
@@ -346,7 +346,7 @@ private class KtlintRuleWrapperConfig {
                 baselineProvider.configure(baselinePath)
                 ktlintPluginsPropertiesReader.configure(project)
                 KtlintConnector.getInstance().let { ktlintConnector ->
-                    ktlintConnector.loadRulesets(ktlintRulesetVersion().label())
+                    ktlintConnector.loadRulesets(ktlintVersion())
                     ktlintConnector.loadExternalRulesetJars(externalJarPaths)
                 }
             }
@@ -357,14 +357,14 @@ private class KtlintRuleWrapperConfig {
         return KtlintConnector.getInstance()
     }
 
-    private fun KtlintProjectSettings.ktlintRulesetVersion() =
+    private fun KtlintProjectSettings.ktlintVersion() =
         ktlintRulesetVersionFromSharedPropertiesFile()
-            ?: ktlintRulesetVersionFromKtlintConfiguration()?.toKtlintRulesetVersion()
+            ?: ktlintRulesetVersionFromKtlintConfiguration()
             ?: defaultKtlintRulesetVersion()
 
     private fun ktlintRulesetVersionFromSharedPropertiesFile() =
         ktlintPluginsPropertiesReader
-            .ktlintRulesetVersion()
+            .ktlintVersion()
             ?.also { logger.debug { "Use Ktlint version $it defined in property shared by all ktlint plugins" } }
 
     private fun KtlintProjectSettings.ktlintRulesetVersionFromKtlintConfiguration() =
@@ -372,7 +372,7 @@ private class KtlintRuleWrapperConfig {
             ?.also { logger.debug { "Use Ktlint version $it defined in ktlint-intellij-plugin configuration" } }
 
     private fun defaultKtlintRulesetVersion() =
-        KtlintRulesetVersion
+        KtlintVersion
             .DEFAULT
             .also { logger.debug { "Use default Ktlint version $it as ktlint-intellij-plugin configuration is not found" } }
 

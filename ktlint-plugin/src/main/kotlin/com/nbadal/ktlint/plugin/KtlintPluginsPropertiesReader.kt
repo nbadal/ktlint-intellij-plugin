@@ -5,8 +5,8 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
+import com.nbadal.ktlint.connector.KtlintConnector
 import com.nbadal.ktlint.connector.KtlintVersion
-import com.nbadal.ktlint.lib.KtlintRulesetVersion
 import java.nio.file.Path
 
 const val KTLINT_PLUGINS_PROPERTIES_FILE_NAME = "ktlint-plugins.properties"
@@ -57,15 +57,13 @@ class KtlintPluginsPropertiesReader {
                 key to value
             }
 
-    fun ktlintVersion() = properties[KTLINT_PLUGINS_VERSION_PROPERTY]?.let { KtlintVersion(it) }
-
-    fun ktlintRulesetVersion(): KtlintRulesetVersion? {
+    fun ktlintVersion(): KtlintVersion? {
         if (!readFromKtlintPluginPropertiesFile) {
             logger.debug { "File '$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' not found in ${project?.basePath}" }
             return null
         }
 
-        val ktlintVersion = ktlintVersion()
+        val ktlintVersion = properties[KTLINT_PLUGINS_VERSION_PROPERTY]?.let { KtlintVersion(it) }
         return if (ktlintVersion == null) {
             logger.debug {
                 "No value found for property '$KTLINT_PLUGINS_VERSION_PROPERTY' in file '$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' " +
@@ -73,8 +71,10 @@ class KtlintPluginsPropertiesReader {
             }
             null
         } else {
-            KtlintRulesetVersion
-                .findByLabelOrNull(ktlintVersion.label) // TODO: replace by checking with KtlintConnector supports this version
+            KtlintConnector
+                .getInstance()
+                .supportedKtlintVersions()
+                .firstOrNull { it.label == ktlintVersion.label }
                 ?.also {
                     logger.debug {
                         "Found Ktlint version '${ktlintVersion.label}' defined in property '$KTLINT_PLUGINS_VERSION_PROPERTY' in file " +

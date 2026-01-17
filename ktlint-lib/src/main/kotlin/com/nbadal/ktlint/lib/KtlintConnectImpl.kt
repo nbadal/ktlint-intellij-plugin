@@ -46,11 +46,9 @@ class KtlintConnectImpl : KtlintConnector {
                 errors
             }
 
-    override fun loadRulesets(ktlintVersion: String) {
+    override fun loadRulesets(ktlintVersion: KtlintVersion) {
         standardRuleSetLoader
-            .loadRuleProviders(KtlintRulesetVersion.findByLabelOrDefault(ktlintVersion))
-        standardRuleSetLoader
-            .loadRuleProviders(KtlintRulesetVersion.findByLabelOrDefault(ktlintVersion))
+            .loadRuleProviders(KtlintRulesetVersion.findByLabelOrDefault(ktlintVersion.label))
             .takeIf { ruleProviders -> ruleProviders != standardRuleProviders }
             ?.let { ruleProviders ->
                 this.standardRuleProviders = ruleProviders
