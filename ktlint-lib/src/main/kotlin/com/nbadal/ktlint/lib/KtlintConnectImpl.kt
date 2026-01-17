@@ -38,16 +38,13 @@ class KtlintConnectImpl : KtlintConnector {
     override fun loadExternalRulesetJars(externalJarPaths: List<String>) =
         externalRuleSetJarLoader
             .loadRuleProviders(externalJarPaths)
-            .takeIf { (ruleProviders, _) -> ruleProviders != externalRuleSetJarRuleProviders }
-            ?.let { externalRuleSetJarLoaderResult ->
-                externalRuleSetJarRuleProviders = externalRuleSetJarLoaderResult.ruleProviders
-                resetKtlintRuleEngine()
-                externalRuleSetJarLoaderResult.errors
+            .let { (ruleProviders, errors) ->
+                if (ruleProviders != externalRuleSetJarRuleProviders) {
+                    externalRuleSetJarRuleProviders = ruleProviders
+                    resetKtlintRuleEngine()
+                }
+                errors
             }
-            // TODO: validate assumption below
-            // Only report the errors back when the list of external ruleSet jars has been changed, to avoid that user is constantly being
-            // notified about this
-            ?: emptyList()
 
     override fun loadRulesets(ktlintVersion: String) {
         standardRuleSetLoader
@@ -210,7 +207,8 @@ class KtlintConnectImpl : KtlintConnector {
             )
         }
 
-    override fun supportedKtlintVersions(): List<KtlintVersion> = KtlintRulesetVersion.entries.map { KtlintVersion(it.label()) }
+    override fun supportedKtlintVersions(): List<KtlintVersion> =
+        KtlintRulesetVersion.entries.map { KtlintVersion(it.label(), it.alternativeRulesetVersion?.label()) }
 }
 
 private class EditorConfigOptionDescriptorsProvider(

@@ -1,8 +1,8 @@
 package com.nbadal.ktlint.connector
 
-@JvmInline
-value class KtlintVersion(
-    val value: String,
+data class KtlintVersion(
+    val label: String,
+    val alternativeKtlintVersionLabel: String? = null,
 ) {
     companion object {
         val DEFAULT = KtlintVersion("DEFAULT")

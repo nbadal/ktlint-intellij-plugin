@@ -73,17 +73,17 @@ class KtlintPluginsPropertiesReader {
             }
             null
         } else {
-            KtlintRulesetVersion.Companion
-                .findByLabelOrNull(ktlintVersion.value) // TODO: replace by checking with KtlintConnector supports this version
+            KtlintRulesetVersion
+                .findByLabelOrNull(ktlintVersion.label) // TODO: replace by checking with KtlintConnector supports this version
                 ?.also {
                     logger.debug {
-                        "Found Ktlint version '${ktlintVersion.value}' defined in property '$KTLINT_PLUGINS_VERSION_PROPERTY' in file " +
+                        "Found Ktlint version '${ktlintVersion.label}' defined in property '$KTLINT_PLUGINS_VERSION_PROPERTY' in file " +
                             "'$KTLINT_PLUGINS_PROPERTIES_FILE_NAME'"
                     }
                 }
                 ?: null.also {
                     logger.debug {
-                        "Ktlint version '${ktlintVersion.value}' defined in property '$KTLINT_PLUGINS_VERSION_PROPERTY' in file " +
+                        "Ktlint version '${ktlintVersion.label}' defined in property '$KTLINT_PLUGINS_VERSION_PROPERTY' in file " +
                             "'$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' is not supported by this version of the ktlint-intellij-plugin."
                     }
                     if (showErrorOnUnsupportedKtlintVersion) {
@@ -103,7 +103,7 @@ class KtlintPluginsPropertiesReader {
                                 title = "Unsupported Ktlint version",
                                 message =
                                     """
-                                    Ktlint version <strong>${ktlintVersion.value}</strong> is not supported by current version 
+                                    Ktlint version <strong>${ktlintVersion.label}</strong> is not supported by current version 
                                     (<strong>$ktlintPluginVersion</strong>) of Ktlint Intelli Plugin.
                                     """.trimIndent(),
                             )

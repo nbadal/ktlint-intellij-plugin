@@ -19,4 +19,4 @@ fun Project.isEnabled(ktlintFeature: KtlintFeature) = config().ktlintMode.isEnab
 fun KtlintRulesetVersion.toKtlintVersion() = KtlintVersion(this.label())
 
 @Deprecated("refactor")
-fun KtlintVersion.toKtlintRulesetVersion() = KtlintRulesetVersion.findByLabelOrDefault(value)
+fun KtlintVersion.toKtlintRulesetVersion() = KtlintRulesetVersion.findByLabelOrDefault(label)
