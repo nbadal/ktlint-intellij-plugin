@@ -12,6 +12,7 @@ import com.intellij.ui.components.panels.ListLayout
 import com.intellij.util.ui.FormBuilder
 import com.intellij.util.ui.NamedColorUtil
 import com.intellij.util.ui.UIUtil
+import com.nbadal.ktlint.connector.KtlintConnector
 import com.nbadal.ktlint.connector.KtlintVersion
 import com.nbadal.ktlint.lib.KtlintRulesetVersion
 import com.nbadal.ktlint.plugin.KtlintRuleEngineWrapper.KtlintVersionConfiguration
@@ -94,16 +95,20 @@ class KtlintSettingsComponent(
             .addTooltip(MessageBundle.message("baselineToolTip"))
             .panel
 
-    private abstract class RulesetComponent {
+    private abstract class KtlintVersionComponent {
         abstract fun getPanel(): JPanel
 
-        abstract var rulesetVersion: KtlintRulesetVersion
+        abstract var ktlintVersion: KtlintVersion
     }
 
-    private class RulesetVersionComponentDefault : RulesetComponent() {
-        private val rulesetVersionComboBoxWithWidePopup =
+    private class KtlintVersionComponentDefault : KtlintVersionComponent() {
+        private val ktlintVersionComboBoxWithWidePopup =
             ComboBoxWithWidePopup(
-                KtlintRulesetVersion.entries.map { it.label() }.toTypedArray(),
+                KtlintConnector
+                    .getInstance()
+                    .supportedKtlintVersions()
+                    .map { it.value }
+                    .toTypedArray(),
             ).apply {
                 @Suppress("UsePropertyAccessSyntax")
                 setMinLength(40)
@@ -130,10 +135,10 @@ class KtlintSettingsComponent(
                 }
             }
 
-        override var rulesetVersion: KtlintRulesetVersion
-            get() = KtlintRulesetVersion.findByLabelOrDefault(rulesetVersionComboBoxWithWidePopup.selectedItem as String)
+        override var ktlintVersion: KtlintVersion
+            get() = KtlintVersion(ktlintVersionComboBoxWithWidePopup.selectedItem as String)
             set(value) {
-                rulesetVersionComboBoxWithWidePopup.selectedItem = value.label()
+                ktlintVersionComboBoxWithWidePopup.selectedItem = value
             }
 
         private val alternativeVersionUsedJLabel =
@@ -150,7 +155,7 @@ class KtlintSettingsComponent(
                         .addComponent(
                             JPanel(ListLayout.horizontal(horGap = 10))
                                 .apply {
-                                    add(rulesetVersionComboBoxWithWidePopup)
+                                    add(ktlintVersionComboBoxWithWidePopup)
                                     add(
                                         JLabel(AllIcons.General.ContextHelp)
                                             .apply {
@@ -169,9 +174,9 @@ class KtlintSettingsComponent(
                 .panel
     }
 
-    private class RulesetVersionComponentWithSharedPluginProperties(
-        private val ktlintVersion: KtlintVersion,
-    ) : RulesetComponent() {
+    private class KtlintVersionComponentWithSharedPluginProperties(
+        private val sharedPluginPropertyKtlintVersion: KtlintVersion,
+    ) : KtlintVersionComponent() {
         override fun getPanel(): JPanel =
             FormBuilder
                 .createFormBuilder()
@@ -179,7 +184,7 @@ class KtlintSettingsComponent(
                     JLabel(MessageBundle.message("rulesetVersionLabel")),
                     JPanel(ListLayout.horizontal(horGap = 10))
                         .apply {
-                            add(JLabel(ktlintVersion.value))
+                            add(JLabel(sharedPluginPropertyKtlintVersion.value))
                             add(
                                 JLabel(AllIcons.General.ContextHelp)
                                     .apply {
@@ -191,7 +196,7 @@ class KtlintSettingsComponent(
                                             )
                                     },
                             )
-                            if (KtlintRulesetVersion.entries.none { it.label() == ktlintVersion.value }) {
+                            if (KtlintRulesetVersion.entries.none { it.label() == sharedPluginPropertyKtlintVersion.value }) {
                                 add(
                                     JLabel(
                                         MessageBundle.message("unsupportedRulesetVersionError", ""),
@@ -204,7 +209,7 @@ class KtlintSettingsComponent(
                             }
                             KtlintRulesetVersion
                                 .entries
-                                .firstOrNull { it.label() == ktlintVersion.value }
+                                .firstOrNull { it.label() == sharedPluginPropertyKtlintVersion.value }
                                 ?.alternativeRulesetVersion
                                 ?.let { alternativeRulesetVersion ->
                                     add(
@@ -223,32 +228,32 @@ class KtlintSettingsComponent(
                         },
                 ).panel
 
-        override var rulesetVersion: KtlintRulesetVersion
-            get() = KtlintRulesetVersion.findByLabelOrDefault(ktlintVersion.value)
+        override var ktlintVersion: KtlintVersion
+            get() = sharedPluginPropertyKtlintVersion
             set(
                 @Suppress("unused") value,
             ) {
-                throw UnsupportedOperationException("Can not set rulesetVersion when it is defined as shared property")
+                throw UnsupportedOperationException("Can not set ktlintVersion when it is defined as shared property")
             }
     }
 
-    private val rulesetComponent =
+    private val ktlintVersionComponent =
         KtlintRuleEngineWrapper
             .instance
             .ktlintVersionConfiguration(project)
             .let { ktlintVersionConfiguration ->
                 when (ktlintVersionConfiguration.location) {
                     KtlintVersionConfiguration.Location.SHARED_PLUGIN_PROPERTIES -> {
-                        RulesetVersionComponentWithSharedPluginProperties(ktlintVersionConfiguration.ktlintVersion)
+                        KtlintVersionComponentWithSharedPluginProperties(ktlintVersionConfiguration.ktlintVersion)
                     }
 
                     else -> {
-                        RulesetVersionComponentDefault()
+                        KtlintVersionComponentDefault()
                     }
                 }
             }
 
-    private val rulesetVersionPanel = rulesetComponent.getPanel()
+    private val ktlintVersionPanel = ktlintVersionComponent.getPanel()
 
     private val externalRulesetJarPathsTextFieldWithBrowseButton =
         TextFieldWithBrowseButton()
@@ -309,7 +314,7 @@ class KtlintSettingsComponent(
             .addVerticalGap(UIUtil.DEFAULT_VGAP)
             .setFormLeftIndent(UIUtil.DEFAULT_HGAP * 2)
             .addComponent(sectionTitle("Options"))
-            .addComponent(rulesetVersionPanel)
+            .addComponent(ktlintVersionPanel)
             .addComponent(attachToIntellijFormattingPanel)
             .addComponent(formatOnSavePanel)
             .addComponent(baselinePathPanel)
@@ -397,7 +402,7 @@ class KtlintSettingsComponent(
         KtlintApplicationSettings.getInstance().state.showBanner = showBannerCheckBox.isSelected
 
         ktlintProjectSettings.ktlintMode = ktlintMode
-        ktlintProjectSettings.ktlintVersion = rulesetComponent.rulesetVersion.toKtlintVersion()
+        ktlintProjectSettings.ktlintVersion = ktlintVersionComponent.ktlintVersion
         ktlintProjectSettings.formatOnSave = formatOnSaveCheckbox.isSelected
         ktlintProjectSettings.attachToIntellijFormat = attachToIntellijFormattingCheckbox.isSelected
         ktlintProjectSettings.externalJarPaths = externalRulesetJarPaths
@@ -423,8 +428,8 @@ class KtlintSettingsComponent(
             else -> Unit
         }
 
-        if (rulesetComponent is RulesetVersionComponentDefault) {
-            rulesetComponent.rulesetVersion = ktlintProjectSettings.ktlintVersion?.toKtlintRulesetVersion() ?: KtlintRulesetVersion.DEFAULT
+        if (ktlintVersionComponent is KtlintVersionComponentDefault) {
+            ktlintVersionComponent.ktlintVersion = ktlintProjectSettings.ktlintVersion ?: KtlintVersion.DEFAULT
         }
         formatOnSaveCheckbox.isSelected = ktlintProjectSettings.formatOnSave
         attachToIntellijFormattingCheckbox.isSelected = ktlintProjectSettings.attachToIntellijFormat
@@ -446,7 +451,7 @@ class KtlintSettingsComponent(
             !(
                 Objects.equals(KtlintApplicationSettings.getInstance().state.showBanner, showBannerCheckBox.isSelected) &&
                     Objects.equals(ktlintProjectSettings.ktlintMode, ktlintMode) &&
-                    Objects.equals(ktlintProjectSettings.ktlintVersion, rulesetComponent.rulesetVersion) &&
+                    Objects.equals(ktlintProjectSettings.ktlintVersion, ktlintVersionComponent.ktlintVersion) &&
                     Objects.equals(ktlintProjectSettings.formatOnSave, formatOnSaveCheckbox.isSelected) &&
                     Objects.equals(ktlintProjectSettings.attachToIntellijFormat, attachToIntellijFormattingCheckbox.isSelected) &&
                     Objects.equals(ktlintProjectSettings.baselinePath, baselinePath) &&

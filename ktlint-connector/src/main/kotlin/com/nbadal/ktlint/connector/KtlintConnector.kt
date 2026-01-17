@@ -85,6 +85,8 @@ interface KtlintConnector {
 
     fun loadBaselineErrorsToIgnore(baselinePath: String): List<BaselineError>
 
+    fun supportedKtlintVersions(): List<KtlintVersion>
+
     class ParseException(
         line: Int,
         col: Int,

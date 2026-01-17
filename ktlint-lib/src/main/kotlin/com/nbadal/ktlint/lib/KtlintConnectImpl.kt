@@ -7,6 +7,7 @@ import com.nbadal.ktlint.connector.KtlintConnector
 import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor
 import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnableOrDisableDescriptor
 import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnumDescriptor
+import com.nbadal.ktlint.connector.KtlintVersion
 import com.nbadal.ktlint.connector.LintError
 import com.nbadal.ktlint.connector.RuleId
 import com.nbadal.ktlint.connector.SuppressionAtOffset
@@ -208,6 +209,8 @@ class KtlintConnectImpl : KtlintConnector {
                 e,
             )
         }
+
+    override fun supportedKtlintVersions(): List<KtlintVersion> = KtlintRulesetVersion.entries.map { KtlintVersion(it.label()) }
 }
 
 private class EditorConfigOptionDescriptorsProvider(
