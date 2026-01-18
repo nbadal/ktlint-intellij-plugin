@@ -3,7 +3,7 @@
     <name>Ktlint</name>
     <vendor url="https://nbad.al">Nick Badal</vendor>
 
-    <depends>com.intellij.modules.platform</depends>
+<!--    <depends>com.intellij.modules.platform</depends>-->
     <depends>org.jetbrains.kotlin</depends>
     <depends>org.editorconfig.editorconfigjetbrains</depends>
 

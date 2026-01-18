@@ -84,11 +84,8 @@ dependencies {
     }
 
     implementation(project(":ktlint-connector"))
-
-    compileOnly(project(":ktlint-lib")) // Required for IDE
-    implementation(project(":ktlint-lib", "shadow")) {
-        exclude(group = "org.jetbrains.kotlin")
-    }
+    intellijPlatformRuntimeClasspath(project(":ktlint-lib", "shadow"))
+    intellijPlatformTestRuntimeClasspath(project(":ktlint-lib", "shadow"))
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
