@@ -85,6 +85,7 @@ class KtlintProjectSettings : PersistentStateComponent<KtlintProjectSettings> {
 
         this.ktlintVersion = state.ktlintVersion
         this.formatOnSave = state.formatOnSave
+        this.attachToIntellijFormat = state.attachToIntellijFormat
         this.baselinePath = state.baselinePath
         this.externalJarPaths = state.externalJarPaths
     }

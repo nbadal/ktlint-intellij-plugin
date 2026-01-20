@@ -15,22 +15,34 @@ const val KTLINT_PLUGINS_VERSION_PROPERTY = "ktlint-version"
 private val logger = KtlintLogger()
 
 class KtlintPluginsPropertiesReader {
+    private lateinit var project: Project
     private var properties: Map<String, String> = emptyMap()
-    private var project: Project? = null
     private var projectBasepath: String? = null
     private var readFromKtlintPluginPropertiesFile = false
     private var showErrorOnUnsupportedKtlintVersion = true
 
-    fun configure(project: Project?) {
-        if (this.project != project || this.project?.basePath != projectBasepath) {
+    private var _ktlintVersion: KtlintVersion? = null
+
+    val ktlintVersion: KtlintVersion?
+        get() = _ktlintVersion
+
+    fun setProject(project: Project) {
+        if (!::project.isInitialized || this.project != project) {
             this.project = project
-            projectBasepath = project?.basePath
-            showErrorOnUnsupportedKtlintVersion = true
-            properties =
-                ktlintPluginsPropertiesVirtualFile(project?.basePath)
-                    ?.readProperties()
-                    ?: emptyMap()
         }
+        if (this.project.basePath != projectBasepath) {
+            projectBasepath = this.project.basePath
+            readKtlintPluginPropertiesFile()
+            _ktlintVersion = computeKtlintVersion()
+        }
+    }
+
+    private fun readKtlintPluginPropertiesFile() {
+        showErrorOnUnsupportedKtlintVersion = true
+        properties =
+            ktlintPluginsPropertiesVirtualFile(project.basePath)
+                ?.readProperties()
+                ?: emptyMap()
     }
 
     private fun ktlintPluginsPropertiesVirtualFile(projectBasePath: String?) =
@@ -57,9 +69,9 @@ class KtlintPluginsPropertiesReader {
                 key to value
             }
 
-    fun ktlintVersion(): KtlintVersion? {
+    private fun computeKtlintVersion(): KtlintVersion? {
         if (!readFromKtlintPluginPropertiesFile) {
-            logger.debug { "File '$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' not found in ${project?.basePath}" }
+            logger.debug { "File '$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' not found in ${project.basePath}" }
             return null
         }
 
@@ -67,7 +79,7 @@ class KtlintPluginsPropertiesReader {
         return if (ktlintVersion == null) {
             logger.debug {
                 "No value found for property '$KTLINT_PLUGINS_VERSION_PROPERTY' in file '$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' " +
-                    "in ${project?.basePath}"
+                    "in ${project.basePath}"
             }
             null
         } else {
@@ -99,7 +111,7 @@ class KtlintPluginsPropertiesReader {
                         KtlintNotifier
                             .notifyError(
                                 notificationGroup = KtlintNotifier.KtlintNotificationGroup.CONFIGURATION,
-                                project = project!!,
+                                project = project,
                                 title = "Unsupported Ktlint version",
                                 message =
                                     """

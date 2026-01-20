@@ -30,11 +30,10 @@ import java.nio.file.Path
 private val logger = KtlintLogger()
 
 internal class KtlintRuleEngineWrapper internal constructor() {
-    private val ktlintRuleWrapperConfig = KtlintRuleWrapperConfig()
-
     fun ruleIdsWithAutocorrectApproveHandler(psiFile: PsiFile): Set<RuleId> =
-        ktlintRuleWrapperConfig
-            .ktlintConnector(psiFile.project)
+        psiFile
+            .project
+            .ktlintConnector()
             .ruleIdsWithAutocorrectApproveHandler()
 
     fun lint(
@@ -104,7 +103,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
     ): KtlintResult {
         logger.debug { "Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'" }
 
-        val ktlintConnector = ktlintRuleWrapperConfig.ktlintConnector(psiFile.project)
+        val ktlintConnector = psiFile.project.ktlintConnector()
 
         ktlintConnector
             .loadExternalRulesetJars(externalJarPaths = psiFile.project.config().externalJarPaths)
@@ -125,8 +124,9 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             }
 
         val baselineErrors =
-            ktlintRuleWrapperConfig
-                .baselineProvider(psiFile.project)
+            psiFile
+                .project
+                .baselineProvider()
                 .baselineErrors(psiFile)
         val lintErrors = mutableListOf<LintError>()
         var fileChangedByFormat = false
@@ -255,14 +255,15 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         code: Code,
         suppressionAtOffset: SuppressionAtOffset,
     ): String =
-        ktlintRuleWrapperConfig
-            .ktlintConnector(psiFile.project)
+        psiFile
+            .project
+            .ktlintConnector()
             .insertSuppression(code, suppressionAtOffset)
 
     fun ktlintVersionConfiguration(project: Project) =
-        ktlintRuleWrapperConfig
-            .ktlintPluginsPropertiesReader(project)
-            .ktlintVersion()
+        project
+            .ktlintPluginsPropertiesReader()
+            .ktlintVersion
             ?.let { ktlintVersion -> KtlintVersionConfiguration(ktlintVersion, Location.SHARED_PLUGIN_PROPERTIES) }
             ?: KtlintVersionConfiguration(
                 project.config().ktlintVersion ?: KtlintVersion.DEFAULT,
@@ -270,13 +271,13 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             )
 
     fun reset(project: Project) {
-        ktlintRuleWrapperConfig.reset(project)
+        project.updateProjectWrapper()
         project.resetKtlintAnnotatorUserData()
     }
 
     fun getEditorConfigOptionDescriptors(project: Project): List<KtlintEditorConfigOptionDescriptor> =
-        ktlintRuleWrapperConfig
-            .ktlintConnector(project)
+        project
+            .ktlintConnector()
             .getEditorConfigOptionDescriptors()
 
     internal data class KtlintVersionConfiguration(
@@ -319,74 +320,6 @@ internal class KtlintRuleEngineWrapper internal constructor() {
     }
 }
 
-private class KtlintRuleWrapperConfig {
-    private lateinit var baselineProvider: BaselineProvider
-
-    private lateinit var ktlintPluginsPropertiesReader: KtlintPluginsPropertiesReader
-
-    init {
-        reset(null)
-    }
-
-    fun reset(project: Project?) {
-        if (project == null) {
-            baselineProvider = BaselineProvider()
-            ktlintPluginsPropertiesReader = KtlintPluginsPropertiesReader()
-        } else {
-            // Ktlint has a static cache which is shared across all instances of the KtlintRuleEngine. Creates a new KtlintRuleEngine to load
-            // changes in the editorconfig is therefore not sufficient. The memory needs to be cleared explicitly.
-            KtlintConnector.getInstance().trimMemory()
-            configure(project)
-        }
-    }
-
-    fun configure(project: Project): KtlintRuleWrapperConfig =
-        apply {
-            with(project.config()) {
-                baselineProvider.configure(baselinePath)
-                ktlintPluginsPropertiesReader.configure(project)
-                KtlintConnector.getInstance().let { ktlintConnector ->
-                    ktlintConnector.loadRulesets(ktlintVersion())
-                    ktlintConnector.loadExternalRulesetJars(externalJarPaths)
-                }
-            }
-        }
-
-    fun ktlintConnector(project: Project): KtlintConnector {
-        configure(project)
-        return KtlintConnector.getInstance()
-    }
-
-    private fun KtlintProjectSettings.ktlintVersion() =
-        ktlintRulesetVersionFromSharedPropertiesFile()
-            ?: ktlintRulesetVersionFromKtlintConfiguration()
-            ?: defaultKtlintRulesetVersion()
-
-    private fun ktlintRulesetVersionFromSharedPropertiesFile() =
-        ktlintPluginsPropertiesReader
-            .ktlintVersion()
-            ?.also { logger.debug { "Use Ktlint version $it defined in property shared by all ktlint plugins" } }
-
-    private fun KtlintProjectSettings.ktlintRulesetVersionFromKtlintConfiguration() =
-        ktlintVersion
-            ?.also { logger.debug { "Use Ktlint version $it defined in ktlint-intellij-plugin configuration" } }
-
-    private fun defaultKtlintRulesetVersion() =
-        KtlintVersion
-            .DEFAULT
-            .also { logger.debug { "Use default Ktlint version $it as ktlint-intellij-plugin configuration is not found" } }
-
-    fun ktlintPluginsPropertiesReader(project: Project): KtlintPluginsPropertiesReader {
-        configure(project)
-        return ktlintPluginsPropertiesReader
-    }
-
-    fun baselineProvider(project: Project): BaselineProvider {
-        configure(project)
-        return baselineProvider
-    }
-}
-
 /**
  * Keeps the state of loaded baseline. It serves as a cache so that the baseline does not need to be reloaded from the file system on each
  * invocation of ktlint format.
@@ -396,16 +329,17 @@ class BaselineProvider {
     private var error: String? = null
     private var baselineErrors: List<BaselineError> = emptyList()
 
-    fun configure(baselinePath: String?) {
+    fun setProject(project: Project) {
+        val baselinePath = project.config().baselinePath
         if (baselinePath != this.baselinePath) {
-            this.baselinePath = baselinePath
+            this.baselinePath = project.config().baselinePath
             error = null
             baselineErrors = emptyList()
             if (baselinePath != null) {
                 try {
                     baselineErrors =
-                        KtlintConnector
-                            .getInstance()
+                        project
+                            .ktlintConnector()
                             .loadBaselineErrorsToIgnore(baselinePath)
                             .also { logger.debug { "Load baseline from file '$baselinePath'" } }
                 } catch (e: BaselineLoadingException) {
