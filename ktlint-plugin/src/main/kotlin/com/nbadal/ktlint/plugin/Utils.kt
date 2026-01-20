@@ -7,6 +7,6 @@ fun Project.config(): KtlintProjectSettings = getService(KtlintProjectSettings::
 
 fun Project.ktlintMode(): KtlintMode = config().ktlintMode
 
-fun Project.ktlintVersion(): KtlintVersion = config().ktlintVersion ?: KtlintVersion.DEFAULT
+fun Project.ktlintVersion(): KtlintVersion = config().ktlintVersion() ?: KtlintVersion.DEFAULT
 
 fun Project.isEnabled(ktlintFeature: KtlintFeature) = config().ktlintMode.isEnabled(ktlintFeature)

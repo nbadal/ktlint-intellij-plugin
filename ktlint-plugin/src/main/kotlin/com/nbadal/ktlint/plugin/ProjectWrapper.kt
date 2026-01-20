@@ -21,15 +21,17 @@ class ProjectWrapper private constructor() {
             this.project = project
             with(project.config()) {
                 baselineProvider.setProject(project)
-                KtlintConnector.getInstance().let { ktlintConnector ->
-                    ktlintPluginsPropertiesReader.setProject(project)
-                    ktlintConnector.loadRulesets(ktlintVersion())
-                    ktlintConnector.loadExternalRulesetJars(externalJarPaths)
-                }
+                KtlintConnector
+                    .getInstance() // Cannot use project.ktlintConnector() here as it results in infinite loop
+                    .let { ktlintConnector ->
+                        ktlintPluginsPropertiesReader.setProject(project)
+                        ktlintConnector.loadRulesets(ktlintVersionFromSharedPropertiesOrKtlintConfiguration())
+                        ktlintConnector.loadExternalRulesetJars(externalJarPaths)
+                    }
             }
         }
 
-    private fun KtlintProjectSettings.ktlintVersion() =
+    private fun KtlintProjectSettings.ktlintVersionFromSharedPropertiesOrKtlintConfiguration() =
         ktlintRulesetVersionFromSharedPropertiesFile()
             ?: ktlintRulesetVersionFromKtlintConfiguration()
             ?: defaultKtlintRulesetVersion()
@@ -40,7 +42,7 @@ class ProjectWrapper private constructor() {
             ?.also { logger.debug { "Use Ktlint version $it defined in property shared by all ktlint plugins" } }
 
     private fun KtlintProjectSettings.ktlintRulesetVersionFromKtlintConfiguration() =
-        ktlintVersion
+        ktlintVersion()
             ?.also { logger.debug { "Use Ktlint version $it defined in ktlint-intellij-plugin configuration" } }
 
     private fun defaultKtlintRulesetVersion() =

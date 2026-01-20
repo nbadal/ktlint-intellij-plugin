@@ -265,10 +265,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             .ktlintPluginsPropertiesReader()
             .ktlintVersion
             ?.let { ktlintVersion -> KtlintVersionConfiguration(ktlintVersion, Location.SHARED_PLUGIN_PROPERTIES) }
-            ?: KtlintVersionConfiguration(
-                project.config().ktlintVersion ?: KtlintVersion.DEFAULT,
-                Location.NATIVE_PLUGIN_CONFIGURATION,
-            )
+            ?: KtlintVersionConfiguration(project.config().ktlintVersion() ?: KtlintVersion.DEFAULT, Location.NATIVE_PLUGIN_CONFIGURATION)
 
     fun reset(project: Project) {
         project.updateProjectWrapper()

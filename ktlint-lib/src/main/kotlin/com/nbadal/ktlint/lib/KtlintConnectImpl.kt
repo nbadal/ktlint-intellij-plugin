@@ -35,6 +35,9 @@ class KtlintConnectImpl : KtlintConnector {
 
     private lateinit var ktlintRuleEngine: KtLintRuleEngine
 
+    private val _supportedKtlintVersions =
+        KtlintRulesetVersion.entries.map { KtlintVersion(it.label(), it.alternativeRulesetVersion?.label()) }
+
     override fun loadExternalRulesetJars(externalJarPaths: List<String>) =
         externalRuleSetJarLoader
             .loadRuleProviders(externalJarPaths)
@@ -205,8 +208,9 @@ class KtlintConnectImpl : KtlintConnector {
             )
         }
 
-    override fun supportedKtlintVersions(): List<KtlintVersion> =
-        KtlintRulesetVersion.entries.map { KtlintVersion(it.label(), it.alternativeRulesetVersion?.label()) }
+    override fun supportedKtlintVersions(): List<KtlintVersion> = _supportedKtlintVersions
+
+    override fun findSupportedKtlintVersionByLabel(label: String?) = _supportedKtlintVersions.firstOrNull { it.label == label }
 }
 
 private class EditorConfigOptionDescriptorsProvider(

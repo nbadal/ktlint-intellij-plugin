@@ -3,9 +3,9 @@ package com.nbadal.ktlint.connector
 import java.io.Serializable
 
 data class KtlintVersion(
-    val label: String,
-    val alternativeKtlintVersionLabel: String? = null,
-) : Serializable {
+    var label: String = "",
+    var alternativeKtlintVersionLabel: String? = null,
+) {
     companion object {
         val DEFAULT = KtlintVersion("DEFAULT")
     }

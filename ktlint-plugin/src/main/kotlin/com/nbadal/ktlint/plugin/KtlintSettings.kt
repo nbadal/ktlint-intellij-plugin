@@ -6,6 +6,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.util.xmlb.annotations.Tag
+import com.nbadal.ktlint.connector.KtlintConnector
 import com.nbadal.ktlint.connector.KtlintVersion
 
 /**
@@ -60,8 +61,10 @@ class KtlintProjectSettings : PersistentStateComponent<KtlintProjectSettings> {
     @Tag
     var ktlintMode: KtlintMode = KtlintMode.NOT_INITIALIZED
 
-    @Tag
-    var ktlintVersion: KtlintVersion? = null
+    @Tag("ktlintVersion")
+    var ktlintVersionLabel: String? = null
+
+    fun ktlintVersion(): KtlintVersion? = KtlintConnector.getInstance().findSupportedKtlintVersionByLabel(ktlintVersionLabel)
 
     @Tag
     var formatOnSave: Boolean = true
@@ -83,7 +86,7 @@ class KtlintProjectSettings : PersistentStateComponent<KtlintProjectSettings> {
         @Suppress("USELESS_ELVIS")
         this.ktlintMode = state.ktlintMode ?: KtlintMode.NOT_INITIALIZED
 
-        this.ktlintVersion = state.ktlintVersion
+        this.ktlintVersionLabel = state.ktlintVersionLabel
         this.formatOnSave = state.formatOnSave
         this.attachToIntellijFormat = state.attachToIntellijFormat
         this.baselinePath = state.baselinePath

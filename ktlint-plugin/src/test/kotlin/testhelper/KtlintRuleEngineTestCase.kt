@@ -32,7 +32,7 @@ abstract class KtlintRuleEngineTestCase : BasePlatformTestCase() {
             every { attachToIntellijFormat } returns true
             every { baselinePath } returns null
             every { ktlintMode } returns KtlintMode.DISTRACT_FREE
-            every { ktlintVersion } returns KtlintVersion.DEFAULT
+            every { ktlintVersion() } returns KtlintVersion.DEFAULT
             every { externalJarPaths } returns emptyList()
         }
     private val files = mutableListOf<VirtualFile>()

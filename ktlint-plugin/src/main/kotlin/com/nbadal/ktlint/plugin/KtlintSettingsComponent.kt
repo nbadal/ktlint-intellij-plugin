@@ -12,6 +12,7 @@ import com.intellij.ui.components.panels.ListLayout
 import com.intellij.util.ui.FormBuilder
 import com.intellij.util.ui.NamedColorUtil
 import com.intellij.util.ui.UIUtil
+import com.nbadal.ktlint.connector.KtlintConnector
 import com.nbadal.ktlint.connector.KtlintVersion
 import com.nbadal.ktlint.plugin.KtlintRuleEngineWrapper.KtlintVersionConfiguration
 import java.awt.Cursor
@@ -124,9 +125,13 @@ class KtlintSettingsComponent(
                 }
 
         override var ktlintVersion: KtlintVersion
-            get() = KtlintVersion(ktlintVersionComboBoxWithWidePopup.selectedItem as String)
+            get() =
+                KtlintConnector
+                    .getInstance()
+                    .findSupportedKtlintVersionByLabel(ktlintVersionComboBoxWithWidePopup.selectedItem as String)
+                    ?: KtlintVersion.DEFAULT
             set(value) {
-                ktlintVersionComboBoxWithWidePopup.selectedItem = value
+                ktlintVersionComboBoxWithWidePopup.selectedItem = value.label
             }
 
         private val alternativeKtlintVersionUsedJLabel =
@@ -388,7 +393,7 @@ class KtlintSettingsComponent(
         KtlintApplicationSettings.getInstance().state.showBanner = showBannerCheckBox.isSelected
 
         ktlintProjectSettings.ktlintMode = ktlintMode
-        ktlintProjectSettings.ktlintVersion = ktlintVersionComponent.ktlintVersion
+        ktlintProjectSettings.ktlintVersionLabel = ktlintVersionComponent.ktlintVersion.label
         ktlintProjectSettings.formatOnSave = formatOnSaveCheckbox.isSelected
         ktlintProjectSettings.attachToIntellijFormat = attachToIntellijFormattingCheckbox.isSelected
         ktlintProjectSettings.externalJarPaths = externalRulesetJarPaths
@@ -415,7 +420,7 @@ class KtlintSettingsComponent(
         }
 
         if (ktlintVersionComponent is KtlintVersionComponentDefault) {
-            ktlintVersionComponent.ktlintVersion = ktlintProjectSettings.ktlintVersion ?: KtlintVersion.DEFAULT
+            ktlintVersionComponent.ktlintVersion = ktlintProjectSettings.ktlintVersion() ?: KtlintVersion.DEFAULT
         }
         formatOnSaveCheckbox.isSelected = ktlintProjectSettings.formatOnSave
         attachToIntellijFormattingCheckbox.isSelected = ktlintProjectSettings.attachToIntellijFormat
@@ -437,7 +442,7 @@ class KtlintSettingsComponent(
             !(
                 Objects.equals(KtlintApplicationSettings.getInstance().state.showBanner, showBannerCheckBox.isSelected) &&
                     Objects.equals(ktlintProjectSettings.ktlintMode, ktlintMode) &&
-                    Objects.equals(ktlintProjectSettings.ktlintVersion, ktlintVersionComponent.ktlintVersion) &&
+                    Objects.equals(ktlintProjectSettings.ktlintVersionLabel, ktlintVersionComponent.ktlintVersion.label) &&
                     Objects.equals(ktlintProjectSettings.formatOnSave, formatOnSaveCheckbox.isSelected) &&
                     Objects.equals(ktlintProjectSettings.attachToIntellijFormat, attachToIntellijFormattingCheckbox.isSelected) &&
                     Objects.equals(ktlintProjectSettings.baselinePath, baselinePath) &&

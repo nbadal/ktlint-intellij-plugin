@@ -87,6 +87,8 @@ interface KtlintConnector {
 
     fun supportedKtlintVersions(): List<KtlintVersion>
 
+    fun findSupportedKtlintVersionByLabel(label: String?): KtlintVersion?
+
     class ParseException(
         line: Int,
         col: Int,
