@@ -212,8 +212,6 @@ class KtlintConnectImpl : KtlintConnector() {
                 e,
             )
         }
-
-    override fun findSupportedKtlintVersionByLabel(label: String?) = _supportedKtlintVersions.firstOrNull { it.label == label }
 }
 
 private class EditorConfigOptionDescriptorsProvider(

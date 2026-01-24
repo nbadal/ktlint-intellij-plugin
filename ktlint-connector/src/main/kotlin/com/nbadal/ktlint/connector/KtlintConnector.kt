@@ -90,11 +90,6 @@ abstract class KtlintConnector {
     // when the values are called via the companion object.
     protected abstract val supportedKtlintVersions: List<KtlintVersion>
 
-    // The supportedKtlintVersions are identical for all projects as those versions are provided by the plugin which is shared by all
-    // projects. The applicable values still have to be provided by an implementation class, but from the call site the code is more clear
-    // when the values are called via the companion object.
-    protected abstract fun findSupportedKtlintVersionByLabel(label: String?): KtlintVersion?
-
     class ParseException(
         line: Int,
         col: Int,
@@ -118,21 +113,26 @@ abstract class KtlintConnector {
         private val _instance = loadKtlintConnectorImpl()
 
         /**
-         * In ktlint-plugin module use the "Project.ktlintConnector" extension method to get the reference to the KtlintConnector as that
-         * ensures that the KtlintConnect gets updated to the project when needed.
+         * In the ktlint-plugin module use the "Project.ktlintConnector" extension function to get the reference to the KtlintConnector.
+         * Note that this extension uses the ProjectWrapper class to actually get a reference to the KtlintConnector, but it also updates
+         * the KtlintConnector with relevant project settings.
          */
         fun getInstance() = _instance
 
+        // Trimming the memory on the KtlintConnector does not require the KtlintConnector to be updated to the active project. The call
+        // via the companion object makes this more clear at the call site.
+        // Note that the implementation of this method does use the _instance variable which links to an actual implementation of the
+        // KtlintConnector. This is required for decoupling the ktlint-lib and ktlint-plugin modules.
         fun trimMemory() = _instance.trimMemory()
 
-        // The supportedKtlintVersions are identical for all projects as those versions are provided by the plugin which is shared by all
-        // projects.
+        // Retrieving the supported ktlint versions does not require the KtlintConnector to be updated to the active project. The call
+        // via the companion object makes this more clear at the call site.
+        // Note that the implementation of this method does use the _instance variable which links to an actual implementation of the
+        // KtlintConnector. This is required for decoupling the ktlint-lib and ktlint-plugin modules.
         val supportedKtlintVersions: List<KtlintVersion> =
             _instance.supportedKtlintVersions
 
-        // The supportedKtlintVersions are identical for all projects as those versions are provided by the plugin which is shared by all
-        // projects.
-        fun findSupportedKtlintVersionByLabel(label: String?): KtlintVersion? = _instance.findSupportedKtlintVersionByLabel(label)
+        fun findSupportedKtlintVersionByLabel(label: String?): KtlintVersion? = supportedKtlintVersions.firstOrNull { it.label == label }
     }
 }
 
