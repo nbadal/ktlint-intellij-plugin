@@ -11,25 +11,24 @@ class ProjectWrapper private constructor() {
     private var baselineProvider = BaselineProvider()
     private var ktlintPluginsPropertiesReader = KtlintPluginsPropertiesReader()
 
-    fun setProject(project: Project): ProjectWrapper =
-        apply {
-            if (::project.isInitialized && this.project != project) {
-                // Ktlint has a static cache which is shared across all instances of the KtlintRuleEngine. Creating a new KtlintRuleEngine
-                // to load changes in the editorconfig is therefore not sufficient. The memory needs to be cleared explicitly.
-                KtlintConnector.getInstance().trimMemory()
-            }
-            this.project = project
-            with(project.config()) {
-                baselineProvider.setProject(project)
-                KtlintConnector
-                    .getInstance() // Cannot use project.ktlintConnector() here as it results in infinite loop
-                    .let { ktlintConnector ->
-                        ktlintPluginsPropertiesReader.setProject(project)
-                        ktlintConnector.loadRulesets(ktlintVersionFromSharedPropertiesOrKtlintConfiguration())
-                        ktlintConnector.loadExternalRulesetJars(externalJarPaths)
-                    }
-            }
+    private fun updateProject(project: Project): KtlintConnector {
+        if (::project.isInitialized && this.project != project) {
+            // Ktlint has a static cache which is shared across all instances of the KtlintRuleEngine. Creating a new KtlintRuleEngine
+            // to load changes in the editorconfig is therefore not sufficient. The memory needs to be cleared explicitly.
+            KtlintConnector.trimMemory()
         }
+        this.project = project
+        baselineProvider.setProject(project)
+        ktlintPluginsPropertiesReader.setProject(project)
+        return KtlintConnector
+            .getInstance()
+            .apply {
+                with(project.config()) {
+                    loadRulesets(ktlintVersionFromSharedPropertiesOrKtlintConfiguration())
+                    loadExternalRulesetJars(externalJarPaths)
+                }
+            }
+    }
 
     private fun KtlintProjectSettings.ktlintVersionFromSharedPropertiesOrKtlintConfiguration() =
         ktlintRulesetVersionFromSharedPropertiesFile()
@@ -50,18 +49,15 @@ class ProjectWrapper private constructor() {
             .DEFAULT
             .also { logger.debug { "Use default Ktlint version $it as ktlint-intellij-plugin configuration is not found" } }
 
-    fun ktlintConnector(project: Project): KtlintConnector {
-        setProject(project)
-        return KtlintConnector.getInstance()
-    }
+    fun ktlintConnector(project: Project): KtlintConnector = updateProject(project)
 
     fun ktlintPluginsPropertiesReader(project: Project): KtlintPluginsPropertiesReader {
-        setProject(project)
+        updateProject(project)
         return ktlintPluginsPropertiesReader
     }
 
     fun baselineProvider(project: Project): BaselineProvider {
-        setProject(project)
+        updateProject(project)
         return baselineProvider
     }
 
@@ -70,7 +66,9 @@ class ProjectWrapper private constructor() {
     }
 }
 
-fun Project.updateProjectWrapper(): ProjectWrapper = ProjectWrapper.instance.setProject(this)
+fun Project.updateProjectWrapper() {
+    ProjectWrapper.instance.ktlintConnector(this)
+}
 
 fun Project.ktlintConnector(): KtlintConnector = ProjectWrapper.instance.ktlintConnector(this)
 

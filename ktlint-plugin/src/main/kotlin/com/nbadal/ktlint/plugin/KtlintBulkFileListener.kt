@@ -53,19 +53,15 @@ class KtlintBulkFileListener : BulkFileListener {
     override fun after(events: List<VFileEvent>) {
         events
             .forEach { event ->
-                if (event.mightAffectKtlintPluginConfiguration()) {
-                    // Simply always reset the ktlint configuration in case a file that is used to configure ktlint is affected. In some
-                    // cases the ktlint configuration will be reset, while this might not be necessary. For example the `.editorconfig` file
-                    // is changed for a non-ktlint property. Detailed checking is quite complicated, and could lead to problems when
-                    // relevant cases are missed. Eagerly resetting on the other hand is not too expensive.
-                    event
-                        .guessProject()
-                        ?.run {
-                            KtlintRuleEngineWrapper
-                                .instance
-                                .reset(this)
-                        }
-                }
+                // Simply always reset the ktlintRuleEngineWrapper when an event is processed to ensure that the KtlintConnector is
+                // configured for the project to which the file belongs.
+                event
+                    .guessProject()
+                    ?.run {
+                        KtlintRuleEngineWrapper
+                            .instance
+                            .reset(this)
+                    }
             }
     }
 

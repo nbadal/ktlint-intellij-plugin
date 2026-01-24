@@ -9,10 +9,10 @@ import java.util.ServiceLoader
  * The [KtlintConnector] is an abstraction that aims to decouple the Ktlint Core code in the "ktlint-lib" module from the IntelliJ IDEA
  * plugin code in mode "ktlint-plugin".
  */
-interface KtlintConnector {
-    fun loadRulesets(ktlintVersion: KtlintVersion)
+abstract class KtlintConnector {
+    abstract fun loadRulesets(ktlintVersion: KtlintVersion)
 
-    fun loadExternalRulesetJars(externalJarPaths: List<String>): List<String>
+    abstract fun loadExternalRulesetJars(externalJarPaths: List<String>): List<String>
 
     /**
      * Check the [code] for lint errors. If [code] is path as file reference then the '.editorconfig' files on the path to file are taken
@@ -21,7 +21,7 @@ interface KtlintConnector {
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
-    fun lint(
+    abstract fun lint(
         code: Code,
         callback: (LintError) -> Unit = { },
     )
@@ -47,7 +47,7 @@ interface KtlintConnector {
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
-    fun format(
+    abstract fun format(
         code: Code,
         rerunAfterAutocorrect: Boolean = true,
         defaultAutocorrect: Boolean = true,
@@ -55,9 +55,9 @@ interface KtlintConnector {
     ): String
 
     /**
-     * Reduce memory usage by cleaning internal caches.
+     * Reduce memory usage by cleaning internal caches. This function should be called via the companion object only.
      */
-    fun trimMemory()
+    protected abstract fun trimMemory()
 
     /**
      * A [Suppress] annotation can only be inserted at specific locations. This function is intended for API Consumers. It updates given [code]
@@ -70,7 +70,7 @@ interface KtlintConnector {
      * This is intentional as adding a suppression for the [suppression] does not mean that other lint errors which can be autocorrected should
      * be autocorrected.
      */
-    fun insertSuppression(
+    abstract fun insertSuppression(
         code: Code,
         suppression: SuppressionAtOffset,
     ): String
@@ -79,15 +79,21 @@ interface KtlintConnector {
      * Get a list of ".editorconfig" option descriptors for the rule sets, rules, and properties defined for the rule providers of the
      * [KtlintRuleEngine]
      */
-    fun getEditorConfigOptionDescriptors(): List<KtlintEditorConfigOptionDescriptor>
+    abstract fun getEditorConfigOptionDescriptors(): List<KtlintEditorConfigOptionDescriptor>
 
-    fun ruleIdsWithAutocorrectApproveHandler(): Set<RuleId>
+    abstract val ruleIdsWithAutocorrectApproveHandler: Set<RuleId>
 
-    fun loadBaselineErrorsToIgnore(baselinePath: String): List<BaselineError>
+    abstract fun loadBaselineErrorsToIgnore(baselinePath: String): List<BaselineError>
 
-    fun supportedKtlintVersions(): List<KtlintVersion>
+    // The supportedKtlintVersions are identical for all projects as those versions are provided by the plugin which is shared by all
+    // projects. The applicable values still have to be provided by an implementation class, but from the call site the code is more clear
+    // when the values are called via the companion object.
+    protected abstract val supportedKtlintVersions: List<KtlintVersion>
 
-    fun findSupportedKtlintVersionByLabel(label: String?): KtlintVersion?
+    // The supportedKtlintVersions are identical for all projects as those versions are provided by the plugin which is shared by all
+    // projects. The applicable values still have to be provided by an implementation class, but from the call site the code is more clear
+    // when the values are called via the companion object.
+    protected abstract fun findSupportedKtlintVersionByLabel(label: String?): KtlintVersion?
 
     class ParseException(
         line: Int,
@@ -111,8 +117,22 @@ interface KtlintConnector {
     companion object {
         private val _instance = loadKtlintConnectorImpl()
 
-        // TODO: replace function with variable
+        /**
+         * In ktlint-plugin module use the "Project.ktlintConnector" extension method to get the reference to the KtlintConnector as that
+         * ensures that the KtlintConnect gets updated to the project when needed.
+         */
         fun getInstance() = _instance
+
+        fun trimMemory() = _instance.trimMemory()
+
+        // The supportedKtlintVersions are identical for all projects as those versions are provided by the plugin which is shared by all
+        // projects.
+        val supportedKtlintVersions: List<KtlintVersion> =
+            _instance.supportedKtlintVersions
+
+        // The supportedKtlintVersions are identical for all projects as those versions are provided by the plugin which is shared by all
+        // projects.
+        fun findSupportedKtlintVersionByLabel(label: String?): KtlintVersion? = _instance.findSupportedKtlintVersionByLabel(label)
     }
 }
 

@@ -9,6 +9,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
+import com.nbadal.ktlint.connector.KtlintConnector
 import com.nbadal.ktlint.connector.LintError
 import com.nbadal.ktlint.connector.RuleId
 import com.nbadal.ktlint.connector.RuleSetId
@@ -129,7 +130,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
         errorTextRange: TextRange,
     ) {
         when {
-            lintError.ruleId in KtlintRuleEngineWrapper.instance.ruleIdsWithAutocorrectApproveHandler(psiFile) -> {
+            lintError.ruleId in psiFile.project.ktlintConnector().ruleIdsWithAutocorrectApproveHandler -> {
                 // Fixing of individual lint errors is supported for this rule. No tooltip needed.
                 newAnnotation(WARNING, lintError.errorMessage())
                     .range(errorTextRange)

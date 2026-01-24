@@ -64,7 +64,7 @@ class KtlintProjectSettings : PersistentStateComponent<KtlintProjectSettings> {
     @Tag("ktlintVersion")
     var ktlintVersionLabel: String? = null
 
-    fun ktlintVersion(): KtlintVersion? = KtlintConnector.getInstance().findSupportedKtlintVersionByLabel(ktlintVersionLabel)
+    fun ktlintVersion(): KtlintVersion? = KtlintConnector.findSupportedKtlintVersionByLabel(ktlintVersionLabel)
 
     @Tag
     var formatOnSave: Boolean = true

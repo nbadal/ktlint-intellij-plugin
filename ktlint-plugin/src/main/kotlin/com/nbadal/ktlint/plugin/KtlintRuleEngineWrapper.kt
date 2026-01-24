@@ -20,21 +20,15 @@ import com.nbadal.ktlint.connector.KtlintConnector.BaselineLoadingException
 import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor
 import com.nbadal.ktlint.connector.KtlintVersion
 import com.nbadal.ktlint.connector.LintError
-import com.nbadal.ktlint.connector.RuleId
 import com.nbadal.ktlint.connector.SuppressionAtOffset
 import com.nbadal.ktlint.plugin.KtlintRuleEngineWrapper.KtlintVersionConfiguration.Location
 import org.ec4j.core.parser.ParseException
-import java.lang.IllegalStateException
 import java.nio.file.Path
 
 private val logger = KtlintLogger()
 
 internal class KtlintRuleEngineWrapper internal constructor() {
-    fun ruleIdsWithAutocorrectApproveHandler(psiFile: PsiFile): Set<RuleId> =
-        psiFile
-            .project
-            .ktlintConnector()
-            .ruleIdsWithAutocorrectApproveHandler()
+    private lateinit var project: Project
 
     fun lint(
         psiFile: PsiFile,
@@ -267,9 +261,16 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             ?.let { ktlintVersion -> KtlintVersionConfiguration(ktlintVersion, Location.SHARED_PLUGIN_PROPERTIES) }
             ?: KtlintVersionConfiguration(project.config().ktlintVersion() ?: KtlintVersion.DEFAULT, Location.NATIVE_PLUGIN_CONFIGURATION)
 
+    /**
+     * Ensure that the KtlintConnector is up to date with the project for which the current file is being edited.
+     */
     fun reset(project: Project) {
-        project.updateProjectWrapper()
-        project.resetKtlintAnnotatorUserData()
+        if (!::project.isInitialized || this.project != project) {
+            this.project = project
+            logger.debug { "Reset KtlintRuleEngineWrapper because (another) project is selected" }
+            project.updateProjectWrapper()
+            project.resetKtlintAnnotatorUserData()
+        }
     }
 
     fun getEditorConfigOptionDescriptors(project: Project): List<KtlintEditorConfigOptionDescriptor> =

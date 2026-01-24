@@ -5,10 +5,12 @@ import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import com.nbadal.ktlint.connector.KtlintConnector
 import com.nbadal.ktlint.connector.LintError
 import com.nbadal.ktlint.plugin.KtlintRuleEngineWrapper
 import com.nbadal.ktlint.plugin.KtlintViolationAutocorrectHandler
 import com.nbadal.ktlint.plugin.findElementAt
+import com.nbadal.ktlint.plugin.ktlintConnector
 
 class KtlintAutocorrectIntention(
     private val lintError: LintError,
@@ -23,7 +25,7 @@ class KtlintAutocorrectIntention(
         editor: Editor?,
         psiFile: PsiFile,
     ): Boolean {
-        if (lintError.ruleId !in KtlintRuleEngineWrapper.instance.ruleIdsWithAutocorrectApproveHandler(psiFile)) {
+        if (lintError.ruleId !in psiFile.project.ktlintConnector().ruleIdsWithAutocorrectApproveHandler) {
             // This rule does not implement the AutocorrectApproveHandler. As of that it is not able to autocorrect only this specific lint
             // error in case the PsiFile contains multiple errors which are emitted by the same rule.
             return false

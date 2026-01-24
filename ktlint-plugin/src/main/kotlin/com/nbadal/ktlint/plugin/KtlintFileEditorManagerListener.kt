@@ -16,4 +16,12 @@ class KtlintFileEditorManagerListener : FileEditorManagerListener {
 
         super.fileOpened(source, file)
     }
+
+    // The selectionChanged event is raised when clicking a different editor tab. Unfortunately when switch between application windows
+    // (e.g. when multiple projects are opened in different application windows), this event is not sent. As of that this is not a
+    // reliable way to update the project in the ProjectWrapper.
+    // https://platform.jetbrains.com/t/fileeditormanagerlistener-does-not-trigger-selectionchanged-if-window-is-opened-on-second-screen/1199/5
+    // override fun selectionChanged(event: FileEditorManagerEvent) {
+    //
+    // }
 }

@@ -26,7 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import org.ec4j.core.model.PropertyType.LowerCasingPropertyType
 
-class KtlintConnectImpl : KtlintConnector {
+class KtlintConnectImpl : KtlintConnector() {
     private val externalRuleSetJarLoader = ExternalRuleSetJarLoader()
     private var externalRuleSetJarRuleProviders = emptySet<RuleProvider>()
 
@@ -35,8 +35,14 @@ class KtlintConnectImpl : KtlintConnector {
 
     private lateinit var ktlintRuleEngine: KtLintRuleEngine
 
+    private lateinit var _ruleIdsWithAutocorrectApproveHandler: Set<RuleId>
+    override val ruleIdsWithAutocorrectApproveHandler: Set<RuleId>
+        get() = _ruleIdsWithAutocorrectApproveHandler
+
     private val _supportedKtlintVersions =
         KtlintRulesetVersion.entries.map { KtlintVersion(it.label(), it.alternativeRulesetVersion?.label()) }
+    override val supportedKtlintVersions: List<KtlintVersion>
+        get() = _supportedKtlintVersions
 
     override fun loadExternalRulesetJars(externalJarPaths: List<String>) =
         externalRuleSetJarLoader
@@ -69,6 +75,13 @@ class KtlintConnectImpl : KtlintConnector {
                         editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
                         ruleProviders = ruleProviders,
                     )
+                _ruleIdsWithAutocorrectApproveHandler =
+                    ktlintRuleEngine
+                        .ruleProviders
+                        .map { it.createNewRuleInstance() }
+                        .filter { it is RuleAutocorrectApproveHandler }
+                        .map { RuleId(it.ruleId.value) }
+                        .toSet()
             }
 
     override fun lint(
@@ -169,14 +182,6 @@ class KtlintConnectImpl : KtlintConnector {
         EditorConfigOptionDescriptorsProvider(ktlintRuleEngine.ruleProviders)
             .getEditorConfigOptionDescriptors()
 
-    override fun ruleIdsWithAutocorrectApproveHandler(): Set<RuleId> =
-        ktlintRuleEngine
-            .ruleProviders
-            .map { it.createNewRuleInstance() }
-            .filter { it is RuleAutocorrectApproveHandler }
-            .map { RuleId(it.ruleId.value) }
-            .toSet()
-
     // Reconsider whether to remove the Baseline functionality from Ktlint Core entirely. In many cases it not seems to work
     // properly. When creating the baseline, all errors from that run are stored. On next format run, other errors may pop
     // up after the errors of the first run were suppressed. But, those errors can not be appended to the already existing
@@ -207,8 +212,6 @@ class KtlintConnectImpl : KtlintConnector {
                 e,
             )
         }
-
-    override fun supportedKtlintVersions(): List<KtlintVersion> = _supportedKtlintVersions
 
     override fun findSupportedKtlintVersionByLabel(label: String?) = _supportedKtlintVersions.firstOrNull { it.label == label }
 }
