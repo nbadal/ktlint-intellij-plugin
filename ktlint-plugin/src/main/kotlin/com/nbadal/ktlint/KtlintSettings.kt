@@ -23,7 +23,7 @@ class KtlintApplicationSettings : PersistentStateComponent<KtlintApplicationSett
     data class State(
         // Some users work on projects for which only a subselection is using ktlint. They do not want to see the ktlint banner advocating
         // to configure the ktlint project in the project that are not using ktlint. Neither do they want to disable ktlint explicitly in
-        // those other projects, as that would result in creating a plugin settings file inside hte '.idea' folder of the project.
+        // those other projects, as that would result in creating a plugin settings file inside the '.idea' folder of the project.
         var showBanner: Boolean = true,
     )
 

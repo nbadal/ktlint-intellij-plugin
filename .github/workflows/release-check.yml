@@ -9,12 +9,12 @@ jobs:
   release-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Check for new release
         id: check
         run: ./check-release.sh
       - name: Create pull request if necessary
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           title: Update max IDE build to ${{ steps.check.outputs.newUntil }}
           body: A newer version [has been published](https://www.jetbrains.com/idea/download/). PR generated automatically.

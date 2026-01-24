@@ -1,26 +1,36 @@
 package com.nbadal.ktlint
 
+import com.intellij.ide.plugins.PluginManager
+import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
+import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.CONFIGURATION
 import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
 import java.nio.file.Path
 
 const val KTLINT_PLUGINS_PROPERTIES_FILE_NAME = "ktlint-plugins.properties"
 const val KTLINT_PLUGINS_VERSION_PROPERTY = "ktlint-version"
 
-private val logger = KtlintLogger("com.nbdal.ktlint.KtlintPluginsPropertiesReader")
+private val logger = KtlintLogger()
 
 class KtlintPluginsPropertiesReader {
     private var properties: Map<String, String> = emptyMap()
-    private var projectBasePath: String? = null
+    private var project: Project? = null
+    private var projectBasepath: String? = null
     private var readFromKtlintPluginPropertiesFile = false
+    private var showErrorOnUnsupportedKtlintVersion = true
 
-    fun configure(projectBasePath: String?) {
-        this.projectBasePath = projectBasePath
-        properties =
-            ktlintPluginsPropertiesVirtualFile(projectBasePath)
-                ?.readProperties()
-                ?: emptyMap()
+    fun configure(project: Project?) {
+        if (this.project != project || this.project?.basePath != projectBasepath) {
+            this.project = project
+            projectBasepath = project?.basePath
+            showErrorOnUnsupportedKtlintVersion = true
+            properties =
+                ktlintPluginsPropertiesVirtualFile(project?.basePath)
+                    ?.readProperties()
+                    ?: emptyMap()
+        }
     }
 
     private fun ktlintPluginsPropertiesVirtualFile(projectBasePath: String?) =
@@ -51,7 +61,7 @@ class KtlintPluginsPropertiesReader {
 
     fun ktlintRulesetVersion(): KtlintRulesetVersion? {
         if (!readFromKtlintPluginPropertiesFile) {
-            logger.debug { "File '$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' not found in $projectBasePath" }
+            logger.debug { "File '$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' not found in ${project?.basePath}" }
             return null
         }
 
@@ -59,7 +69,7 @@ class KtlintPluginsPropertiesReader {
         return if (ktlintVersionLabel.isNullOrBlank()) {
             logger.debug {
                 "No value found for property '$KTLINT_PLUGINS_VERSION_PROPERTY' in file '$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' " +
-                    "in $projectBasePath"
+                    "in ${project?.basePath}"
             }
             null
         } else {
@@ -75,6 +85,28 @@ class KtlintPluginsPropertiesReader {
                     logger.debug {
                         "Ktlint version '$ktlintVersionLabel' defined in property '$KTLINT_PLUGINS_VERSION_PROPERTY' in file " +
                             "'$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' is not supported by this version of the ktlint-intellij-plugin."
+                    }
+                    if (showErrorOnUnsupportedKtlintVersion) {
+                        // Prevent the error from being shown too many times
+                        showErrorOnUnsupportedKtlintVersion = false
+
+                        val ktlintPluginVersion =
+                            PluginManager
+                                .getInstance()
+                                .findEnabledPlugin(PluginId.findId("com.nbadal.ktlint")!!)
+                                ?.version
+
+                        KtlintNotifier
+                            .notifyError(
+                                notificationGroup = CONFIGURATION,
+                                project = project!!,
+                                title = "Unsupported Ktlint version",
+                                message =
+                                    """
+                                    Ktlint version <strong>$ktlintVersionLabel</strong> is not supported by current version 
+                                    (<strong>$ktlintPluginVersion</strong>) of Ktlint Intelli Plugin.
+                                    """.trimIndent(),
+                            )
                     }
                 }
         }

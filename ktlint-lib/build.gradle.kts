@@ -44,11 +44,11 @@ dependencies {
     // compileOnly(project(":ktlint-lib:ruleset-X-Y-X-SNAPSHOT")) // Required for IDE
     // implementation(project(":ktlint-lib:ruleset-X-Y-Z", "shadow"))
 
-    compileOnly(project(":ktlint-lib:ruleset-1-7-1")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-7-1", "shadow"))
+    compileOnly(project(":ktlint-lib:ruleset-1-8-0")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-1-8-0", "shadow"))
 
-    compileOnly(project(":ktlint-lib:ruleset-1-7-0")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-7-0", "shadow"))
+    compileOnly(project(":ktlint-lib:ruleset-1-7-2")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-1-7-2", "shadow"))
 
     compileOnly(project(":ktlint-lib:ruleset-1-6-0")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-6-0", "shadow"))
@@ -118,6 +118,7 @@ tasks {
         // IMPORTANT: Third party suppliers of rule set need to add those relocations as well!
         relocate("org.jetbrains.org", "shadow.org.jetbrains.org")
         relocate("org.jetbrains.concurrency", "shadow.org.jetbrains.concurrency")
+        relocate("org.jetbrains.kotlin", "shadow.org.jetbrains.kotlin")
 
         // Ktlint-lib itself may not be minimized as this would result in exceptions when loading custom rulesets as the RulesetProviderV3
         // cannot be found

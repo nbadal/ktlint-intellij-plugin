@@ -9,7 +9,7 @@ enum class KtlintMode(
     NOT_INITIALIZED(
         setOf(
             KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
-            KtlintFeature.SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT,
+            KtlintFeature.SHOW_PROBLEM_WITH_NUMBER_OF_KTLINT_VIOLATIONS_THAT_CAN_BE_AUTOCORRECTED,
             KtlintFeature.SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS,
             KtlintFeature.SHOW_INTENTION_SETTINGS_DIALOG,
             KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND,
@@ -22,7 +22,6 @@ enum class KtlintMode(
      */
     DISTRACT_FREE(
         setOf(
-            KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
             KtlintFeature.DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR,
             KtlintFeature.FORMAT_WITH_KTLINT_ON_SAVE,
             KtlintFeature.POST_FORMAT_WITH_KTLINT,
@@ -41,9 +40,8 @@ enum class KtlintMode(
     MANUAL(
         setOf(
             KtlintFeature.DISPLAY_ALL_VIOLATIONS,
-            KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
             KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT,
-            KtlintFeature.SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT,
+            KtlintFeature.SHOW_PROBLEM_WITH_NUMBER_OF_KTLINT_VIOLATIONS_THAT_CAN_BE_AUTOCORRECTED,
             KtlintFeature.SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS,
             KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION,
         ),
@@ -80,9 +78,10 @@ enum class KtlintFeature {
     FORMAT_WITH_KTLINT_ON_SAVE,
 
     /**
-     * Shows an intention to force formatting of the file with ktlint manually.
+     * Shows a file analysis problem when Ktlint has found violations that can be autocorrected, but which are not fixed automatically as
+     * ktlint format is not run automatically.
      */
-    SHOW_INTENTION_FORCE_FORMAT_WITH_KTLINT,
+    SHOW_PROBLEM_WITH_NUMBER_OF_KTLINT_VIOLATIONS_THAT_CAN_BE_AUTOCORRECTED,
 
     /**
      * Allows the developer to manually format the files or directories selected in the project explorer.
@@ -103,11 +102,6 @@ enum class KtlintFeature {
      * Shows the intention to display all violations in the current file.
      */
     SHOW_INTENTION_TO_DISPLAY_ALL_VIOLATIONS,
-
-    /**
-     * Displays one single problem containing a summary of the number of violations that are ignored (e.g. not displayed individually).
-     */
-    DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND,
 
     /**
      * Makes the developer aware that Ktlint plugin is not yet configured for the project. Banner is however only displayed when an

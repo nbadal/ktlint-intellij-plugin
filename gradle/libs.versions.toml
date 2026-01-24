@@ -1,23 +1,27 @@
 [versions]
 # libraries
+assertj = "3.27.6"
 junit = "4.13.2"
 # plugins
-changelog = "2.4.0"
-intelliJPlatform = "2.10.4"
-kotlin = "2.2.21"
-kover = "0.9.3"
-ktlint = "1.7.1"
-qodana = "2025.2.1"
-shadow = "8.1.1"
+changelog = "2.5.0"
+intelliJPlatform = "2.10.5"
+kotlin = "2.3.0"
+kover = "0.9.4"
+ktlint = "1.8.0"
+mockk = "1.14.7"
+qodana = "2025.3.1"
+shadow = "8.3.9"
 slf4j="2.0.17"
 
 [libraries]
+assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ktlintRuleEngine = {  group = "com.pinterest.ktlint", name = "ktlint-rule-engine", version.ref = "ktlint" }
 ktlintCliRulesetCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-ruleset-core", version.ref = "ktlint" }
 ktlintCliReporterCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-reporter-core", version.ref = "ktlint" }
 ktlintCliReporterBaselineCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-reporter-baseline", version.ref = "ktlint" }
 ktlintRulesetStandard = {  group = "com.pinterest.ktlint", name = "ktlint-ruleset-standard", version.ref = "ktlint" }
+mockk = {  group = "io.mockk", name = "mockk", version.ref = "mockk" }
 slf4j-api = {  group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 
 [plugins]
@@ -26,4 +30,4 @@ intelliJPlatform = { id = "org.jetbrains.intellij.platform", version.ref = "inte
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 qodana = { id = "org.jetbrains.qodana", version.ref = "qodana" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

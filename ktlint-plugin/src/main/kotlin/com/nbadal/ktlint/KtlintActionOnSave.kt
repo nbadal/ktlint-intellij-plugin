@@ -43,16 +43,18 @@ class KtlintActionOnSave : ActionOnSave() {
                         triggeredBy = "KtlintActionOnSave",
                     )
             } else {
-                // Only format files which were modified
-                psiFiles.forEach { psiFile ->
-                    KtlintRuleEngineWrapper
-                        .instance
-                        .format(
-                            psiFile,
-                            ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
-                            triggeredBy = "KtlintActionOnSave",
-                        )
-                }
+                // Only format kotlin files which were modified
+                psiFiles
+                    .filter { it.virtualFile.isKotlinFile() }
+                    .forEach { psiFile ->
+                        KtlintRuleEngineWrapper
+                            .instance
+                            .format(
+                                psiFile,
+                                ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+                                triggeredBy = "KtlintActionOnSave",
+                            )
+                    }
             }
         }
     }

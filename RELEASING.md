@@ -7,10 +7,10 @@ Releasing a new version:
 1. Verification before starting release:
     * Check that none of the `build.gradle.kts` depends on `mavenLocal()`. Those may only be used in snapshot versions of the plugin build on the local machine.
     * Check that none of the `build.gradle.kts` depends on `maven("https://central.sonatype.com/repository/maven-snapshots/")`. Those may only be used when publishing to the beta or dev channel.
-    * Check that the `ktlint` version in `lib.versions.toml` is updated to the latest version of ktlint.
+    * Check that the `ktlint` version in `gradle/lib.versions.toml` is updated to the latest version of ktlint.
     * Check that the ruleset for the *latest* ktlint version has been added to `ktlint-lib`. Supported rulesets (including the ruleset of the *latest* ktlint version) have to be included explicitly. See `README.md` in `ktlint-lib` for more information.
-2. Check whether the plugin description in the readme file of the plugin-folder is up to date as this is used as the description of the plugin on the Jetbrains Marketplace inside IntelliJ IDEA and for [Marketplace Overview](https://plugins.jetbrains.com/plugin/15057-ktlint?noRedirect=true).
-3. Check that the change notes (functional changes and requirements) in the `plugin.xml` file are up to date as those are used for the Jetbrains Marketplace inside IntelliJ IDEA and for [Marketplace Overview](https://plugins.jetbrains.com/plugin/15057-ktlint?noRedirect=true).
+2. Check whether the plugin description in the `ktlint-plugin/README.md` file is up to date as this is used as the description of the plugin on the Jetbrains Marketplace inside IntelliJ IDEA and for [Marketplace Overview](https://plugins.jetbrains.com/plugin/15057-ktlint?noRedirect=true).
+3. Check that the change notes (functional changes and requirements) in the `ktlint-plugin/README.md` file are up to date as those are used for the Jetbrains Marketplace inside IntelliJ IDEA and for [Marketplace Overview](https://plugins.jetbrains.com/plugin/15057-ktlint?noRedirect=true).
 4. Do not change the heading `Unreleased` in `CHANGELOG.md` as it will be updated automatically. Also, the release will be added automatically to the bottom of the `CHANGELOG.md` file.
 5. Set field `pluginVersion` in `gradle.properties` to the new version number. Note that when the version is suffixed with `-beta` it will be released on the beta channel of the plugin only. Only users that have configured the additional repository `https://plugins.jetbrains.com/plugins/list?pluginId=com.nbadal.ktlint&channel=beta` will see the new version after it is released. Same for `-dev` to publish to `dev` channel
 6. Push change and merge to main

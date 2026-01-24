@@ -1,19 +1,25 @@
 package com.nbadal.ktlint
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationAction
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
+import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.CONFIGURATION
+import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.DEFAULT
+import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.RULE
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintExecutionType.FORMAT
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintExecutionType.LINT
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.FILE_RELATED_ERROR
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.NOT_STARTED
-import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.PLUGIN_CONFIGURATION_ERROR
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.SUCCESS
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintVersion.Source.NATIVE_PLUGIN_CONFIGURATION
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintVersion.Source.SHARED_PLUGIN_PROPERTIES
@@ -35,8 +41,10 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
 import org.ec4j.core.parser.ParseException
 import java.io.File
+import java.lang.IllegalStateException
+import java.nio.file.Path
 
-private val logger = KtlintLogger("com.nbdal.ktlint.KtlintFormat")
+private val logger = KtlintLogger()
 
 internal class KtlintRuleEngineWrapper internal constructor() {
     private val ktlintRuleWrapperConfig = KtlintRuleWrapperConfig()
@@ -92,6 +100,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         FileEditorManager
             .getInstance(project)
             .openFiles
+            .filter { it.isKotlinFile() }
             .forEach { virtualFile ->
                 PsiManager
                     .getInstance(project)
@@ -115,21 +124,22 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         logger.debug { "Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'" }
 
         ktlintRuleWrapperConfig
-            .ktlintRuleEngineProvider(psiFile.project)
-            .takeIf { it.hasErrorLoadingExternalRulesetJar() }
-            ?.let { ktlintRuleEngineProvider ->
+            .configure(psiFile.project)
+            .ktlintRuleEngineProvider
+            .errorLoadingExternalRulesetJar()
+            ?.let { error ->
+                // Report the external ruleset that was not loaded successfully. But continue with format of file with the rule providers
+                // that have been loaded successfully.
                 KtlintNotifier
                     .notifyError(
+                        notificationGroup = RULE,
                         project = psiFile.project,
-                        title = "Error in external ruleset JAR",
-                        message =
-                            """
-                                One or more of the external rule set JAR's defined in the ktlint settings, can not be loaded.
-                                Error: ${ktlintRuleEngineProvider.errorLoadingExternalRulesetJar()}
-                            """.trimMargin(),
-                        forceSettingsDialog = true,
-                    )
-                return KtlintResult(PLUGIN_CONFIGURATION_ERROR)
+                        title = "Invalid external ruleset JAR",
+                        message = error,
+                    ) {
+                        addAction(OpenSettingsAction(psiFile.project))
+                    }
+                // Do not prevent formatting of file with the rulesets that were loaded successfully.
             }
 
         val baselineErrors =
@@ -145,14 +155,16 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         val code =
             Code.fromSnippetWithPath(
                 content = PsiDocumentManager.getInstance(psiFile.project).getDocument(psiFile)!!.text,
-                virtualPath = psiFile.virtualFile.toNioPath(),
+                // For compatibility with unit tests the NioPath cannot be directly determined via the virtual file
+                virtualPath = Path.of(psiFile.virtualFile.path),
             )
 
         try {
             val ktlintRuleEngine =
                 ktlintRuleWrapperConfig
-                    .ktlintRuleEngineProvider(psiFile.project)
-                    .ktlintRuleEngine()
+                    .configure(psiFile.project)
+                    .ktlintRuleEngineProvider
+                    .ktlintRuleEngine
             if (ktlintExecutionType == LINT) {
                 ktlintRuleEngine.lint(code) { lintError -> lintErrors.add(lintError) }
             } else {
@@ -207,21 +219,13 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                 lintErrors.filterNot { baselineErrors.contains(it) },
                 fileChangedByFormat,
             )
-        } catch (ktLintParseException: KtLintParseException) {
-            // Most likely the file contains a compilation error which prevents it from being parsed. The user should resolve those errors.
-            // The stacktrace is excluded from the message as it would distract from resolving the error.
-            KtlintNotifier.notifyWarning(
-                project = psiFile.project,
-                title = "Parsing error",
-                message =
-                    """
-                    File '${psiFile.virtualFile.path}' can not be parsed by ktlint. Please resolve all (compilation) errors first.
-                    Error: ${ktLintParseException.message}
-                    """.trimIndent(),
-            )
+        } catch (_: KtLintParseException) {
+            // ParseException occur very frequently while typing code, and a save operation is executed while code cannot be compiled at
+            // that moment. Display a notification is distracting, and not helpful.
             return KtlintResult(FILE_RELATED_ERROR)
         } catch (ktLintRuleException: KtLintRuleException) {
             KtlintNotifier.notifyError(
+                notificationGroup = RULE,
                 project = psiFile.project,
                 title = "KtLintRuleException",
                 message =
@@ -234,6 +238,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             return KtlintResult(FILE_RELATED_ERROR)
         } catch (parseException: ParseException) {
             KtlintNotifier.notifyError(
+                notificationGroup = DEFAULT,
                 project = psiFile.project,
                 title = "Invalid editorconfig",
                 // The exception message already contains the path to the file, so don't repeat it
@@ -245,15 +250,25 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             )
             return KtlintResult(FILE_RELATED_ERROR)
         } catch (exception: Exception) {
-            KtlintNotifier.notifyError(
-                project = psiFile.project,
-                title = "Invalid editorconfig",
-                message =
-                    """
-                    An error occurred while processing file '${psiFile.virtualFile.path}':
-                    ${exception.stackTraceToString()}
-                    """.trimIndent(),
-            )
+            if (exception is IllegalStateException && exception.message?.startsWith("Skipping rule(s)") == true) {
+                KtlintNotifier.notifyError(
+                    notificationGroup = CONFIGURATION,
+                    project = psiFile.project,
+                    title = "Invalid editorconfig configuration",
+                    message = exception.message!!,
+                )
+            } else {
+                KtlintNotifier.notifyError(
+                    notificationGroup = DEFAULT,
+                    project = psiFile.project,
+                    title = "Uncategorized error",
+                    message =
+                        """
+                        An error occurred while processing file '${psiFile.virtualFile.path}':
+                        ${exception.stackTraceToString()}
+                        """.trimIndent(),
+                )
+            }
             return KtlintResult(FILE_RELATED_ERROR)
         }
     }
@@ -264,14 +279,16 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         ktlintSuppressionAtOffset: KtlintSuppressionAtOffset,
     ): String =
         ktlintRuleWrapperConfig
-            .ktlintRuleEngineProvider(psiFile.project)
-            .ktlintRuleEngine()
+            .configure(psiFile.project)
+            .ktlintRuleEngineProvider
+            .ktlintRuleEngine
             .insertSuppression(code, ktlintSuppressionAtOffset)
 
     fun ruleProviders(project: Project) =
         ktlintRuleWrapperConfig
-            .ktlintRuleEngineProvider(project)
-            .ktlintRuleEngine()
+            .configure(project)
+            .ktlintRuleEngineProvider
+            .ktlintRuleEngine
             .ruleProviders
 
     fun ktlintVersion(project: Project) =
@@ -285,7 +302,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             )
 
     fun reset(project: Project) {
-        ktlintRuleWrapperConfig.configure(project)
+        ktlintRuleWrapperConfig.reset(project)
         project.resetKtlintAnnotatorUserData()
     }
 
@@ -318,11 +335,6 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             SUCCESS,
 
             /**
-             * Ktlint can not run due to error in plugin configuration.
-             */
-            PLUGIN_CONFIGURATION_ERROR,
-
-            /**
              * Ktlint can not run due to error related to the file.
              */
             FILE_RELATED_ERROR,
@@ -335,19 +347,42 @@ internal class KtlintRuleEngineWrapper internal constructor() {
 }
 
 private class KtlintRuleWrapperConfig {
-    private val ktlintRuleEngineProvider = KtlintRuleEngineProvider()
+    private lateinit var _ktlintRuleEngineProvider: KtlintRuleEngineProvider
 
-    private val baselineProvider = BaselineProvider()
+    val ktlintRuleEngineProvider: KtlintRuleEngineProvider
+        get() = _ktlintRuleEngineProvider
 
-    private val ktlintPluginsPropertiesReader = KtlintPluginsPropertiesReader()
+    private lateinit var baselineProvider: BaselineProvider
 
-    fun configure(project: Project) {
-        with(project.config()) {
-            baselineProvider.configure(baselinePath)
-            ktlintPluginsPropertiesReader.configure(project.basePath)
-            ktlintRuleEngineProvider.configure(ktlintRulesetVersion(), externalJarPaths)
+    private lateinit var ktlintPluginsPropertiesReader: KtlintPluginsPropertiesReader
+
+    init {
+        reset(null)
+    }
+
+    fun reset(project: Project?) {
+        // Ktlint has a static cache which is shared across all instances of the KtlintRuleEngine. Creates a new KtlintRuleEngine to load
+        // changes in the editorconfig is therefore not sufficient. The memory needs to be cleared explicitly.
+        if (::_ktlintRuleEngineProvider.isInitialized) {
+            _ktlintRuleEngineProvider.ktlintRuleEngine.trimMemory()
+        }
+
+        _ktlintRuleEngineProvider = KtlintRuleEngineProvider()
+        baselineProvider = BaselineProvider()
+        ktlintPluginsPropertiesReader = KtlintPluginsPropertiesReader()
+        if (project != null) {
+            configure(project)
         }
     }
+
+    fun configure(project: Project): KtlintRuleWrapperConfig =
+        apply {
+            with(project.config()) {
+                baselineProvider.configure(baselinePath)
+                ktlintPluginsPropertiesReader.configure(project)
+                _ktlintRuleEngineProvider.configure(ktlintRulesetVersion(), externalJarPaths)
+            }
+        }
 
     private fun KtlintProjectSettings.ktlintRulesetVersion() =
         ktlintRulesetVersionFromSharedPropertiesFile()
@@ -368,11 +403,6 @@ private class KtlintRuleWrapperConfig {
             .DEFAULT
             .also { logger.debug { "Use default Ktlint version $it as ktlint-intellij-plugin configuration is not found" } }
 
-    fun ktlintRuleEngineProvider(project: Project): KtlintRuleEngineProvider {
-        configure(project)
-        return ktlintRuleEngineProvider
-    }
-
     fun ktlintPluginsPropertiesReader(project: Project): KtlintPluginsPropertiesReader {
         configure(project)
         return ktlintPluginsPropertiesReader
@@ -390,7 +420,10 @@ private class KtlintRuleEngineProvider {
      */
     private lateinit var ruleSetProviders: RuleSetProviders
 
-    private lateinit var ktlintRuleEngine: KtLintRuleEngine
+    private lateinit var _ktlintRuleEngine: KtLintRuleEngine
+
+    val ktlintRuleEngine: KtLintRuleEngine
+        get() = _ktlintRuleEngine
 
     fun configure(
         ktlintRulesetVersion: KtlintRulesetVersion,
@@ -402,59 +435,54 @@ private class KtlintRuleEngineProvider {
         ) {
             logger.info("Configure KtlintRuleEngineWrapper $ktlintRulesetVersion, $externalJarPaths")
             ruleSetProviders = RuleSetProviders(ktlintRulesetVersion, externalJarPaths)
-
-            ruleSetProviders
-                .ruleProviders
-                ?.let { ruleProviders ->
-                    ktlintRuleEngine =
-                        KtLintRuleEngine(
-                            editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
-                            ruleProviders = ruleProviders,
-                        )
-                }
+            _ktlintRuleEngine =
+                KtLintRuleEngine(
+                    editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
+                    ruleProviders = ruleSetProviders.ruleProviders,
+                )
         }
     }
 
-    fun ktlintRuleEngine() = ktlintRuleEngine
-
-    fun hasErrorLoadingExternalRulesetJar(): Boolean = errorLoadingExternalRulesetJar() != null
-
-    fun errorLoadingExternalRulesetJar(): String? = ruleSetProviders.takeIf { it.isLoaded }?.error
+    fun errorLoadingExternalRulesetJar(): String? = ruleSetProviders.errorLoadingExternalRulesetJar
 }
 
 private data class RuleSetProviders(
     val ktlintRulesetVersion: KtlintRulesetVersion,
     val externalJarPaths: List<String>,
 ) {
-    private var _error: String? = null
+    private var _errorLoadingExternalRulesetJar: String? = null
 
-    val error: String?
-        get() = _error
-
-    private var _isLoaded = false
-
-    val isLoaded: Boolean
-        get() = _isLoaded
+    val errorLoadingExternalRulesetJar: String?
+        get() = _errorLoadingExternalRulesetJar
 
     val ruleProviders =
+        externalJarPaths
+            .flatMap { externalJarRuleProviders(it) }
+            .plus(standardKtlintRuleProviders())
+            .toSet()
+
+    private fun externalJarRuleProviders(path: String) =
         try {
-            _error = null
-            _isLoaded = true
-            externalJarPaths
-                .map { File(it).toURI().toURL() }
+            listOf(File(path).toURI().toURL())
                 .loadCustomRuleProviders()
-                .also { logger.info { "Loaded ${it.size} rules from custom rule providers $externalJarPaths" } }
-                .plus(ktlintRulesetVersion.ruleProviders())
-                .also {
-                    logger.info {
-                        "Loaded ${ktlintRulesetVersion.ruleProviders().size} rules from default ktlint ruleset version '${ktlintRulesetVersion.label()}'"
-                    }
-                }
+                .also { logger.info { "Loaded ${it.size} rules from custom rule provider $path" } }
         } catch (throwable: Throwable) {
-            _isLoaded = false
-            _error = throwable.toString()
-            null
+            logger.error(throwable) { "Cannot load external ruleset jar '$path" }
+            // It is not possible to direct call KtlintNotifier to display a notification. This results in endless loop while trying to load
+            // the settings dialog
+            _errorLoadingExternalRulesetJar =
+                "An error occurred while reading external ruleset file '$path'. No ktlint ruleset can be loaded from this file."
+            emptyList()
         }
+
+    private fun standardKtlintRuleProviders() =
+        ktlintRulesetVersion
+            .ruleProviders()
+            .also {
+                logger.info {
+                    "Loaded ${ktlintRulesetVersion.ruleProviders().size} rules from default ktlint ruleset version '${ktlintRulesetVersion.label()}'"
+                }
+            }
 }
 
 /**
@@ -489,11 +517,13 @@ class BaselineProvider {
     fun baselineErrors(psiFile: PsiFile): BaselineErrors {
         error?.run {
             KtlintNotifier.notifyError(
+                notificationGroup = CONFIGURATION,
                 project = psiFile.project,
                 title = "Loading baseline",
                 message = this,
-                forceSettingsDialog = true,
-            )
+            ) {
+                addAction(OpenSettingsAction(psiFile.project))
+            }
             return BaselineErrors(emptyList())
         }
 
@@ -526,4 +556,15 @@ class BaselineErrors(
                         baselineError.status == KtlintCliError.Status.BASELINE_IGNORED
                 }
             }
+}
+
+private class OpenSettingsAction(
+    val project: Project,
+) : NotificationAction("Open ktlint settings...") {
+    override fun actionPerformed(
+        e: AnActionEvent,
+        notification: Notification,
+    ) {
+        ShowSettingsUtil.getInstance().showSettingsDialog(project, KtlintConfig::class.java)
+    }
 }

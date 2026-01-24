@@ -11,17 +11,18 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND
 import com.nbadal.ktlint.KtlintFeature.DISPLAY_ALL_VIOLATIONS
-import com.nbadal.ktlint.KtlintFeature.DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND
 import com.nbadal.ktlint.KtlintFeature.DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR
-import com.nbadal.ktlint.actions.ForceFormatIntention
+import com.nbadal.ktlint.KtlintFeature.SHOW_PROBLEM_WITH_NUMBER_OF_KTLINT_VIOLATIONS_THAT_CAN_BE_AUTOCORRECTED
 import com.nbadal.ktlint.actions.KtlintAutocorrectIntention
+import com.nbadal.ktlint.actions.KtlintFormatIntention
 import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
 import com.nbadal.ktlint.actions.ShowAllKtlintViolationsIntention
 import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 
 internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
-    private val logger = KtlintLogger(this::class.qualifiedName)
+    private val logger = KtlintLogger()
 
     override fun collectInformation(
         psiFile: PsiFile,
@@ -30,13 +31,28 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
     ): List<LintError>? =
         when {
             hasErrors -> {
-                // Ignore ktlint when other errors (for example compilation errors) are found
-                null
+                // Ignore ktlint when other errors (for example compilation errors) are found. It is very distracting to see multiple ktlint
+                // violations while typing in code that cannot yet be compiled.
+                if (psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) ||
+                    editor.document.ktlintAnnotatorUserData?.displayAllKtlintViolations == true
+                ) {
+                    listOf(
+                        LintError(
+                            line = 1,
+                            col = 1,
+                            ruleId = RuleId("ktlint:ktlint-intellij-plugin"),
+                            detail = "Code is not scanned for Ktlint violations as long as errors are found in this file",
+                            canBeAutoCorrected = false,
+                        ),
+                    )
+                } else {
+                    null
+                }
             }
 
             psiFile.project.isEnabled(DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR) ||
                 psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) ||
-                psiFile.project.isEnabled(DISPLAY_PROBLEM_WITH_NUMBER_OF_VIOLATIONS_FOUND) ||
+                psiFile.project.isEnabled(SHOW_PROBLEM_WITH_NUMBER_OF_KTLINT_VIOLATIONS_THAT_CAN_BE_AUTOCORRECTED) ||
                 (
                     psiFile.project.isEnabled(AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND) &&
                         KtlintApplicationSettings.getInstance().state.showBanner
@@ -71,8 +87,11 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
     ) {
         val displayAllKtlintViolations = psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) || psiFile.displayAllKtlintViolations
         val ignoreViolationsPredicate: (LintError) -> Boolean =
-            if (psiFile.project.isEnabled(DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR) &&
-                !psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS)
+            if (psiFile.project.isEnabled(SHOW_PROBLEM_WITH_NUMBER_OF_KTLINT_VIOLATIONS_THAT_CAN_BE_AUTOCORRECTED) ||
+                (
+                    psiFile.project.isEnabled(DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR) &&
+                        !psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS)
+                )
             ) {
                 // By default, hide all violations which can be autocorrected unless the current editor is configured to display all
                 // violations. Hiding aims to distract the developer as little as possible as those violations can be resolved by using
@@ -83,7 +102,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
             }
 
         createAnnotationsPerViolation(psiFile, errors, annotationHolder, ignoreViolationsPredicate)
-        if (KtlintApplicationSettings.getInstance().state.showBanner) {
+        if (psiFile.project.isEnabled(SHOW_PROBLEM_WITH_NUMBER_OF_KTLINT_VIOLATIONS_THAT_CAN_BE_AUTOCORRECTED)) {
             createAnnotationSummaryForIgnoredViolations(psiFile, errors, annotationHolder, ignoreViolationsPredicate)
         }
     }
@@ -208,12 +227,13 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 .withFix(KtlintOpenSettingsIntention())
                 .withFix(KtlintOpenSettingsDoNotShowAgainIntention())
                 .create()
-        } else {
+        }
+        if (psiFile.project.isEnabled(SHOW_PROBLEM_WITH_NUMBER_OF_KTLINT_VIOLATIONS_THAT_CAN_BE_AUTOCORRECTED)) {
             annotationHolder
                 .newAnnotation(WARNING, message)
                 .range(TextRange(0, 0))
                 .withFix(ShowAllKtlintViolationsIntention())
-                .withFix(ForceFormatIntention())
+                .withFix(KtlintFormatIntention())
                 .create()
         }
     }
