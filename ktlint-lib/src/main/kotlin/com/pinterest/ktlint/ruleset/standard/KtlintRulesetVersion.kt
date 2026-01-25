@@ -28,12 +28,15 @@ enum class KtlintRulesetVersion(
     V1_6_0(StandardRuleSetProviderV1_6_0()),
     V1_5_0(StandardRuleSetProviderV1_5_0()),
     V1_4_1(StandardRuleSetProviderV1_4_1()),
+    V1_4_0(StandardRuleSetProviderV1_4_1(), V1_4_1),
     V1_3_1(StandardRuleSetProviderV1_3_1()),
     V1_3_0(StandardRuleSetProviderV1_3_0()),
     V1_2_1(StandardRuleSetProviderV1_2_1()),
     V1_2_0(StandardRuleSetProviderV1_2_0()),
     V1_1_1(StandardRuleSetProviderV1_1_1()),
+    V1_1_0(StandardRuleSetProviderV1_1_1(), V1_1_1),
     V1_0_1(StandardRuleSetProviderV1_0_1()),
+    V1_0_0(StandardRuleSetProviderV1_0_1(), V1_0_1),
 
     // Older versions are not compatible with the plugin and are therefore not supported.
     // * Version 0.50 uses mu/KotlinLogger which new minifying of the rulesets conflicts logger of 1.x versions
