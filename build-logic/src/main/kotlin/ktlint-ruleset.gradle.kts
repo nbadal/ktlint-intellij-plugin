@@ -24,7 +24,7 @@ val rulesetExtension =
         "ktlintRuleset",
         KtlintRulesetExtension::class,
     ).apply {
-        includeKotlinxExcludes.convention(false)
+        includeKotlinxExcludes.convention(true)
         addEc4jCoreConstraint.convention(false)
     }
 
@@ -39,7 +39,7 @@ afterEvaluate {
     val ktlintVersion =
         rulesetExtension.version.orNull
             ?: error("ktlintRuleset.version is required")
-    val includeKotlinxExcludes = rulesetExtension.includeKotlinxExcludes.getOrElse(false)
+    val includeKotlinxExcludes = rulesetExtension.includeKotlinxExcludes.getOrElse(true)
     val addEc4jCoreConstraint = rulesetExtension.addEc4jCoreConstraint.getOrElse(false)
     val relocateSuffix = "V" + ktlintVersion.replace('.', '_')
 

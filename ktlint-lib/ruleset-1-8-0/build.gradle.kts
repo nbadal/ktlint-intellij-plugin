@@ -4,5 +4,4 @@ plugins {
 
 ktlintRuleset {
     version = "1.8.0"
-    includeKotlinxExcludes = true
 }
