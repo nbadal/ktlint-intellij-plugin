@@ -1,4 +1,4 @@
-name: Check IntelliJ Release
+name: Check IDE Release
 
 on:
   workflow_dispatch:
@@ -6,13 +6,13 @@ on:
     - cron: '0 2 * * *' 
 
 jobs:
-  release-check:
+  ide-release-check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Check for new release
+      - name: Check for new IDE release
         id: check
-        run: ./check-release.sh
+        run: ./check-ide-release.sh
       - name: Create pull request if necessary
         uses: peter-evans/create-pull-request@v8
         with:
@@ -21,4 +21,3 @@ jobs:
           commit-message: Update max IDE build to ${{ steps.check.outputs.newUntil }}
           branch: update-plugin-max
           delete-branch: true
-
