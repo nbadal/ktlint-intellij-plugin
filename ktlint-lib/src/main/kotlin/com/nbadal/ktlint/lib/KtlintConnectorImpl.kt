@@ -26,7 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import org.ec4j.core.model.PropertyType.LowerCasingPropertyType
 
-class KtlintConnectImpl : KtlintConnector() {
+class KtlintConnectorImpl : KtlintConnector() {
     private val externalRuleSetJarLoader = ExternalRuleSetJarLoader()
     private var externalRuleSetJarRuleProviders = emptySet<RuleProvider>()
 
