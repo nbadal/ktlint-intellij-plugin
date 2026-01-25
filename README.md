@@ -1,13 +1,16 @@
+<img src="ktlint-plugin/src/main/resources/META-INF/pluginIcon.svg" alt="plugin icon" width="128" />
+
 # Ktlint IntelliJ Plugin
 
 [![Build](https://github.com/nbadal/ktlint-intellij-plugin/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/nbadal/ktlint-intellij-plugin/actions/workflows/build.yml)
 [![Version](https://img.shields.io/jetbrains/plugin/v/15057.svg)](https://plugins.jetbrains.com/plugin/15057)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/15057.svg)](https://plugins.jetbrains.com/plugin/15057)
 [![GitHub license](https://img.shields.io/github/license/nbadal/ktlint-intellij-plugin.svg)](LICENSE)
+[![Slack](https://img.shields.io/badge/slack-@kotlinlang/ktlint-yellow.svg?logo=slack)](https://kotlinlang.slack.com/messages/CKS3XG0LS)
 
 Formats code with [ktlint](https://pinterest.github.io/ktlint/) after IntelliJ IDEA formatting or on save of file.
 
-Ktlint is an anti bikeshedding linter/formatter for Kotlin code based on the [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html), [Android Kotlin Style Guide](https://developer.android.com/kotlin/style-guide), and other best practices.
+Ktlint is an anti-bikeshedding linter/formatter for Kotlin code based on the [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html), [Android Kotlin Style Guide](https://developer.android.com/kotlin/style-guide), and other best practices.
 
 ## Installation
 
@@ -35,9 +38,7 @@ This repo is a multi-module project:
 
 ## Development and maintenance
 
-- Contribution and local development: see `CONTRIBUTING.md`.
-- Release process: see `RELEASING.md`.
-- Ruleset/version maintenance: see `CONTRIBUTING.md`.
+See `CONTRIBUTING.md` for contribution, local development, release process, and ruleset/version maintenance.
 
 ---
 Plugin based on the [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template).
