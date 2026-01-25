@@ -16,7 +16,7 @@ jobs:
       - name: Create pull request if necessary
         uses: peter-evans/create-pull-request@v8
         with:
-          title: Update max IDE build to ${{ steps.check.outputs.newUntil }}
+          title: Update max IDE build to ${{ steps.check.outputs.newUntil }} (${{ steps.check.outputs.newVersion }})
           body: A newer version [has been published](https://www.jetbrains.com/idea/download/). PR generated automatically.
           commit-message: Update max IDE build to ${{ steps.check.outputs.newUntil }}
           branch: update-plugin-max
