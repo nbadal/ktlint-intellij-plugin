@@ -10,7 +10,7 @@ kover = "0.9.4"
 ktlint = "1.8.0"
 mockk = "1.14.7"
 qodana = "2025.3.1"
-shadow = "8.3.9"
+shadow = "9.3.1"
 slf4j="2.0.17"
 
 [libraries]
