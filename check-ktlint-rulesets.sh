@@ -1,30 +1,68 @@
 #!/usr/bin/env bash
 set -euf -o pipefail
 
+# Minimum ktlint ruleset version to consider. Ignores versions below this.
 MIN_VERSION="1.0.0"
+
+# Comma-separated list of published versions to ignore (e.g., "8.8.8,9.9.9")
 IGNORED_VERSIONS=""
 
 MAVEN_METADATA_URL="https://repo1.maven.org/maven2/com/pinterest/ktlint/ktlint-ruleset-standard/maven-metadata.xml"
 
+# Check for required binaries.
+missing_cmds=0
+for cmd in curl rg awk sort comm find sed; do
+    if ! command -v "$cmd" &> /dev/null; then
+        echo "Missing required command: $cmd"
+        missing_cmds=$((missing_cmds + 1))
+    fi
+done
+
+if [[ $missing_cmds -gt 0 ]]; then
+    exit 1
+fi
+
+# Temp file to pass module versions into awk without embedding newlines in vars.
 tmp_mods=$(mktemp)
 trap 'rm -f "$tmp_mods"' EXIT
 
+# Compares two semantic versions. Returns 1 if left >= right, else 0.
 version_ge() {
-    local a=$1 b=$2
-    awk -v a="$a" -v b="$b" 'BEGIN {
-        n=split(a, A, "."); m=split(b, B, ".");
-        for (i=1; i<=3; i++) {
-            ai = (i<=n ? A[i]+0 : 0);
-            bi = (i<=m ? B[i]+0 : 0);
-            if (ai>bi) { print 1; exit }
-            if (ai<bi) { print 0; exit }
-        }
-        print 1
-    }'
+    local left=$1 right=$2
+    local left_major=0 left_minor=0 left_patch=0
+    local right_major=0 right_minor=0 right_patch=0
+
+    IFS='.' read -r left_major left_minor left_patch <<< "$left"
+    IFS='.' read -r right_major right_minor right_patch <<< "$right"
+
+    if [[ ${left_major:-0} -gt ${right_major:-0} ]]; then
+        echo 1
+        return
+    elif [[ ${left_major:-0} -lt ${right_major:-0} ]]; then
+        echo 0
+        return
+    fi
+
+    if [[ ${left_minor:-0} -gt ${right_minor:-0} ]]; then
+        echo 1
+        return
+    elif [[ ${left_minor:-0} -lt ${right_minor:-0} ]]; then
+        echo 0
+        return
+    fi
+
+    if [[ ${left_patch:-0} -ge ${right_patch:-0} ]]; then
+        echo 1
+        return
+    fi
+
+    echo 0
 }
 
+# Normalize ignored versions into a sorted, newline-delimited list.
 ignored_list=$(echo "$IGNORED_VERSIONS" | tr ',' '\n' | sed '/^$/d' | sort -u)
 
+# Fetch published versions from Maven metadata, drop pre-release tags, and apply MIN_VERSION.
 published_versions=$(
     curl -s "$MAVEN_METADATA_URL" \
         | grep -oE '<version>[^<]+' \
@@ -38,10 +76,12 @@ published_versions=$(
         | sort -u
 )
 
+# Remove explicitly ignored versions from the published list.
 published_versions=$(
     comm -23 <(echo "$published_versions") <(echo "$ignored_list")
 )
 
+# Read supported versions from module folder names (ruleset-1-2-3 -> 1.2.3).
 module_versions=$(
     find ktlint-lib -maxdepth 1 -type d -name "ruleset-*" -print \
         | sed 's#.*/ruleset-##' \
@@ -51,10 +91,12 @@ module_versions=$(
 
 echo "$module_versions" > "$tmp_mods"
 
+# Capture enum entry lines (e.g., V1_7_0(...)) for parsing and fallback detection.
 enum_lines=$(
     rg -n "^\s*V[0-9]+(_[0-9]+)+\(" ktlint-lib/src/main/kotlin/com/pinterest/ktlint/ruleset/standard/KtlintRulesetVersion.kt
 )
 
+# Extract enum versions from the lines above (V1_7_0 -> 1.7.0).
 enum_versions=$(
     echo "$enum_lines" | awk '{
         if (match($0, /V[0-9_]+/)) {
@@ -66,6 +108,7 @@ enum_versions=$(
     }' | sort -u
 )
 
+# Union of supported versions from modules and enum.
 supported_versions=$(
     {
         echo "$module_versions"
@@ -73,8 +116,10 @@ supported_versions=$(
     } | sort -u
 )
 
+# Versions published in Maven that are not supported by either source.
 unsupported_versions=$(comm -23 <(echo "$published_versions") <(echo "$supported_versions"))
 
+# Versions that have modules but are missing in the enum.
 modules_missing_in_enum=$(comm -23 <(echo "$module_versions") <(echo "$enum_versions"))
 
 enum_missing_in_modules=$(
