@@ -106,7 +106,7 @@ intellijPlatform {
         changeNotes = pluginReadmeSection("change-notes")
 
         ideaVersion {
-            sinceBuild = providers.gradleProperty("pluginSinceBuild")
+            sinceBuild = providers.gradleProperty("verifyPluginSinceBuild")
             untilBuild = providers.gradleProperty("pluginUntilBuild")
         }
     }
