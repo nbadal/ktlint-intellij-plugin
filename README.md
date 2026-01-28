@@ -27,8 +27,8 @@ Ktlint is an anti-bikeshedding linter/formatter for Kotlin code based on the [Ko
 
 ## Compatibility
 
-- IntelliJ IDEA Platform 2024.1 - 2025.3 (see `pluginSinceBuild` / `pluginUntilBuild` in `gradle.properties`).
-- Default ktlint version: `1.8.0` (see `gradle/libs.versions.toml`).
+- IntelliJ IDEA Platform compatibility is defined by `pluginSinceBuild` / `pluginUntilBuild` in [`gradle.properties`](gradle.properties).
+- Default ktlint version is defined in [`gradle/libs.versions.toml`](gradle/libs.versions.toml).
 
 ## Project structure
 
@@ -38,7 +38,7 @@ This repo is a multi-module project:
 
 ## Development and maintenance
 
-See `CONTRIBUTING.md` for contribution, local development, release process, and ruleset/version maintenance.
+See `CONTRIBUTING.md` for contribution, local development, and ruleset/version maintenance. Release and publishing steps are in `MAINTAINERS.md`.
 
 ---
 Plugin based on the [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template).
