@@ -37,7 +37,7 @@ Enable and configure in `Preferences` > `Tools` > `KtLint`.
 
 # Requirements
 
-* IntelliJ IDEA Platform 2024.1 - 2025.3
+* IntelliJ IDEA Platform 2024.1 - 2026.1 (EAP)
 <!-- Plugin change-notes end -->
 
 ## Feature set

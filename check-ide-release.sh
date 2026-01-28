@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 set -euf -o pipefail
 
-# To run this script on the local machine for testing purposes, define the GITHUB_OUTPUT variable as follows:
-# export GITHUB_OUTPUT=/dev/stdout
+if [[ "${GITHUB_ACTIONS:-}" != "true" ]]; then
+    export GITHUB_OUTPUT="${GITHUB_OUTPUT:-/dev/stdout}"
+fi
 
 PLUGIN_UNTIL_BUILD=$(grep pluginUntilBuild gradle.properties | cut -d '=' -f 2 | xargs)
 echo "Current plugin supports until build ${PLUGIN_UNTIL_BUILD}"
 
-LATEST_IDEA_BUILD=$(curl -s 'https://data.services.jetbrains.com/products/releases?code=IIU&release.type=eap%2Crc&latest=true' | jq -r '.IIU[0].build')
+LATEST_IDEA_RESPONSE=$(curl -s 'https://data.services.jetbrains.com/products/releases?code=IIU&release.type=eap%2Crc&latest=true')
+LATEST_IDEA_BUILD=$(echo "$LATEST_IDEA_RESPONSE" | jq -r '.IIU[0].build')
+LATEST_IDEA_VERSION=$(echo "$LATEST_IDEA_RESPONSE" | jq -r '.IIU[0].version')
 echo "Latest IDEA build ${LATEST_IDEA_BUILD}"
 
 if [[ "$LATEST_IDEA_BUILD" == "$PLUGIN_UNTIL_BUILD" ]]; then
@@ -33,7 +36,10 @@ fi
 
 echo "updated=true" >> $GITHUB_OUTPUT
 echo "newUntil=$UNTIL_VERSION" >> $GITHUB_OUTPUT
+echo "newVersion=$LATEST_IDEA_VERSION" >> $GITHUB_OUTPUT
 
-# Command below fails on local machine (MacOs). Run command as follows for testing locally:
-# sed -i '' "s|pluginUntilBuild = $PLUGIN_UNTIL_BUILD|pluginUntilBuild = $UNTIL_VERSION|g" gradle.properties
-sed -i "s|pluginUntilBuild = $PLUGIN_UNTIL_BUILD|pluginUntilBuild = $UNTIL_VERSION|g" gradle.properties
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    sed -i '' "s|pluginUntilBuild = $PLUGIN_UNTIL_BUILD|pluginUntilBuild = $UNTIL_VERSION|g" gradle.properties
+else
+    sed -i "s|pluginUntilBuild = $PLUGIN_UNTIL_BUILD|pluginUntilBuild = $UNTIL_VERSION|g" gradle.properties
+fi
