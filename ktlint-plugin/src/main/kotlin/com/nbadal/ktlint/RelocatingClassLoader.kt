@@ -11,8 +11,6 @@ class RelocatingClassLoader(
     urls: Array<out URL>,
     parent: ClassLoader,
 ) : URLClassLoader(urls, parent) {
-    private val remapper = PackageRemapper()
-
     override fun findClass(name: String): Class<*> {
         val resourcePath = name.replace('.', '/') + ".class"
         val inputStream = getResourceAsStream(resourcePath) ?: throw ClassNotFoundException(name)
@@ -27,24 +25,28 @@ class RelocatingClassLoader(
     private fun transformBytecode(bytecode: ByteArray): ByteArray {
         val reader = ClassReader(bytecode)
         val writer = ClassWriter(reader, 0)
-        val classRemapper = ClassRemapper(writer, remapper)
+        val classRemapper =
+            ClassRemapper(
+                writer,
+                object : Remapper() {
+                    override fun map(internalName: String): String =
+                        if (relocatedPrefixes.any { internalName.startsWith(it) }) {
+                            "shadow/$internalName"
+                        } else {
+                            internalName
+                        }
+                },
+            )
         reader.accept(classRemapper, 0)
         return writer.toByteArray()
     }
 
-    private class PackageRemapper : Remapper() {
-        private val relocatedPrefixes =
+    private companion object {
+        val relocatedPrefixes =
             listOf(
                 "org/jetbrains/kotlin",
                 "org/jetbrains/org",
                 "org/jetbrains/concurrency",
             )
-
-        override fun map(internalName: String): String =
-            if (relocatedPrefixes.any { internalName.startsWith(it) }) {
-                "shadow/$internalName"
-            } else {
-                internalName
-            }
     }
 }
