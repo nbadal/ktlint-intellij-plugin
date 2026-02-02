@@ -97,10 +97,6 @@ tasks {
     withType<ShadowJar> {
         // Relocate to prevent conflicts with same packages provided by Intellij IDEA as well. The embeddable Kotlin compiler in the Ktlint
         // jar differs from the compiler provided in the IDEA.
-        // IMPORTANT: These need to be added to `RelocatingClassLoader` as well!
-        relocate("org.jetbrains.kotlin.psi.KtPsiFactory", "shadow.org.jetbrains.kotlin.psi.KtPsiFactory")
-        relocate("org.jetbrains.kotlin.psi.psiUtil", "shadow.org.jetbrains.kotlin.psi.psiUtil")
-
         // From "compatability verification" (plugin verifier) results:
         //     The plugin distribution bundles IDE packages
         //       'org.jetbrains.org.objectweb.asm.signature',
