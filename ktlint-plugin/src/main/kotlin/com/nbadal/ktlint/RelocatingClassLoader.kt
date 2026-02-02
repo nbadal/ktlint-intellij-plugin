@@ -25,28 +25,29 @@ class RelocatingClassLoader(
     private fun transformBytecode(bytecode: ByteArray): ByteArray {
         val reader = ClassReader(bytecode)
         val writer = ClassWriter(reader, 0)
-        val classRemapper =
-            ClassRemapper(
-                writer,
-                object : Remapper() {
-                    override fun map(internalName: String): String =
-                        if (relocatedPrefixes.any { internalName.startsWith(it) }) {
-                            "shadow/$internalName"
-                        } else {
-                            internalName
-                        }
-                },
-            )
+        val classRemapper = ClassRemapper(writer, remapper)
         reader.accept(classRemapper, 0)
         return writer.toByteArray()
     }
 
     private companion object {
-        val relocatedPrefixes =
-            listOf(
-                "org/jetbrains/kotlin",
-                "org/jetbrains/org",
-                "org/jetbrains/concurrency",
-            )
+        val remapper =
+            object : Remapper() {
+                override fun map(internalName: String): String =
+                    if (isRelocated(internalName)) {
+                        "shadow/$internalName"
+                    } else {
+                        internalName
+                    }
+
+                private fun isRelocated(internalName: String) = relocatedPrefixes.any { internalName.startsWith(it) }
+
+                private val relocatedPrefixes =
+                    listOf(
+                        "org/jetbrains/kotlin",
+                        "org/jetbrains/org",
+                        "org/jetbrains/concurrency",
+                    )
+            }
     }
 }
