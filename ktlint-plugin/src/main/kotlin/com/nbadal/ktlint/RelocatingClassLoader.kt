@@ -37,6 +37,7 @@ class RelocatingClassLoader(
             object : Remapper() {
                 override fun map(internalName: String): String =
                     if (isRelocated(internalName)) {
+                        // IMPORTANT: The prefix here must match the `ShadowJar` relocation target in ktlint-lib/build.gradle.kts
                         "shadow/$internalName"
                     } else {
                         internalName
@@ -44,6 +45,7 @@ class RelocatingClassLoader(
 
                 private fun isRelocated(internalName: String) = relocatedPrefixes.any { internalName.startsWith(it) }
 
+                // IMPORTANT: This must be kept in sync with the `ShadowJar` task in ktlint-lib/build.gradle.kts
                 private val relocatedPrefixes =
                     listOf(
                         "org/jetbrains/kotlin",

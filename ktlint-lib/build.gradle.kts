@@ -112,6 +112,7 @@ tasks {
         //       these IDE packages from the plugin distribution. If your plugin depends on classes of an IDE bundled plugin, explicitly
         //       specify dependency on that plugin instead of bundling it.
         // IMPORTANT: These need to be added to `RelocatingClassLoader` as well!
+        // See https://gradleup.com/shadow/configuration/relocation/
         relocate("org.jetbrains.org", "shadow.org.jetbrains.org")
         relocate("org.jetbrains.concurrency", "shadow.org.jetbrains.concurrency")
         relocate("org.jetbrains.kotlin", "shadow.org.jetbrains.kotlin")
