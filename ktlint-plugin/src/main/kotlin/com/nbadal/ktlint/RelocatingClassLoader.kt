@@ -7,6 +7,11 @@ import org.jetbrains.org.objectweb.asm.commons.Remapper
 import java.net.URL
 import java.net.URLClassLoader
 
+// Rewrites bytecode references to relocated packages when loading classes from custom ruleset JARs.
+// Custom rulesets reference non-relocated packages (e.g. `org.jetbrains.kotlin`), but ktlint-lib relocates
+// these to `shadow.*` via ShadowJar. This uses ASM's ClassRemapper to transform references at load time.
+// See the "Transforming classes" chapter of the ASM User Guide: https://asm.ow2.io/asm4-guide.pdf
+// See also: https://asm.ow2.io/javadoc/org/objectweb/asm/commons/ClassRemapper.html
 class RelocatingClassLoader(
     urls: Array<out URL>,
     parent: ClassLoader,
