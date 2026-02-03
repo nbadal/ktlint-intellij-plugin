@@ -17,12 +17,10 @@ class RelocatingClassLoader(
     parent: ClassLoader,
 ) : URLClassLoader(urls, parent) {
     override fun findClass(name: String): Class<*> {
-        val resourcePath = name.replace('.', '/') + ".class"
-        val inputStream = getResourceAsStream(resourcePath) ?: throw ClassNotFoundException(name)
+        val inputStream = getResourceAsStream(name.replace('.', '/') + ".class") ?: throw ClassNotFoundException(name)
 
         return inputStream.use { stream ->
-            val originalBytecode = stream.readBytes()
-            val transformedBytecode = transformBytecode(originalBytecode)
+            val transformedBytecode = transformBytecode(stream.readBytes())
             defineClass(name, transformedBytecode, 0, transformedBytecode.size)
         }
     }
@@ -30,8 +28,7 @@ class RelocatingClassLoader(
     private fun transformBytecode(bytecode: ByteArray): ByteArray {
         val reader = ClassReader(bytecode)
         val writer = ClassWriter(reader, 0)
-        val classRemapper = ClassRemapper(writer, remapper)
-        reader.accept(classRemapper, 0)
+        reader.accept(ClassRemapper(writer, remapper), 0)
         return writer.toByteArray()
     }
 
