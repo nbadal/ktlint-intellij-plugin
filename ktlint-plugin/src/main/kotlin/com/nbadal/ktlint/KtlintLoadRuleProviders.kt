@@ -5,7 +5,6 @@ import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import java.net.URL
-import java.net.URLClassLoader
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 
@@ -47,7 +46,7 @@ private fun <T> Class<T>.loadProvidersFromJars(url: URL?): Set<T> {
         val loader = FormatAction::class.java.classLoader
         thread.contextClassLoader = loader
         return try {
-            ServiceLoader.load(this, URLClassLoader(url.toArray(), loader)).toSet()
+            ServiceLoader.load(this, RelocatingClassLoader(url.toArray(), loader)).toSet()
         } catch (e: ServiceConfigurationError) {
             emptySet()
         }
