@@ -4,7 +4,21 @@
 
 ## [Unreleased]
 
-## [0.30.2-beta.2025-12-17_07-09-04] - 2025-12-17
+## [0.30.4] - 2026-02-04
+
+- Add RelocatingClassLoader to fix custom ruleset JARs by @haysmike in https://github.com/nbadal/ktlint-intellij-plugin/pull/799
+- Update min IDE build to 251.*
+- Update max IDE build to 261.* by @github-actions[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/787
+- Hoist ruleset logic to build-logic extension by @nbadal in https://github.com/nbadal/ktlint-intellij-plugin/pull/790
+- Make check-release run more intelligently locally by @nbadal in https://github.com/nbadal/ktlint-intellij-plugin/pull/789
+- Add script to check ruleset version coverage by @nbadal in https://github.com/nbadal/ktlint-intellij-plugin/pull/791
+- Fix failing runs of update-gradle-wrapper by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/797
+- Bump org.assertj:assertj-core to 3.27.7 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/785
+- Bump gradle-wrapper from 8.14.3 to 9.3.0 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/792
+- Update Gradle Wrapper from 9.3.0 to 9.3.1 by @github-actions[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/798
+- @haysmike made their first contribution in https://github.com/nbadal/ktlint-intellij-plugin/pull/799
+
+## [[0.30.2-beta.2025-12-17]_07-09-04] - 2025-12-17
 
 - Add Ktlint ruleset version 1.7.2 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/777
 
@@ -518,7 +532,9 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.2-beta.2025-12-17_07-09-04...HEAD
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.4...HEAD
+[0.30.4]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.2-beta.2025-12-17...v0.30.4
+[0.30.2-beta.2025-12-17]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.1...v0.30.2-beta.2025-12-17
 [0.30.1]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0-beta-2.2025-11-09...v0.30.0
 [0.30.0-dev-1.2025-10-06]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.29.0...v0.30.0-dev-1.2025-10-06
