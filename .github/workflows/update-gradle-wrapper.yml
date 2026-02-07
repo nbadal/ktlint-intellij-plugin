@@ -14,6 +14,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          # Work-around for failing runs (remote: Duplicate header: "Authorization") after upgrade actions/checkout to v6
+          # https://github.com/gradle-update/update-gradle-wrapper-action/pull/994
+          persist-credentials: false
 
       - name: Update Gradle Wrapper
         uses: gradle-update/update-gradle-wrapper-action@v2
