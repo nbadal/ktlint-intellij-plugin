@@ -1,4 +1,4 @@
-<img src='/META-INF/pluginIcon.svg?raw=true' alt="plugin icon" width='128' />  
+<img src="src/main/resources/META-INF/pluginIcon.svg" alt="plugin icon" width="128" />
 
 # ktlint-intellij-plugin
 
@@ -6,14 +6,14 @@
 [![Version](https://img.shields.io/jetbrains/plugin/v/15057.svg)](https://plugins.jetbrains.com/plugin/15057)
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/15057.svg)](https://plugins.jetbrains.com/plugin/15057)
-[![GitHub license](https://img.shields.io/github/license/nbadal/ktlint-intellij-plugin.svg)](https://github.com/nbadal/ktlint-intellij-plugin/blob/master/LICENSE.md)
+[![GitHub license](https://img.shields.io/github/license/nbadal/ktlint-intellij-plugin.svg)](https://github.com/nbadal/ktlint-intellij-plugin/blob/main/LICENSE)
 
 ## Plugin description
 
 <!-- Plugin description start -->
 Formats code with [KtLint](https://pinterest.github.io/ktlint/) after IntelliJ IDEA formatting or on save of file.
 
-Ktlint is an anti bikeshedding linter/formatter for Kotlin code based on the [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html), [Androids Kotlin Style guide](https://developer.android.com/kotlin/style-guide), and other best practices.
+Ktlint is an anti bikeshedding linter/formatter for Kotlin code based on the [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html), [Android Kotlin Style Guide](https://developer.android.com/kotlin/style-guide), and other best practices.
 
 Ktlint is configured in the `.editorconfig` file (see [KtLint configuration](https://pinterest.github.io/ktlint/latest/rules/configuration-ktlint/)). Next to this, the plugin itself has a few configuration options. The plugin can run in distinct modes. 
 
@@ -37,7 +37,7 @@ Enable and configure in `Preferences` > `Tools` > `KtLint`.
 
 # Requirements
 
-* IntelliJ IDEAIntellij IDEA Platform 2024.1 - 2026.1 (EAP)
+* IntelliJ IDEA Platform 2024.1 - 2026.1 (EAP)
 <!-- Plugin change-notes end -->
 
 ## Feature set
