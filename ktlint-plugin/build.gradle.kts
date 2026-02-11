@@ -82,8 +82,12 @@ dependencies {
         zipSigner()
         testFramework(TestFrameworkType.Platform)
     }
+    compileOnly(project(":ktlint-lib")) // Required for IDE
+    implementation(project(":ktlint-lib", "shadow")) {
+        exclude(group = "org.jetbrains.kotlin")
+    }
 
-    implementation(project(":ktlint-lib", "shadow"))
+//    implementation(project(":ktlint-lib", "shadow"))
 //    intellijPlatformRuntimeClasspath(project(":ktlint-lib", "shadow"))
 //    intellijPlatformTestRuntimeClasspath(project(":ktlint-lib", "shadow"))
 }
