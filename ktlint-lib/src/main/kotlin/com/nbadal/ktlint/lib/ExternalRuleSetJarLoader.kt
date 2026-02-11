@@ -8,9 +8,6 @@ import java.net.URL
 import java.net.URLClassLoader
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
-import kotlin.collections.orEmpty
-
-private val logger = KtlintLibLogger()
 
 class ExternalRuleSetJarLoader(
     val urlClassloaderFactory: (Array<URL>, ClassLoader) -> URLClassLoader,
@@ -37,10 +34,20 @@ class ExternalRuleSetJarLoader(
 
     private fun loadRuleProvidersFromExternalJarPath(path: String) =
         try {
-            loadRuleSetProviderFromExternalJarPath(path)
-                .getRuleProviders()
-                .also { ktlintLibLogger.info { "Loaded ${it.size} rules from custom rule provider $path" } }
-                .let { ExternalRuleSetJarLoaderResult(it, emptyList()) }
+            loadAllRuleSetProvidersFromJarPath(path)
+                // Ignore the STANDARD ruleset when it is also provided by the external ruleset jar
+                .filterNot { it.id == RuleSetId.STANDARD }
+                .flatMap { ruleSetProviderV3 ->
+                    // Theoretically the external ruleset jar could contain multiple custom rulesets. So load all of them.
+                    ruleSetProviderV3
+                        .getRuleProviders()
+                        .also {
+                            ktlintLibLogger.info {
+                                "Loaded ${it.size} rules from ruleset with id '${ruleSetProviderV3.id.value}' from external ruleset jar file '$path'"
+                            }
+                        }
+                }.ifEmpty { throw EmptyRuleSetJarException("Custom ruleset jar file '$path' does not contain any custom ktlint rule") }
+                .let { ExternalRuleSetJarLoaderResult(it.toSet(), emptyList()) }
         } catch (throwable: Throwable) {
             ktlintLibLogger.error(throwable) { "Cannot load external ruleset jar '$path" }
             ExternalRuleSetJarLoaderResult(
@@ -51,12 +58,7 @@ class ExternalRuleSetJarLoader(
             )
         }
 
-    private fun loadRuleSetProviderFromExternalJarPath(path: String): RuleSetProviderV3 =
-        loadProvidersFromJarUrl(path)
-            ?.takeUnless { it.id == RuleSetId.STANDARD }
-            ?: throw EmptyRuleSetJarException("Custom rule set '$path' does not contain a custom ktlint rule set provider")
-
-    private fun loadProvidersFromJarUrl(path: String): RuleSetProviderV3? =
+    private fun loadAllRuleSetProvidersFromJarPath(path: String): Set<RuleSetProviderV3> =
         with(RuleSetProviderV3::class.java) {
             // See: https://plugins.jetbrains.com/docs/intellij/plugin-class-loaders.html#classes-from-plugin-dependencies
             val thread = Thread.currentThread()
@@ -65,14 +67,13 @@ class ExternalRuleSetJarLoader(
                 val loader = KtlintConnector::class.java.classLoader
                 thread.contextClassLoader = loader
                 val url = File(path).toUrlArray()
-                ServiceLoader
-                    .load(this, urlClassloaderFactory(url, loader)) // RelocatingClassLoader(url, loader)
-                    .singleOrNull()
-                    ?.takeUnless { it.id == RuleSetId.STANDARD }
-                    ?: throw EmptyRuleSetJarException("Custom rule set '$path' does not contain a custom ktlint rule set provider")
+                // The urlClassLoaderFactory delegates the construction of a RelocatingClassLoader to the context of the "ktlint-plugin"
+                // module, as this class should use the Intellij IDEA version of [org.jetbrains.org.objectweb.asm.commons.ClassRemapper],
+                // and not the version provided via KtLint.
+                ServiceLoader.load(this, urlClassloaderFactory(url, loader)).toSet()
             } catch (e: ServiceConfigurationError) {
-                logger.warn(e) { "Could not load rule providers from '$path'" }
-                throw EmptyRuleSetJarException("Jar '$path' does not contain a ktlint rule set provider")
+                ktlintLibLogger.warn(e) { "Could not load rule providers from '$path'" }
+                emptySet()
             } finally {
                 // Restore original classloader
                 thread.contextClassLoader = prevLoader
