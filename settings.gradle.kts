@@ -9,7 +9,6 @@ plugins {
 rootProject.name = "ktlint-intellij-plugin"
 
 include(
-    "ktlint-connector",
     "ktlint-lib",
     "ktlint-lib:ruleset-1-0-1",
     "ktlint-lib:ruleset-1-1-1",

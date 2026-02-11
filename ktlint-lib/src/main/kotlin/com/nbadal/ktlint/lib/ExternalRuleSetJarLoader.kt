@@ -12,7 +12,9 @@ import kotlin.collections.orEmpty
 
 private val logger = KtlintLibLogger()
 
-class ExternalRuleSetJarLoader {
+class ExternalRuleSetJarLoader(
+    val urlClassloaderFactory: (Array<URL>, ClassLoader) -> URLClassLoader,
+) {
     private var externalJarPaths: List<String> = emptyList()
 
     private lateinit var externalRuleSetJarLoaderResult: ExternalRuleSetJarLoaderResult
@@ -50,31 +52,32 @@ class ExternalRuleSetJarLoader {
         }
 
     private fun loadRuleSetProviderFromExternalJarPath(path: String): RuleSetProviderV3 =
-//        loadProvidersFromJarUrl(path)
-        loadCustomRuleProviders(path)
-            ?.takeIf { it.id == RuleSetId.STANDARD }
+        loadProvidersFromJarUrl(path)
+            ?.takeUnless { it.id == RuleSetId.STANDARD }
             ?: throw EmptyRuleSetJarException("Custom rule set '$path' does not contain a custom ktlint rule set provider")
 
     private fun loadProvidersFromJarUrl(path: String): RuleSetProviderV3? =
         with(RuleSetProviderV3::class.java) {
+            // See: https://plugins.jetbrains.com/docs/intellij/plugin-class-loaders.html#classes-from-plugin-dependencies
+            val thread = Thread.currentThread()
+            val prevLoader = thread.getContextClassLoader()
             try {
-                val urls = File(path).toUrlArray()
+                val loader = KtlintConnector::class.java.classLoader
+                thread.contextClassLoader = loader
+                val url = File(path).toUrlArray()
                 ServiceLoader
-                    .load(this, URLClassLoader(urls, this.classLoader))
+                    .load(this, urlClassloaderFactory(url, loader)) // RelocatingClassLoader(url, loader)
                     .singleOrNull()
-                    ?.takeIf { it.id == RuleSetId.STANDARD }
+                    ?.takeUnless { it.id == RuleSetId.STANDARD }
                     ?: throw EmptyRuleSetJarException("Custom rule set '$path' does not contain a custom ktlint rule set provider")
             } catch (e: ServiceConfigurationError) {
                 logger.warn(e) { "Could not load rule providers from '$path'" }
                 throw EmptyRuleSetJarException("Jar '$path' does not contain a ktlint rule set provider")
+            } finally {
+                // Restore original classloader
+                thread.contextClassLoader = prevLoader
             }
         }
-
-    fun loadCustomRuleProviders(path: String): RuleSetProviderV3? =
-        RuleSetProviderV3::class.java
-            .loadCustomRuleProvidersFromJarFiles(File(path).toUrlArray().toList())
-            .singleOrNull()
-            ?.takeIf { it.id == RuleSetId.STANDARD }
 
     private fun File.toUrlArray() = arrayOf(toURI().toURL())
 }
@@ -87,26 +90,3 @@ data class ExternalRuleSetJarLoaderResult(
     var ruleProviders: Set<RuleProvider>,
     var errors: List<String>,
 )
-
-private fun Class<RuleSetProviderV3>.loadCustomRuleProvidersFromJarFiles(urls: List<URL>): Set<RuleSetProviderV3> {
-    val providersFromCustomJars =
-        urls
-            .distinct()
-            .flatMap { url ->
-                loadProvidersFromJars(url)
-                    .filterNot { it.id == RuleSetId.STANDARD }
-                    .also { providers -> logger.debug { "Loaded ${providers.size} custom ruleset providers from $url" } }
-                    .ifEmpty { throw EmptyRuleSetJarException("Custom rule set '$url' does not contain a custom ktlint rule set provider") }
-            }.toSet()
-    return providersFromCustomJars.toSet()
-}
-
-private fun <T> Class<T>.loadProvidersFromJars(url: URL?): Set<T> =
-    try {
-        ServiceLoader.load(this, URLClassLoader(url.toArray(), this.classLoader)).toSet()
-    } catch (e: ServiceConfigurationError) {
-        logger.warn(e) { "Could not load rule providers from '$url'" }
-        emptySet()
-    }
-
-private fun URL?.toArray() = this?.let { arrayOf(this) }.orEmpty()

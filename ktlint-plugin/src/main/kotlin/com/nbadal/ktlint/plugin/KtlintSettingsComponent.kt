@@ -12,10 +12,9 @@ import com.intellij.ui.components.panels.ListLayout
 import com.intellij.util.ui.FormBuilder
 import com.intellij.util.ui.NamedColorUtil
 import com.intellij.util.ui.UIUtil
-import com.nbadal.ktlint.connector.KtlintConnector
-import com.nbadal.ktlint.connector.KtlintConnector.Companion.findSupportedKtlintVersionByLabel
-import com.nbadal.ktlint.connector.KtlintConnector.Companion.supportedKtlintVersions
-import com.nbadal.ktlint.connector.KtlintVersion
+import com.nbadal.ktlint.lib.KtlintConnector.Companion.findSupportedKtlintVersionByLabel
+import com.nbadal.ktlint.lib.KtlintConnector.Companion.supportedKtlintVersions
+import com.nbadal.ktlint.lib.KtlintVersion
 import com.nbadal.ktlint.plugin.KtlintRuleEngineWrapper.KtlintVersionConfiguration
 import java.awt.Cursor
 import java.awt.Desktop

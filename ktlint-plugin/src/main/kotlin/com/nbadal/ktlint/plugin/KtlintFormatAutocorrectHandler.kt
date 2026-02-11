@@ -1,6 +1,6 @@
 package com.nbadal.ktlint.plugin
 
-import com.nbadal.ktlint.connector.LintError
+import com.nbadal.ktlint.lib.LintError
 
 internal sealed interface KtlintFormatAutocorrectHandler
 

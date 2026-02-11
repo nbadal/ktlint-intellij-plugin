@@ -1,16 +1,7 @@
 package com.nbadal.ktlint.lib
 
-import com.nbadal.ktlint.connector.AutocorrectDecision
-import com.nbadal.ktlint.connector.BaselineError
-import com.nbadal.ktlint.connector.Code
-import com.nbadal.ktlint.connector.KtlintConnector
-import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor
-import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnableOrDisableDescriptor
-import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnumDescriptor
-import com.nbadal.ktlint.connector.KtlintVersion
-import com.nbadal.ktlint.connector.LintError
-import com.nbadal.ktlint.connector.RuleId
-import com.nbadal.ktlint.connector.SuppressionAtOffset
+import com.nbadal.ktlint.lib.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnableOrDisableDescriptor
+import com.nbadal.ktlint.lib.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnumDescriptor
 import com.pinterest.ktlint.cli.reporter.baseline.BaselineErrorHandling
 import com.pinterest.ktlint.cli.reporter.baseline.BaselineLoaderException
 import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
@@ -25,9 +16,13 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import org.ec4j.core.model.PropertyType.LowerCasingPropertyType
+import java.net.URL
+import java.net.URLClassLoader
 
-class KtlintConnectorImpl : KtlintConnector() {
-    private val externalRuleSetJarLoader = ExternalRuleSetJarLoader()
+class KtlintConnector(
+    urlClassloaderFactory: (Array<URL>, ClassLoader) -> URLClassLoader,
+) {
+    private val externalRuleSetJarLoader = ExternalRuleSetJarLoader(urlClassloaderFactory)
     private var externalRuleSetJarRuleProviders = emptySet<RuleProvider>()
 
     private val standardRuleSetLoader = StandardRuleSetLoader()
@@ -36,15 +31,10 @@ class KtlintConnectorImpl : KtlintConnector() {
     private lateinit var ktlintRuleEngine: KtLintRuleEngine
 
     private lateinit var _ruleIdsWithAutocorrectApproveHandler: Set<RuleId>
-    override val ruleIdsWithAutocorrectApproveHandler: Set<RuleId>
+    val ruleIdsWithAutocorrectApproveHandler: Set<RuleId>
         get() = _ruleIdsWithAutocorrectApproveHandler
 
-    private val _supportedKtlintVersions =
-        KtlintRulesetVersion.entries.map { KtlintVersion(it.label(), it.alternativeRulesetVersion?.label()) }
-    override val supportedKtlintVersions: List<KtlintVersion>
-        get() = _supportedKtlintVersions
-
-    override fun loadExternalRulesetJars(externalJarPaths: List<String>) =
+    fun loadExternalRulesetJars(externalJarPaths: List<String>) =
         externalRuleSetJarLoader
             .loadRuleProviders(externalJarPaths)
             .let { (ruleProviders, errors) ->
@@ -55,7 +45,7 @@ class KtlintConnectorImpl : KtlintConnector() {
                 errors
             }
 
-    override fun loadRulesets(ktlintVersion: KtlintVersion) {
+    fun loadRulesets(ktlintVersion: KtlintVersion) {
         standardRuleSetLoader
             .loadRuleProviders(KtlintRulesetVersion.findByLabelOrDefault(ktlintVersion.label))
             .takeIf { ruleProviders -> ruleProviders != standardRuleProviders }
@@ -84,20 +74,27 @@ class KtlintConnectorImpl : KtlintConnector() {
                         .toSet()
             }
 
-    override fun lint(
+    /**
+     * Check the [code] for lint errors. If [code] is path as file reference then the '.editorconfig' files on the path to file are taken
+     * into account. For each lint violation found, the [callback] is invoked.
+     *
+     * @throws KtLintParseException if text is not a valid Kotlin code
+     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
+     */
+    fun lint(
         code: Code,
-        callback: (LintError) -> Unit,
+        callback: (LintError) -> Unit = {},
     ) {
         try {
             ktlintRuleEngine.lint(code.toKtlintCoreCode())
         } catch (ktlintParseException: KtLintParseException) {
-            throw KtlintConnector.ParseException(
+            throw ParseException(
                 line = ktlintParseException.line,
                 col = ktlintParseException.col,
                 message = ktlintParseException.message,
             )
         } catch (ktlintRuleException: KtLintRuleException) {
-            throw KtlintConnector.RuleException(
+            throw RuleException(
                 line = ktlintRuleException.line,
                 col = ktlintRuleException.col,
                 ruleId = ktlintRuleException.ruleId,
@@ -107,28 +104,47 @@ class KtlintConnectorImpl : KtlintConnector() {
         }
     }
 
-    override fun format(
+    /**
+     * Formats style violations in [code]. Whenever a [LintError] is found the [callback] is invoked. If the [LintError] can be
+     * autocorrected *and* the rule that found that the violation has implemented the [RuleAutocorrectApproveHandler] interface, the API
+     * Consumer determines whether that [LintError] is to autocorrected, or not.
+     *
+     * When autocorrecting a [LintError] it is possible that other violations are introduced. By default, format is run up until
+     * [MAX_FORMAT_RUNS_PER_FILE] times. It is still possible that violations remain after the last run. This is a trait-off between solving
+     * as many errors as possible versus bad performance in case an endless loop of violations exists. In case the [callback] is implemented
+     * to let the user of the API Consumer to decide which [LintError] it to be autocorrected, or not, it might be better to disable this
+     * behavior by disabling [rerunAfterAutocorrect].
+     *
+     * In case the rule has not implemented the [RuleAutocorrectApproveHandler] interface, then the result of the [callback] is ignored as
+     * the rule is not able to process it. For such rules the [defaultAutocorrect] determines whether autocorrect for this rule is to be
+     * applied, or not. By default, the autocorrect will be applied (backwards compatability).
+     *
+     * [callback] is invoked once for each [LintError] found during any runs. As of that the [callback] might be invoked multiple times for
+     * the same [LintError].
+     *
+     * @throws KtLintParseException if text is not a valid Kotlin code
+     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
+     */
+    fun format(
         code: Code,
-        rerunAfterAutocorrect: Boolean,
-        defaultAutocorrect: Boolean,
         callback: (LintError) -> AutocorrectDecision,
     ): String =
         try {
             ktlintRuleEngine.format(
                 code.toKtlintCoreCode(),
-                rerunAfterAutocorrect,
-                defaultAutocorrect,
+                rerunAfterAutocorrect = true,
+                defaultAutocorrect = true,
             ) { ktlintCoreLintError ->
                 callback(ktlintCoreLintError.toLintError()).toKtlintCoreAutocorrectDecision()
             }
         } catch (ktlintParseException: KtLintParseException) {
-            throw KtlintConnector.ParseException(
+            throw ParseException(
                 line = ktlintParseException.line,
                 col = ktlintParseException.col,
                 message = ktlintParseException.message,
             )
         } catch (ktlintRuleException: KtLintRuleException) {
-            throw KtlintConnector.RuleException(
+            throw RuleException(
                 line = ktlintRuleException.line,
                 col = ktlintRuleException.col,
                 ruleId = ktlintRuleException.ruleId,
@@ -167,18 +183,36 @@ class KtlintConnectorImpl : KtlintConnector() {
         com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
             .valueOf(name)
 
-    override fun trimMemory() {
+    /**
+     * Reduce memory usage by cleaning internal caches. This function should be called via the companion object only.
+     */
+    fun trimMemory() {
         ktlintRuleEngine.trimMemory()
     }
 
-    override fun insertSuppression(
+    /**
+     * A [Suppress] annotation can only be inserted at specific locations. This function is intended for API Consumers. It updates given [code]
+     * by inserting a [Suppress] annotation for the given [suppression].
+     *
+     * Throws [KtlintSuppressionOutOfBoundsException] when the position of the [suppression] can not be found in the [code]. Throws
+     * [KtlintSuppressionNoElementFoundException] when no element can be found at the given offset.
+     *
+     * Returns the code with the inserted/modified suppression. Note that the returned code may not (yet) comply with formatting of all rules.
+     * This is intentional as adding a suppression for the [suppression] does not mean that other lint errors which can be autocorrected should
+     * be autocorrected.
+     */
+    fun insertSuppression(
         code: Code,
         suppression: SuppressionAtOffset,
     ): String = ktlintRuleEngine.insertSuppression(code.toKtlintCoreCode(), suppression.toKtlintCoreSuppression())
 
     private fun SuppressionAtOffset.toKtlintCoreSuppression() = KtlintSuppressionAtOffset(line, col, ruleId.toKtlintCoreRuleId())
 
-    override fun getEditorConfigOptionDescriptors(): List<KtlintEditorConfigOptionDescriptor> =
+    /**
+     * Get a list of ".editorconfig" option descriptors for the rule sets, rules, and properties defined for the rule providers of the
+     * [KtlintRuleEngine]
+     */
+    fun getEditorConfigOptionDescriptors(): List<KtlintEditorConfigOptionDescriptor> =
         EditorConfigOptionDescriptorsProvider(ktlintRuleEngine.ruleProviders)
             .getEditorConfigOptionDescriptors()
 
@@ -189,7 +223,7 @@ class KtlintConnectorImpl : KtlintConnector() {
     // Also, before running ktlint format, the IDEA formatting also has run. This may already have changed the layout of the
     // file, resulting in changing offsets, as of which the ignored errors are no longer matched, and as of that not
     // suppressed.
-    override fun loadBaselineErrorsToIgnore(baselinePath: String): List<BaselineError> =
+    fun loadBaselineErrorsToIgnore(baselinePath: String): List<BaselineError> =
         try {
             loadBaseline(baselinePath, BaselineErrorHandling.EXCEPTION)
                 .lintErrorsPerFile
@@ -205,13 +239,69 @@ class KtlintConnectorImpl : KtlintConnector() {
                     }
                 }
         } catch (e: BaselineLoaderException) {
-            throw KtlintConnector.BaselineLoadingException(
+            throw BaselineLoadingException(
                 // The exception message produced by ktlint already contains sufficient context of the error, but it is
                 // missing the baseline path
                 e.message ?: "Exception while loading baseline file '$baselinePath'",
                 e,
             )
         }
+
+    class ParseException(
+        line: Int,
+        col: Int,
+        message: String?,
+    ) : RuntimeException("$line:$col $message")
+
+    class RuleException(
+        val line: Int,
+        val col: Int,
+        val ruleId: String,
+        message: String,
+        cause: Throwable,
+    ) : RuntimeException(message, cause)
+
+    class BaselineLoadingException(
+        message: String,
+        cause: Throwable,
+    ) : RuntimeException(message, cause)
+
+    companion object {
+        private lateinit var instance: KtlintConnector
+
+        /**
+         * In the ktlint-plugin module use the "Project.ktlintConnector" extension function to get the reference to the KtlintConnector.
+         * Note that this extension uses the ProjectWrapper class to actually get a reference to the KtlintConnector, but it also updates
+         * the KtlintConnector with relevant project settings.
+         */
+        fun getInstance(urlClassloaderFactory: (Array<URL>, ClassLoader) -> URLClassLoader): KtlintConnector {
+            if (!::instance.isInitialized) {
+                instance = KtlintConnector(urlClassloaderFactory)
+            }
+            return instance
+        }
+
+        // Trimming the memory on the KtlintConnector does not require the KtlintConnector to be updated to the active project. The call
+        // via the companion object makes this more clear at the call site.
+        // Note that the implementation of this method does use the _instance variable which links to an actual implementation of the
+        // KtlintConnector. This is required for decoupling the ktlint-lib and ktlint-plugin modules.
+        fun trimMemory() = instance.trimMemory()
+
+        // The supportedKtlintVersions are identical for all projects as those versions are provided by the plugin which is shared by all
+        // projects. The applicable values still have to be provided by an implementation class, but from the call site the code is more clear
+        // when the values are called via the companion object.
+        private val _supportedKtlintVersions =
+            KtlintRulesetVersion.entries.map { KtlintVersion(it.label(), it.alternativeRulesetVersion?.label()) }
+
+        // Retrieving the supported ktlint versions does not require the KtlintConnector to be updated to the active project. The call
+        // via the companion object makes this more clear at the call site.
+        // Note that the implementation of this method does use the _instance variable which links to an actual implementation of the
+        // KtlintConnector. This is required for decoupling the ktlint-lib and ktlint-plugin modules.
+        val supportedKtlintVersions: List<KtlintVersion> =
+            _supportedKtlintVersions
+
+        fun findSupportedKtlintVersionByLabel(label: String?): KtlintVersion? = supportedKtlintVersions.firstOrNull { it.label == label }
+    }
 }
 
 private class EditorConfigOptionDescriptorsProvider(

@@ -1,4 +1,4 @@
-package com.nbadal.ktlint.connector
+package com.nbadal.ktlint.lib
 
 import java.nio.file.Path
 

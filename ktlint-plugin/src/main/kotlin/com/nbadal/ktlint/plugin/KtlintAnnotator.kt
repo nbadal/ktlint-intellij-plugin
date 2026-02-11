@@ -9,10 +9,9 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
-import com.nbadal.ktlint.connector.KtlintConnector
-import com.nbadal.ktlint.connector.LintError
-import com.nbadal.ktlint.connector.RuleId
-import com.nbadal.ktlint.connector.RuleSetId
+import com.nbadal.ktlint.lib.LintError
+import com.nbadal.ktlint.lib.RuleId
+import com.nbadal.ktlint.lib.RuleSetId
 import com.nbadal.ktlint.plugin.actions.KtlintAutocorrectIntention
 import com.nbadal.ktlint.plugin.actions.KtlintFormatIntention
 import com.nbadal.ktlint.plugin.actions.KtlintRuleSuppressIntention

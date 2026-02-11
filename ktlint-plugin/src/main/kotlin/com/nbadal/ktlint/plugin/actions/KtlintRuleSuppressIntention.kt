@@ -6,9 +6,9 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import com.nbadal.ktlint.connector.Code
-import com.nbadal.ktlint.connector.LintError
-import com.nbadal.ktlint.connector.SuppressionAtOffset
+import com.nbadal.ktlint.lib.Code
+import com.nbadal.ktlint.lib.LintError
+import com.nbadal.ktlint.lib.SuppressionAtOffset
 import com.nbadal.ktlint.plugin.KtlintFeature
 import com.nbadal.ktlint.plugin.KtlintFileAutocorrectHandler
 import com.nbadal.ktlint.plugin.KtlintRuleEngineWrapper

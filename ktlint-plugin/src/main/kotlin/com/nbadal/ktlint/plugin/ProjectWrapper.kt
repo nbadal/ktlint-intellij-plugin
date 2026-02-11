@@ -1,8 +1,9 @@
 package com.nbadal.ktlint.plugin
 
 import com.intellij.openapi.project.Project
-import com.nbadal.ktlint.connector.KtlintConnector
-import com.nbadal.ktlint.connector.KtlintVersion
+import com.nbadal.ktlint.RelocatingClassLoader
+import com.nbadal.ktlint.lib.KtlintConnector
+import com.nbadal.ktlint.lib.KtlintVersion
 
 private val logger = KtlintLogger()
 
@@ -21,7 +22,9 @@ class ProjectWrapper private constructor() {
         baselineProvider.setProject(project)
         ktlintPluginsPropertiesReader.setProject(project)
         return KtlintConnector
-            .getInstance()
+            .getInstance({ urls, loader ->
+                RelocatingClassLoader(urls, loader)
+            })
             .apply {
                 with(project.config()) {
                     loadRulesets(ktlintVersionFromSharedPropertiesOrKtlintConfiguration())

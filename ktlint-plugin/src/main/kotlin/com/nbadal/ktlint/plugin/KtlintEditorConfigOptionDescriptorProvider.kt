@@ -1,8 +1,8 @@
 package com.nbadal.ktlint.plugin
 
 import com.intellij.openapi.project.Project
-import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnableOrDisableDescriptor
-import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnumDescriptor
+import com.nbadal.ktlint.lib.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnableOrDisableDescriptor
+import com.nbadal.ktlint.lib.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnumDescriptor
 import org.editorconfig.language.extensions.EditorConfigOptionDescriptorProvider
 import org.editorconfig.language.schema.descriptors.EditorConfigDescriptor
 import org.editorconfig.language.schema.descriptors.EditorConfigMutableDescriptor

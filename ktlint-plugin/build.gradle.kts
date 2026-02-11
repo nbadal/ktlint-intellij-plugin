@@ -83,9 +83,9 @@ dependencies {
         testFramework(TestFrameworkType.Platform)
     }
 
-    implementation(project(":ktlint-connector"))
-    intellijPlatformRuntimeClasspath(project(":ktlint-lib", "shadow"))
-    intellijPlatformTestRuntimeClasspath(project(":ktlint-lib", "shadow"))
+    implementation(project(":ktlint-lib", "shadow"))
+//    intellijPlatformRuntimeClasspath(project(":ktlint-lib", "shadow"))
+//    intellijPlatformTestRuntimeClasspath(project(":ktlint-lib", "shadow"))
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html

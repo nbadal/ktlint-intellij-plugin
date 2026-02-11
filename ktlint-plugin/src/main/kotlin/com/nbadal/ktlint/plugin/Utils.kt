@@ -1,7 +1,7 @@
 package com.nbadal.ktlint.plugin
 
 import com.intellij.openapi.project.Project
-import com.nbadal.ktlint.connector.KtlintVersion
+import com.nbadal.ktlint.lib.KtlintVersion
 
 fun Project.config(): KtlintProjectSettings = getService(KtlintProjectSettings::class.java)
 

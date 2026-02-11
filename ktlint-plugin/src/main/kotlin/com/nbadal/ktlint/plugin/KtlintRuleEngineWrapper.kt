@@ -12,15 +12,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
-import com.nbadal.ktlint.connector.AutocorrectDecision
-import com.nbadal.ktlint.connector.BaselineError
-import com.nbadal.ktlint.connector.Code
-import com.nbadal.ktlint.connector.KtlintConnector
-import com.nbadal.ktlint.connector.KtlintConnector.BaselineLoadingException
-import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor
-import com.nbadal.ktlint.connector.KtlintVersion
-import com.nbadal.ktlint.connector.LintError
-import com.nbadal.ktlint.connector.SuppressionAtOffset
+import com.nbadal.ktlint.lib.AutocorrectDecision
+import com.nbadal.ktlint.lib.BaselineError
+import com.nbadal.ktlint.lib.Code
+import com.nbadal.ktlint.lib.KtlintConnector
+import com.nbadal.ktlint.lib.KtlintEditorConfigOptionDescriptor
+import com.nbadal.ktlint.lib.KtlintVersion
+import com.nbadal.ktlint.lib.LintError
+import com.nbadal.ktlint.lib.SuppressionAtOffset
 import com.nbadal.ktlint.plugin.KtlintRuleEngineWrapper.KtlintVersionConfiguration.Location
 import org.ec4j.core.parser.ParseException
 import java.nio.file.Path
@@ -340,7 +339,7 @@ class BaselineProvider {
                             .ktlintConnector()
                             .loadBaselineErrorsToIgnore(baselinePath)
                             .also { logger.debug { "Load baseline from file '$baselinePath'" } }
-                } catch (e: BaselineLoadingException) {
+                } catch (e: KtlintConnector.BaselineLoadingException) {
                     logger.debug(e) { error }
                 }
             }
