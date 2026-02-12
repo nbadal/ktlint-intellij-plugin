@@ -463,9 +463,7 @@ private data class RuleSetProviders(
 
     private fun externalJarRuleProviders(path: String) =
         try {
-            listOf(File(path).toURI().toURL())
-                .loadCustomRuleProviders()
-                .also { logger.info { "Loaded ${it.size} rules from custom rule provider $path" } }
+            loadRuleProvidersFromExternalJarPath(path)
         } catch (throwable: Throwable) {
             logger.error(throwable) { "Cannot load external ruleset jar '$path" }
             // It is not possible to direct call KtlintNotifier to display a notification. This results in endless loop while trying to load
