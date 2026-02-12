@@ -6,8 +6,8 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.util.xmlb.annotations.Tag
-import com.nbadal.ktlint.lib.KtlintConnector
-import com.nbadal.ktlint.lib.KtlintVersion
+import com.nbadal.ktlint.connector.KtlintConnector
+import com.nbadal.ktlint.connector.KtlintVersion
 
 /**
  * Application wide configuration settings. Those settings are stored in a file  outside the '.idea' folder of the project. Those settings
@@ -64,7 +64,8 @@ class KtlintProjectSettings : PersistentStateComponent<KtlintProjectSettings> {
     @Tag("ktlintVersion")
     var ktlintVersionLabel: String? = null
 
-    fun ktlintVersion(): KtlintVersion? = KtlintConnector.findSupportedKtlintVersionByLabel(ktlintVersionLabel)
+    fun ktlintVersion(): KtlintVersion? =
+        ProjectWrapper.instance.ktlintConnector(null).findSupportedKtlintVersionByLabel(ktlintVersionLabel)
 
     @Tag
     var formatOnSave: Boolean = true

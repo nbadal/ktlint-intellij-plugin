@@ -1,4 +1,4 @@
-package com.nbadal.ktlint.lib
+package com.nbadal.ktlint.connector
 
 enum class AutocorrectDecision {
     /**

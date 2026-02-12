@@ -64,7 +64,7 @@ class ExternalRuleSetJarLoader(
             val thread = Thread.currentThread()
             val prevLoader = thread.getContextClassLoader()
             try {
-                val loader = KtlintConnector::class.java.classLoader
+                val loader = KtlintConnectorImpl::class.java.classLoader
                 thread.contextClassLoader = loader
                 val url = File(path).toUrlArray()
                 // The urlClassLoaderFactory delegates the construction of a RelocatingClassLoader to the context of the "ktlint-plugin"

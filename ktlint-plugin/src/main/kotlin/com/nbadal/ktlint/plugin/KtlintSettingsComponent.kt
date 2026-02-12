@@ -12,9 +12,8 @@ import com.intellij.ui.components.panels.ListLayout
 import com.intellij.util.ui.FormBuilder
 import com.intellij.util.ui.NamedColorUtil
 import com.intellij.util.ui.UIUtil
-import com.nbadal.ktlint.lib.KtlintConnector.Companion.findSupportedKtlintVersionByLabel
-import com.nbadal.ktlint.lib.KtlintConnector.Companion.supportedKtlintVersions
-import com.nbadal.ktlint.lib.KtlintVersion
+import com.nbadal.ktlint.connector.KtlintConnector
+import com.nbadal.ktlint.connector.KtlintVersion
 import com.nbadal.ktlint.plugin.KtlintRuleEngineWrapper.KtlintVersionConfiguration
 import java.awt.Cursor
 import java.awt.Desktop
@@ -101,30 +100,36 @@ class KtlintSettingsComponent(
         abstract var ktlintVersion: KtlintVersion
     }
 
-    private class KtlintVersionComponentDefault : KtlintVersionComponent() {
+    private class KtlintVersionComponentDefault(
+        val ktlintConnector: KtlintConnector,
+    ) : KtlintVersionComponent() {
         private val ktlintVersionComboBoxWithWidePopup =
-            ComboBoxWithWidePopup(supportedKtlintVersions.map { it.label }.toTypedArray())
-                .apply {
-                    @Suppress("UsePropertyAccessSyntax")
-                    setMinLength(40)
-                    addActionListener { event ->
-                        alternativeKtlintVersionUsedJLabel.apply {
-                            isVisible = false
-                            val selectedItem = (event.source as ComboBoxWithWidePopup<*>).selectedItem as String
-                            supportedKtlintVersions
-                                .firstOrNull { it.label == selectedItem }
-                                ?.alternativeKtlintVersionLabel
-                                ?.let { alternativeKtlintVersionLabel ->
-                                    isVisible = true
-                                    text = MessageBundle.message("usingAlternativeKtlintVersionWarning", alternativeKtlintVersionLabel)
-                                }
-                        }
+            ComboBoxWithWidePopup(
+                ktlintConnector
+                    .supportedKtlintVersions
+                    .map { it.label }
+                    .toTypedArray(),
+            ).apply {
+                @Suppress("UsePropertyAccessSyntax")
+                setMinLength(40)
+                addActionListener { event ->
+                    alternativeKtlintVersionUsedJLabel.apply {
+                        isVisible = false
+                        val selectedItem = (event.source as ComboBoxWithWidePopup<*>).selectedItem as String
+                        ktlintConnector.supportedKtlintVersions
+                            .firstOrNull { it.label == selectedItem }
+                            ?.alternativeKtlintVersionLabel
+                            ?.let { alternativeKtlintVersionLabel ->
+                                isVisible = true
+                                text = MessageBundle.message("usingAlternativeKtlintVersionWarning", alternativeKtlintVersionLabel)
+                            }
                     }
                 }
+            }
 
         override var ktlintVersion: KtlintVersion
             get() =
-                findSupportedKtlintVersionByLabel(ktlintVersionComboBoxWithWidePopup.selectedItem as String)
+                ktlintConnector.findSupportedKtlintVersionByLabel(ktlintVersionComboBoxWithWidePopup.selectedItem as String)
                     ?: KtlintVersion.DEFAULT
             set(value) {
                 ktlintVersionComboBoxWithWidePopup.selectedItem = value.label
@@ -164,6 +169,7 @@ class KtlintSettingsComponent(
     }
 
     private class KtlintVersionComponentWithSharedPluginProperties(
+        private val ktlintConnector: KtlintConnector,
         private val sharedPluginPropertyKtlintVersion: KtlintVersion,
     ) : KtlintVersionComponent() {
         override fun getPanel(): JPanel =
@@ -185,7 +191,7 @@ class KtlintSettingsComponent(
                                             )
                                     },
                             )
-                            if (supportedKtlintVersions.none { it.label == sharedPluginPropertyKtlintVersion.label }) {
+                            if (ktlintConnector.supportedKtlintVersions.none { it.label == sharedPluginPropertyKtlintVersion.label }) {
                                 add(
                                     JLabel(
                                         MessageBundle.message("unsupportedRulesetVersionError", ""),
@@ -196,7 +202,8 @@ class KtlintSettingsComponent(
                                     },
                                 )
                             }
-                            supportedKtlintVersions
+                            ktlintConnector
+                                .supportedKtlintVersions
                                 .firstOrNull { it.label == sharedPluginPropertyKtlintVersion.label }
                                 ?.alternativeKtlintVersionLabel
                                 ?.let { alternativeKtlintVersionLabel ->
@@ -229,11 +236,16 @@ class KtlintSettingsComponent(
             .let { ktlintVersionConfiguration ->
                 when (ktlintVersionConfiguration.location) {
                     KtlintVersionConfiguration.Location.SHARED_PLUGIN_PROPERTIES -> {
-                        KtlintVersionComponentWithSharedPluginProperties(ktlintVersionConfiguration.ktlintVersion)
+                        KtlintVersionComponentWithSharedPluginProperties(
+                            ProjectWrapper.instance.ktlintConnector(project),
+                            ktlintVersionConfiguration.ktlintVersion,
+                        )
                     }
 
                     else -> {
-                        KtlintVersionComponentDefault()
+                        KtlintVersionComponentDefault(
+                            ProjectWrapper.instance.ktlintConnector(project),
+                        )
                     }
                 }
             }

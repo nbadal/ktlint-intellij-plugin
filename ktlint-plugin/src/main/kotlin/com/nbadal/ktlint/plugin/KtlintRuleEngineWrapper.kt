@@ -12,14 +12,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
-import com.nbadal.ktlint.lib.AutocorrectDecision
-import com.nbadal.ktlint.lib.BaselineError
-import com.nbadal.ktlint.lib.Code
-import com.nbadal.ktlint.lib.KtlintConnector
-import com.nbadal.ktlint.lib.KtlintEditorConfigOptionDescriptor
-import com.nbadal.ktlint.lib.KtlintVersion
-import com.nbadal.ktlint.lib.LintError
-import com.nbadal.ktlint.lib.SuppressionAtOffset
+import com.nbadal.ktlint.connector.AutocorrectDecision
+import com.nbadal.ktlint.connector.BaselineError
+import com.nbadal.ktlint.connector.Code
+import com.nbadal.ktlint.connector.KtlintConnector
+import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor
+import com.nbadal.ktlint.connector.KtlintVersion
+import com.nbadal.ktlint.connector.LintError
+import com.nbadal.ktlint.connector.SuppressionAtOffset
 import com.nbadal.ktlint.plugin.KtlintRuleEngineWrapper.KtlintVersionConfiguration.Location
 import org.ec4j.core.parser.ParseException
 import java.nio.file.Path
@@ -261,7 +261,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             ?: KtlintVersionConfiguration(project.config().ktlintVersion() ?: KtlintVersion.DEFAULT, Location.NATIVE_PLUGIN_CONFIGURATION)
 
     /**
-     * Ensure that the KtlintConnector is up to date with the project for which the current file is being edited.
+     * Ensure that the KtlintConnectorImpl is up to date with the project for which the current file is being edited.
      */
     fun reset(project: Project) {
         if (!::project.isInitialized || this.project != project) {

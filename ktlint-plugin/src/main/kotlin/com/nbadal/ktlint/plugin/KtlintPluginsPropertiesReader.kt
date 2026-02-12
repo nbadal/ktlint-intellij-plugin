@@ -5,8 +5,8 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.nbadal.ktlint.lib.KtlintConnector.Companion.supportedKtlintVersions
-import com.nbadal.ktlint.lib.KtlintVersion
+import com.nbadal.ktlint.connector.KtlintConnector.Companion.supportedKtlintVersions
+import com.nbadal.ktlint.connector.KtlintVersion
 import java.nio.file.Path
 
 const val KTLINT_PLUGINS_PROPERTIES_FILE_NAME = "ktlint-plugins.properties"

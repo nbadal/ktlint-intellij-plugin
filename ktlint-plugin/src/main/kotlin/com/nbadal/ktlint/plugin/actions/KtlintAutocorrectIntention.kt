@@ -5,7 +5,7 @@ import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import com.nbadal.ktlint.lib.LintError
+import com.nbadal.ktlint.connector.LintError
 import com.nbadal.ktlint.plugin.KtlintRuleEngineWrapper
 import com.nbadal.ktlint.plugin.KtlintViolationAutocorrectHandler
 import com.nbadal.ktlint.plugin.findElementAt

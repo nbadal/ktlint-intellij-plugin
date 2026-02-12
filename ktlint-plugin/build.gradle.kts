@@ -82,10 +82,12 @@ dependencies {
         zipSigner()
         testFramework(TestFrameworkType.Platform)
     }
-    compileOnly(project(":ktlint-lib")) // Required for IDE
-    implementation(project(":ktlint-lib", "shadow")) {
-        exclude(group = "org.jetbrains.kotlin")
-    }
+//    api(project(":ktlint-connector"))
+    implementation(project(":ktlint-lib", "shadow"))
+//    compileOnly(project(":ktlint-lib")) // Required for IDE
+//    implementation(project(":ktlint-lib", "shadow")) {
+//        exclude(group = "org.jetbrains.kotlin")
+//    }
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html

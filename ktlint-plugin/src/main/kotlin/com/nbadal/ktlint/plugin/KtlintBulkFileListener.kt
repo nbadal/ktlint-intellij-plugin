@@ -53,7 +53,7 @@ class KtlintBulkFileListener : BulkFileListener {
     override fun after(events: List<VFileEvent>) {
         events
             .forEach { event ->
-                // Simply always reset the ktlintRuleEngineWrapper when an event is processed to ensure that the KtlintConnector is
+                // Simply always reset the ktlintRuleEngineWrapper when an event is processed to ensure that the KtlintConnectorImpl is
                 // configured for the project to which the file belongs.
                 event
                     .guessProject()

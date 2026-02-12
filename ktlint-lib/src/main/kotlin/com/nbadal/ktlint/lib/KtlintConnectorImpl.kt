@@ -1,7 +1,16 @@
 package com.nbadal.ktlint.lib
 
-import com.nbadal.ktlint.lib.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnableOrDisableDescriptor
-import com.nbadal.ktlint.lib.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnumDescriptor
+import com.nbadal.ktlint.connector.AutocorrectDecision
+import com.nbadal.ktlint.connector.BaselineError
+import com.nbadal.ktlint.connector.Code
+import com.nbadal.ktlint.connector.KtlintConnector
+import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor
+import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnableOrDisableDescriptor
+import com.nbadal.ktlint.connector.KtlintEditorConfigOptionDescriptor.KtlintEditorConfigOptionEnumDescriptor
+import com.nbadal.ktlint.connector.KtlintVersion
+import com.nbadal.ktlint.connector.LintError
+import com.nbadal.ktlint.connector.RuleId
+import com.nbadal.ktlint.connector.SuppressionAtOffset
 import com.pinterest.ktlint.cli.reporter.baseline.BaselineErrorHandling
 import com.pinterest.ktlint.cli.reporter.baseline.BaselineLoaderException
 import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
@@ -19,10 +28,8 @@ import org.ec4j.core.model.PropertyType.LowerCasingPropertyType
 import java.net.URL
 import java.net.URLClassLoader
 
-class KtlintConnector(
-    urlClassloaderFactory: (Array<URL>, ClassLoader) -> URLClassLoader,
-) {
-    private val externalRuleSetJarLoader = ExternalRuleSetJarLoader(urlClassloaderFactory)
+class KtlintConnectorImpl : KtlintConnector() {
+    private lateinit var externalRuleSetJarLoader: ExternalRuleSetJarLoader
     private var externalRuleSetJarRuleProviders = emptySet<RuleProvider>()
 
     private val standardRuleSetLoader = StandardRuleSetLoader()
@@ -31,10 +38,15 @@ class KtlintConnector(
     private lateinit var ktlintRuleEngine: KtLintRuleEngine
 
     private lateinit var _ruleIdsWithAutocorrectApproveHandler: Set<RuleId>
-    val ruleIdsWithAutocorrectApproveHandler: Set<RuleId>
+    override val ruleIdsWithAutocorrectApproveHandler: Set<RuleId>
         get() = _ruleIdsWithAutocorrectApproveHandler
 
-    fun loadExternalRulesetJars(externalJarPaths: List<String>) =
+    override fun setUrlClassLoaderFactory(urlClassloaderFactory: (Array<URL>, ClassLoader) -> URLClassLoader) {
+        instance = this
+        this.externalRuleSetJarLoader = ExternalRuleSetJarLoader(urlClassloaderFactory)
+    }
+
+    override fun loadExternalRulesetJars(externalJarPaths: List<String>) =
         externalRuleSetJarLoader
             .loadRuleProviders(externalJarPaths)
             .let { (ruleProviders, errors) ->
@@ -45,7 +57,7 @@ class KtlintConnector(
                 errors
             }
 
-    fun loadRulesets(ktlintVersion: KtlintVersion) {
+    override fun loadRulesets(ktlintVersion: KtlintVersion) {
         standardRuleSetLoader
             .loadRuleProviders(KtlintRulesetVersion.findByLabelOrDefault(ktlintVersion.label))
             .takeIf { ruleProviders -> ruleProviders != standardRuleProviders }
@@ -81,9 +93,9 @@ class KtlintConnector(
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
-    fun lint(
+    override fun lint(
         code: Code,
-        callback: (LintError) -> Unit = {},
+        callback: (LintError) -> Unit,
     ) {
         try {
             ktlintRuleEngine.lint(code.toKtlintCoreCode())
@@ -125,7 +137,7 @@ class KtlintConnector(
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
-    fun format(
+    override fun format(
         code: Code,
         callback: (LintError) -> AutocorrectDecision,
     ): String =
@@ -186,7 +198,7 @@ class KtlintConnector(
     /**
      * Reduce memory usage by cleaning internal caches. This function should be called via the companion object only.
      */
-    fun trimMemory() {
+    override fun trimMemory() {
         ktlintRuleEngine.trimMemory()
     }
 
@@ -201,7 +213,7 @@ class KtlintConnector(
      * This is intentional as adding a suppression for the [suppression] does not mean that other lint errors which can be autocorrected should
      * be autocorrected.
      */
-    fun insertSuppression(
+    override fun insertSuppression(
         code: Code,
         suppression: SuppressionAtOffset,
     ): String = ktlintRuleEngine.insertSuppression(code.toKtlintCoreCode(), suppression.toKtlintCoreSuppression())
@@ -212,7 +224,7 @@ class KtlintConnector(
      * Get a list of ".editorconfig" option descriptors for the rule sets, rules, and properties defined for the rule providers of the
      * [KtlintRuleEngine]
      */
-    fun getEditorConfigOptionDescriptors(): List<KtlintEditorConfigOptionDescriptor> =
+    override fun getEditorConfigOptionDescriptors(): List<KtlintEditorConfigOptionDescriptor> =
         EditorConfigOptionDescriptorsProvider(ktlintRuleEngine.ruleProviders)
             .getEditorConfigOptionDescriptors()
 
@@ -223,7 +235,7 @@ class KtlintConnector(
     // Also, before running ktlint format, the IDEA formatting also has run. This may already have changed the layout of the
     // file, resulting in changing offsets, as of which the ignored errors are no longer matched, and as of that not
     // suppressed.
-    fun loadBaselineErrorsToIgnore(baselinePath: String): List<BaselineError> =
+    override fun loadBaselineErrorsToIgnore(baselinePath: String): List<BaselineError> =
         try {
             loadBaseline(baselinePath, BaselineErrorHandling.EXCEPTION)
                 .lintErrorsPerFile
@@ -247,44 +259,20 @@ class KtlintConnector(
             )
         }
 
-    class ParseException(
-        line: Int,
-        col: Int,
-        message: String?,
-    ) : RuntimeException("$line:$col $message")
-
-    class RuleException(
-        val line: Int,
-        val col: Int,
-        val ruleId: String,
-        message: String,
-        cause: Throwable,
-    ) : RuntimeException(message, cause)
-
-    class BaselineLoadingException(
-        message: String,
-        cause: Throwable,
-    ) : RuntimeException(message, cause)
+    // Retrieving the supported ktlint versions does not require the KtlintConnectorImpl to be updated to the active project. The call
+    // via the companion object makes this more clear at the call site.
+    // Note that the implementation of this method does use the _instance variable which links to an actual implementation of the
+    // KtlintConnectorImpl. This is required for decoupling the ktlint-lib and ktlint-plugin modules.
+    override val supportedKtlintVersions: List<KtlintVersion> =
+        _supportedKtlintVersions
 
     companion object {
-        private lateinit var instance: KtlintConnector
+        private lateinit var instance: KtlintConnectorImpl
 
-        /**
-         * In the ktlint-plugin module use the "Project.ktlintConnector" extension function to get the reference to the KtlintConnector.
-         * Note that this extension uses the ProjectWrapper class to actually get a reference to the KtlintConnector, but it also updates
-         * the KtlintConnector with relevant project settings.
-         */
-        fun getInstance(urlClassloaderFactory: (Array<URL>, ClassLoader) -> URLClassLoader): KtlintConnector {
-            if (!::instance.isInitialized) {
-                instance = KtlintConnector(urlClassloaderFactory)
-            }
-            return instance
-        }
-
-        // Trimming the memory on the KtlintConnector does not require the KtlintConnector to be updated to the active project. The call
+        // Trimming the memory on the KtlintConnectorImpl does not require the KtlintConnectorImpl to be updated to the active project. The call
         // via the companion object makes this more clear at the call site.
         // Note that the implementation of this method does use the _instance variable which links to an actual implementation of the
-        // KtlintConnector. This is required for decoupling the ktlint-lib and ktlint-plugin modules.
+        // KtlintConnectorImpl. This is required for decoupling the ktlint-lib and ktlint-plugin modules.
         fun trimMemory() = instance.trimMemory()
 
         // The supportedKtlintVersions are identical for all projects as those versions are provided by the plugin which is shared by all
@@ -293,14 +281,7 @@ class KtlintConnector(
         private val _supportedKtlintVersions =
             KtlintRulesetVersion.entries.map { KtlintVersion(it.label(), it.alternativeRulesetVersion?.label()) }
 
-        // Retrieving the supported ktlint versions does not require the KtlintConnector to be updated to the active project. The call
-        // via the companion object makes this more clear at the call site.
-        // Note that the implementation of this method does use the _instance variable which links to an actual implementation of the
-        // KtlintConnector. This is required for decoupling the ktlint-lib and ktlint-plugin modules.
-        val supportedKtlintVersions: List<KtlintVersion> =
-            _supportedKtlintVersions
-
-        fun findSupportedKtlintVersionByLabel(label: String?): KtlintVersion? = supportedKtlintVersions.firstOrNull { it.label == label }
+        fun findSupportedKtlintVersionByLabel(label: String?): KtlintVersion? = _supportedKtlintVersions.firstOrNull { it.label == label }
     }
 }
 

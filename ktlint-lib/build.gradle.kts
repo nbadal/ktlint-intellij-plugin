@@ -28,6 +28,8 @@ allprojects {
 //    mavenCentral()
 // }
 dependencies {
+    api(project(":ktlint-connector"))
+
     // Common dependencies are included from latest released Ktlint version
     api(libs.ktlintRuleEngine)
     api(libs.ktlintCliRulesetCore)

@@ -2,8 +2,11 @@ package com.nbadal.ktlint.plugin
 
 import com.intellij.openapi.project.Project
 import com.nbadal.ktlint.RelocatingClassLoader
-import com.nbadal.ktlint.lib.KtlintConnector
-import com.nbadal.ktlint.lib.KtlintVersion
+import com.nbadal.ktlint.connector.KtlintConnector
+import com.nbadal.ktlint.connector.KtlintVersion
+import java.io.File
+import java.util.ServiceConfigurationError
+import java.util.ServiceLoader
 
 private val logger = KtlintLogger()
 
@@ -16,15 +19,13 @@ class ProjectWrapper private constructor() {
         if (::project.isInitialized && this.project != project) {
             // Ktlint has a static cache which is shared across all instances of the KtlintRuleEngine. Creating a new KtlintRuleEngine
             // to load changes in the editorconfig is therefore not sufficient. The memory needs to be cleared explicitly.
-            KtlintConnector.trimMemory()
+            ktlintConnector.trimMemory()
         }
         this.project = project
         baselineProvider.setProject(project)
         ktlintPluginsPropertiesReader.setProject(project)
-        return KtlintConnector
-            .getInstance({ urls, loader ->
-                RelocatingClassLoader(urls, loader)
-            })
+
+        return ktlintConnector
             .apply {
                 with(project.config()) {
                     loadRulesets(ktlintVersionFromSharedPropertiesOrKtlintConfiguration())
@@ -32,6 +33,39 @@ class ProjectWrapper private constructor() {
                 }
             }
     }
+
+    private val ktlintConnector: KtlintConnector by lazy {
+        with(KtlintConnector::class.java) {
+            // See: https://plugins.jetbrains.com/docs/intellij/plugin-class-loaders.html#classes-from-plugin-dependencies
+            val thread = Thread.currentThread()
+            val prevLoader = thread.getContextClassLoader()
+            try {
+                val loader = ProjectWrapper::class.java.classLoader
+                thread.contextClassLoader = loader
+                val url = File("jar:ktlint-lib.jar").toUrlArray()
+                // The urlClassLoaderFactory delegates the construction of a RelocatingClassLoader to the context of the "ktlint-plugin"
+                // module, as this class should use the Intellij IDEA version of [org.jetbrains.org.objectweb.asm.commons.ClassRemapper],
+                // and not the version provided via KtLint.
+                ServiceLoader
+                    .load(this, RelocatingClassLoader(url, loader))
+                    .toSet()
+                    .singleOrNull()
+                    ?.apply {
+                        setUrlClassLoaderFactory(
+                            { urls, loader -> RelocatingClassLoader(urls, loader) },
+                        )
+                    } ?: throw IllegalStateException("Cannot load KtlintConnector from 'ktlint-lib.jar'")
+            } catch (e: ServiceConfigurationError) {
+                logger.warn(e) { "Could not load the KtlintConnector" }
+                throw e
+            } finally {
+                // Restore original classloader
+                thread.contextClassLoader = prevLoader
+            }
+        }
+    }
+
+    private fun File.toUrlArray() = arrayOf(toURI().toURL())
 
     private fun KtlintProjectSettings.ktlintVersionFromSharedPropertiesOrKtlintConfiguration() =
         ktlintRulesetVersionFromSharedPropertiesFile()
@@ -52,7 +86,12 @@ class ProjectWrapper private constructor() {
             .DEFAULT
             .also { logger.debug { "Use default Ktlint version $it as ktlint-intellij-plugin configuration is not found" } }
 
-    fun ktlintConnector(project: Project): KtlintConnector = updateProject(project)
+    fun ktlintConnector(project: Project?): KtlintConnector =
+        if (project == null) {
+            ktlintConnector
+        } else {
+            updateProject(project)
+        }
 
     fun ktlintPluginsPropertiesReader(project: Project): KtlintPluginsPropertiesReader {
         updateProject(project)
