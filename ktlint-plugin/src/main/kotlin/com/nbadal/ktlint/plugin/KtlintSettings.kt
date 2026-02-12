@@ -6,7 +6,6 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.util.xmlb.annotations.Tag
-import com.nbadal.ktlint.connector.KtlintConnector
 import com.nbadal.ktlint.connector.KtlintVersion
 
 /**
@@ -64,8 +63,7 @@ class KtlintProjectSettings : PersistentStateComponent<KtlintProjectSettings> {
     @Tag("ktlintVersion")
     var ktlintVersionLabel: String? = null
 
-    fun ktlintVersion(): KtlintVersion? =
-        ProjectWrapper.instance.ktlintConnector(null).findSupportedKtlintVersionByLabel(ktlintVersionLabel)
+    fun ktlintVersion(): KtlintVersion? = KtlintVersionsProvider.instance.findSupportedKtlintVersionByLabel(ktlintVersionLabel)
 
     @Tag
     var formatOnSave: Boolean = true

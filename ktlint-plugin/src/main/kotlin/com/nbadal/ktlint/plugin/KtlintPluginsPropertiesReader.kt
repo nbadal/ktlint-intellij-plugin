@@ -5,7 +5,6 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.nbadal.ktlint.connector.KtlintConnector.Companion.supportedKtlintVersions
 import com.nbadal.ktlint.connector.KtlintVersion
 import java.nio.file.Path
 
@@ -83,7 +82,9 @@ class KtlintPluginsPropertiesReader {
             }
             null
         } else {
-            supportedKtlintVersions
+            KtlintVersionsProvider
+                .instance
+                .supportedKtlintVersions
                 .firstOrNull { it.label == ktlintVersion.label }
                 ?.also {
                     logger.debug {

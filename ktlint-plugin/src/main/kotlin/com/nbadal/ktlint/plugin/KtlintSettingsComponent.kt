@@ -12,7 +12,6 @@ import com.intellij.ui.components.panels.ListLayout
 import com.intellij.util.ui.FormBuilder
 import com.intellij.util.ui.NamedColorUtil
 import com.intellij.util.ui.UIUtil
-import com.nbadal.ktlint.connector.KtlintConnector
 import com.nbadal.ktlint.connector.KtlintVersion
 import com.nbadal.ktlint.plugin.KtlintRuleEngineWrapper.KtlintVersionConfiguration
 import java.awt.Cursor
@@ -100,12 +99,11 @@ class KtlintSettingsComponent(
         abstract var ktlintVersion: KtlintVersion
     }
 
-    private class KtlintVersionComponentDefault(
-        val ktlintConnector: KtlintConnector,
-    ) : KtlintVersionComponent() {
+    private class KtlintVersionComponentDefault : KtlintVersionComponent() {
         private val ktlintVersionComboBoxWithWidePopup =
             ComboBoxWithWidePopup(
-                ktlintConnector
+                KtlintVersionsProvider
+                    .instance
                     .supportedKtlintVersions
                     .map { it.label }
                     .toTypedArray(),
@@ -116,7 +114,9 @@ class KtlintSettingsComponent(
                     alternativeKtlintVersionUsedJLabel.apply {
                         isVisible = false
                         val selectedItem = (event.source as ComboBoxWithWidePopup<*>).selectedItem as String
-                        ktlintConnector.supportedKtlintVersions
+                        KtlintVersionsProvider
+                            .instance
+                            .supportedKtlintVersions
                             .firstOrNull { it.label == selectedItem }
                             ?.alternativeKtlintVersionLabel
                             ?.let { alternativeKtlintVersionLabel ->
@@ -129,7 +129,9 @@ class KtlintSettingsComponent(
 
         override var ktlintVersion: KtlintVersion
             get() =
-                ktlintConnector.findSupportedKtlintVersionByLabel(ktlintVersionComboBoxWithWidePopup.selectedItem as String)
+                KtlintVersionsProvider
+                    .instance
+                    .findSupportedKtlintVersionByLabel(ktlintVersionComboBoxWithWidePopup.selectedItem as String)
                     ?: KtlintVersion.DEFAULT
             set(value) {
                 ktlintVersionComboBoxWithWidePopup.selectedItem = value.label
@@ -169,7 +171,6 @@ class KtlintSettingsComponent(
     }
 
     private class KtlintVersionComponentWithSharedPluginProperties(
-        private val ktlintConnector: KtlintConnector,
         private val sharedPluginPropertyKtlintVersion: KtlintVersion,
     ) : KtlintVersionComponent() {
         override fun getPanel(): JPanel =
@@ -191,7 +192,11 @@ class KtlintSettingsComponent(
                                             )
                                     },
                             )
-                            if (ktlintConnector.supportedKtlintVersions.none { it.label == sharedPluginPropertyKtlintVersion.label }) {
+                            if (KtlintVersionsProvider
+                                    .instance
+                                    .supportedKtlintVersions
+                                    .none { it.label == sharedPluginPropertyKtlintVersion.label }
+                            ) {
                                 add(
                                     JLabel(
                                         MessageBundle.message("unsupportedRulesetVersionError", ""),
@@ -202,7 +207,8 @@ class KtlintSettingsComponent(
                                     },
                                 )
                             }
-                            ktlintConnector
+                            KtlintVersionsProvider
+                                .instance
                                 .supportedKtlintVersions
                                 .firstOrNull { it.label == sharedPluginPropertyKtlintVersion.label }
                                 ?.alternativeKtlintVersionLabel
@@ -237,15 +243,12 @@ class KtlintSettingsComponent(
                 when (ktlintVersionConfiguration.location) {
                     KtlintVersionConfiguration.Location.SHARED_PLUGIN_PROPERTIES -> {
                         KtlintVersionComponentWithSharedPluginProperties(
-                            ProjectWrapper.instance.ktlintConnector(project),
                             ktlintVersionConfiguration.ktlintVersion,
                         )
                     }
 
                     else -> {
-                        KtlintVersionComponentDefault(
-                            ProjectWrapper.instance.ktlintConnector(project),
-                        )
+                        KtlintVersionComponentDefault()
                     }
                 }
             }

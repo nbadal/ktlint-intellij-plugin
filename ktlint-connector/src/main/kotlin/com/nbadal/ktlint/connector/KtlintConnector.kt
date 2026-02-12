@@ -83,10 +83,6 @@ abstract class KtlintConnector {
 
     abstract fun loadBaselineErrorsToIgnore(baselinePath: String): List<BaselineError>
 
-    abstract val supportedKtlintVersions: List<KtlintVersion>
-
-    fun findSupportedKtlintVersionByLabel(label: String?): KtlintVersion? = supportedKtlintVersions.firstOrNull { it.label == label }
-
     class ParseException(
         line: Int,
         col: Int,

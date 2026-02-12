@@ -259,13 +259,6 @@ class KtlintConnectorImpl : KtlintConnector() {
             )
         }
 
-    // Retrieving the supported ktlint versions does not require the KtlintConnectorImpl to be updated to the active project. The call
-    // via the companion object makes this more clear at the call site.
-    // Note that the implementation of this method does use the _instance variable which links to an actual implementation of the
-    // KtlintConnectorImpl. This is required for decoupling the ktlint-lib and ktlint-plugin modules.
-    override val supportedKtlintVersions: List<KtlintVersion> =
-        _supportedKtlintVersions
-
     companion object {
         private lateinit var instance: KtlintConnectorImpl
 
@@ -274,14 +267,6 @@ class KtlintConnectorImpl : KtlintConnector() {
         // Note that the implementation of this method does use the _instance variable which links to an actual implementation of the
         // KtlintConnectorImpl. This is required for decoupling the ktlint-lib and ktlint-plugin modules.
         fun trimMemory() = instance.trimMemory()
-
-        // The supportedKtlintVersions are identical for all projects as those versions are provided by the plugin which is shared by all
-        // projects. The applicable values still have to be provided by an implementation class, but from the call site the code is more clear
-        // when the values are called via the companion object.
-        private val _supportedKtlintVersions =
-            KtlintRulesetVersion.entries.map { KtlintVersion(it.label(), it.alternativeRulesetVersion?.label()) }
-
-        fun findSupportedKtlintVersionByLabel(label: String?): KtlintVersion? = _supportedKtlintVersions.firstOrNull { it.label == label }
     }
 }
 
