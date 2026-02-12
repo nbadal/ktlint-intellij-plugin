@@ -20,13 +20,14 @@ repositories {
 }
 
 val rulesetExtension =
-    extensions.create(
-        "ktlintRuleset",
-        KtlintRulesetExtension::class,
-    ).apply {
-        includeKotlinxExcludes.convention(true)
-        addEc4jCoreConstraint.convention(false)
-    }
+    extensions
+        .create(
+            "ktlintRuleset",
+            KtlintRulesetExtension::class,
+        ).apply {
+            includeKotlinxExcludes.convention(true)
+            addEc4jCoreConstraint.convention(false)
+        }
 
 kotlin {
     jvmToolchain(17)
@@ -41,7 +42,9 @@ afterEvaluate {
             ?: error("ktlintRuleset.version is required")
     val includeKotlinxExcludes = rulesetExtension.includeKotlinxExcludes.getOrElse(true)
     val addEc4jCoreConstraint = rulesetExtension.addEc4jCoreConstraint.getOrElse(false)
-    val relocateSuffix = "V" + ktlintVersion.replace('.', '_')
+
+    // Relocate version "1.8.0" to "V1_8_0", and "1.8.0-SNAPSHOT" to "V1_8_0_SNAPSHOT"
+    val relocateSuffix = "V" + ktlintVersion.replace('.', '_').replace('-', '_')
 
     dependencies {
         implementation("com.pinterest.ktlint:ktlint-ruleset-standard:$ktlintVersion")
