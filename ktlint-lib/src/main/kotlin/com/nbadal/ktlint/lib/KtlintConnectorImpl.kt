@@ -28,7 +28,7 @@ import org.ec4j.core.model.PropertyType.LowerCasingPropertyType
 import java.net.URL
 import java.net.URLClassLoader
 
-class KtlintConnectorImpl : KtlintConnector() {
+class KtlintConnectorImpl : KtlintConnector {
     private lateinit var externalRuleSetJarLoader: ExternalRuleSetJarLoader
     private var externalRuleSetJarRuleProviders = emptySet<RuleProvider>()
 
@@ -42,7 +42,6 @@ class KtlintConnectorImpl : KtlintConnector() {
         get() = _ruleIdsWithAutocorrectApproveHandler
 
     override fun setUrlClassLoaderFactory(urlClassloaderFactory: (Array<URL>, ClassLoader) -> URLClassLoader) {
-        instance = this
         this.externalRuleSetJarLoader = ExternalRuleSetJarLoader(urlClassloaderFactory)
     }
 
@@ -100,13 +99,13 @@ class KtlintConnectorImpl : KtlintConnector() {
         try {
             ktlintRuleEngine.lint(code.toKtlintCoreCode())
         } catch (ktlintParseException: KtLintParseException) {
-            throw ParseException(
+            throw KtlintConnector.ParseException(
                 line = ktlintParseException.line,
                 col = ktlintParseException.col,
                 message = ktlintParseException.message,
             )
         } catch (ktlintRuleException: KtLintRuleException) {
-            throw RuleException(
+            throw KtlintConnector.RuleException(
                 line = ktlintRuleException.line,
                 col = ktlintRuleException.col,
                 ruleId = ktlintRuleException.ruleId,
@@ -150,13 +149,13 @@ class KtlintConnectorImpl : KtlintConnector() {
                 callback(ktlintCoreLintError.toLintError()).toKtlintCoreAutocorrectDecision()
             }
         } catch (ktlintParseException: KtLintParseException) {
-            throw ParseException(
+            throw KtlintConnector.ParseException(
                 line = ktlintParseException.line,
                 col = ktlintParseException.col,
                 message = ktlintParseException.message,
             )
         } catch (ktlintRuleException: KtLintRuleException) {
-            throw RuleException(
+            throw KtlintConnector.RuleException(
                 line = ktlintRuleException.line,
                 col = ktlintRuleException.col,
                 ruleId = ktlintRuleException.ruleId,
@@ -251,23 +250,13 @@ class KtlintConnectorImpl : KtlintConnector() {
                     }
                 }
         } catch (e: BaselineLoaderException) {
-            throw BaselineLoadingException(
+            throw KtlintConnector.BaselineLoadingException(
                 // The exception message produced by ktlint already contains sufficient context of the error, but it is
                 // missing the baseline path
                 e.message ?: "Exception while loading baseline file '$baselinePath'",
                 e,
             )
         }
-
-    companion object {
-        private lateinit var instance: KtlintConnectorImpl
-
-        // Trimming the memory on the KtlintConnectorImpl does not require the KtlintConnectorImpl to be updated to the active project. The call
-        // via the companion object makes this more clear at the call site.
-        // Note that the implementation of this method does use the _instance variable which links to an actual implementation of the
-        // KtlintConnectorImpl. This is required for decoupling the ktlint-lib and ktlint-plugin modules.
-        fun trimMemory() = instance.trimMemory()
-    }
 }
 
 private class EditorConfigOptionDescriptorsProvider(

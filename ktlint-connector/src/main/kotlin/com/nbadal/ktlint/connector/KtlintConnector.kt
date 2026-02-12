@@ -7,12 +7,12 @@ import java.net.URLClassLoader
  * The [KtlintConnector] is an abstraction that aims to decouple the Ktlint Core code in the "ktlint-lib" module from the IntelliJ IDEA
  * plugin code in mode "ktlint-plugin".
  */
-abstract class KtlintConnector {
-    abstract fun setUrlClassLoaderFactory(urlClassloaderFactory: (Array<URL>, ClassLoader) -> URLClassLoader)
+interface KtlintConnector {
+    fun setUrlClassLoaderFactory(urlClassloaderFactory: (Array<URL>, ClassLoader) -> URLClassLoader)
 
-    abstract fun loadRulesets(ktlintVersion: KtlintVersion)
+    fun loadRulesets(ktlintVersion: KtlintVersion)
 
-    abstract fun loadExternalRulesetJars(externalJarPaths: List<String>): List<String>
+    fun loadExternalRulesetJars(externalJarPaths: List<String>): List<String>
 
     /**
      * Check the [code] for lint errors. If [code] is path as file reference then the '.editorconfig' files on the path to file are taken
@@ -21,7 +21,7 @@ abstract class KtlintConnector {
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
-    abstract fun lint(
+    fun lint(
         code: Code,
         callback: (LintError) -> Unit = { },
     )
@@ -47,7 +47,7 @@ abstract class KtlintConnector {
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
-    abstract fun format(
+    fun format(
         code: Code,
         callback: (LintError) -> AutocorrectDecision,
     ): String
@@ -55,7 +55,7 @@ abstract class KtlintConnector {
     /**
      * Reduce memory usage by cleaning internal caches. This function should be called via the companion object only.
      */
-    abstract fun trimMemory()
+    fun trimMemory()
 
     /**
      * A [Suppress] annotation can only be inserted at specific locations. This function is intended for API Consumers. It updates given [code]
@@ -68,7 +68,7 @@ abstract class KtlintConnector {
      * This is intentional as adding a suppression for the [suppression] does not mean that other lint errors which can be autocorrected should
      * be autocorrected.
      */
-    abstract fun insertSuppression(
+    fun insertSuppression(
         code: Code,
         suppression: SuppressionAtOffset,
     ): String
@@ -77,11 +77,11 @@ abstract class KtlintConnector {
      * Get a list of ".editorconfig" option descriptors for the rule sets, rules, and properties defined for the rule providers of the
      * [KtlintRuleEngine]
      */
-    abstract fun getEditorConfigOptionDescriptors(): List<KtlintEditorConfigOptionDescriptor>
+    fun getEditorConfigOptionDescriptors(): List<KtlintEditorConfigOptionDescriptor>
 
-    abstract val ruleIdsWithAutocorrectApproveHandler: Set<RuleId>
+    val ruleIdsWithAutocorrectApproveHandler: Set<RuleId>
 
-    abstract fun loadBaselineErrorsToIgnore(baselinePath: String): List<BaselineError>
+    fun loadBaselineErrorsToIgnore(baselinePath: String): List<BaselineError>
 
     class ParseException(
         line: Int,
