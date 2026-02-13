@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.zip.ZipFile
 
 fun properties(key: String) = providers.gradleProperty(key)
 
@@ -56,7 +57,7 @@ repositories {
     }
 
     // Comment out next line releasing a new version to any channel
-    // mavenLocal()
+    mavenLocal()
 
     // Comment-out next line before publish on the default channel. It is okay to keep it when publishing to beta or dev channels
     // maven("https://central.sonatype.com/repository/maven-snapshots/")
@@ -243,6 +244,33 @@ intellijPlatformTesting {
             plugins {
                 robotServerPlugin()
             }
+        }
+    }
+}
+
+val verifyPluginLibs by tasks.registering {
+    dependsOn(tasks.buildPlugin)
+    doLast {
+        val zipFile =
+            tasks.buildPlugin
+                .get()
+                .outputs.files.singleFile
+        val libs =
+            ZipFile(zipFile).use { zip ->
+                zip
+                    .entries()
+                    .asSequence()
+                    .map { it.name }
+                    .filter { it.contains("/lib/") && it.endsWith(".jar") }
+                    .map { it.substringAfterLast("/") }
+                    .toList()
+            }
+
+        val forbidden = listOf("kotlin-stdlib", "kotlin-reflect", "kotlinx-coroutines-core")
+        val violations = libs.filter { jar -> forbidden.any { jar.startsWith(it) } }
+
+        check(violations.isEmpty()) {
+            "Forbidden libraries bundled: ${violations.joinToString()}"
         }
     }
 }

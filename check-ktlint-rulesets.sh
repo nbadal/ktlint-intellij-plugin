@@ -2,7 +2,7 @@
 set -euf -o pipefail
 
 # Minimum ktlint ruleset version to consider. Ignores versions below this.
-MIN_VERSION="1.0.0"
+MIN_VERSION="1.3.0"
 
 # Comma-separated list of published versions to ignore (e.g., "8.8.8,9.9.9")
 IGNORED_VERSIONS=""

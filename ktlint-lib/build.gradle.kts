@@ -12,7 +12,7 @@ allprojects {
         // Comment-out next line before publish on the default channel. It is okay to keep it when publishing to beta or dev channels
         // maven("https://central.sonatype.com/repository/maven-snapshots/")
         // Comment out next line before publishing to any channel
-        // mavenLocal()
+        mavenLocal()
     }
 }
 // repositories {
@@ -44,6 +44,9 @@ dependencies {
     // compileOnly(project(":ktlint-lib:ruleset-X-Y-X-SNAPSHOT")) // Required for IDE
     // implementation(project(":ktlint-lib:ruleset-X-Y-Z", "shadow"))
 
+    compileOnly(project(":ktlint-lib:ruleset-1-8-1-SNAPSHOT")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-1-8-1-SNAPSHOT", "shadow"))
+
     compileOnly(project(":ktlint-lib:ruleset-1-8-0")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-8-0", "shadow"))
 
@@ -64,18 +67,6 @@ dependencies {
 
     compileOnly(project(":ktlint-lib:ruleset-1-3-0")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-3-0", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-1-2-1")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-2-1", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-1-2-0")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-2-0", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-1-1-1")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-1-1", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-1-0-1")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-0-1", "shadow"))
 }
 
 kotlin {
