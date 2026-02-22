@@ -20,13 +20,14 @@ repositories {
 }
 
 val rulesetExtension =
-    extensions.create(
-        "ktlintRuleset",
-        KtlintRulesetExtension::class,
-    ).apply {
-        includeKotlinxExcludes.convention(true)
-        addEc4jCoreConstraint.convention(false)
-    }
+    extensions
+        .create(
+            "ktlintRuleset",
+            KtlintRulesetExtension::class,
+        ).apply {
+            includeKotlinxExcludes.convention(true)
+            addEc4jCoreConstraint.convention(false)
+        }
 
 kotlin {
     jvmToolchain(17)
