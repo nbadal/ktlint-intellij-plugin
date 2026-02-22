@@ -4,7 +4,7 @@
 
 ## [Unreleased]
 
-## [0.30.4-beta-1.2026-02-04_10-01-43] - 2026-02-04
+## [0.30.4] - 2026-02-04
 
 - Add RelocatingClassLoader to fix custom ruleset JARs by @haysmike in https://github.com/nbadal/ktlint-intellij-plugin/pull/799
 - Update min IDE build to 251.*
@@ -532,7 +532,8 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.4-beta-1.2026-02-04_10-01-43...HEAD
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.4...HEAD
+[0.30.4]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.2-beta.2025-12-17...v0.30.4
 [0.30.2-beta.2025-12-17]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.1...v0.30.2-beta.2025-12-17
 [0.30.1]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0-beta-2.2025-11-09...v0.30.0
