@@ -33,7 +33,7 @@ Enable and configure in `Preferences` > `Tools` > `KtLint`.
 <!-- Plugin change-notes start -->
 # Noteworthy changes
 
-* Fix loading of custom rulesets by @haysmike.
+* Drop support for standard rulesets and custom ruleset JAR's that have not implemented the RuleAutocorrectApproveHandler interface (Ktlint 1.3+), or RuleV2 (Ktlint 2.x).
 
 # Requirements
 
