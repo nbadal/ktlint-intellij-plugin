@@ -580,6 +580,7 @@
 [0.2.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.0.2...v0.1.0
 [0.0.2]: https://github.com/nbadal/ktlint-intellij-plugin/commits/v0.0.2
+[0.30.4-beta-1.2026-02-04_10-01-43]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.2-beta.2025-12-17...v0.30.4-beta-1.2026-02-04_10-01-43
 [0.30.2-beta.2025-12-17_07-09-04]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.1...v0.30.2-beta.2025-12-17_07-09-04
 [0.30.0-dev-1.2025-10-06_18-30-17]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.29.0...v0.30.0-dev-1.2025-10-06_18-30-17
 [0.30.0-beta-2.2025-11-09_18-35-57]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0-beta-1.2025-10-11...v0.30.0-beta-2.2025-11-09_18-35-57

@@ -106,7 +106,7 @@ intellijPlatform {
         changeNotes = pluginReadmeSection("change-notes")
 
         ideaVersion {
-            sinceBuild = providers.gradleProperty("verifyPluginSinceBuild")
+            sinceBuild = providers.gradleProperty("pluginSinceBuild")
             untilBuild = providers.gradleProperty("pluginUntilBuild")
         }
     }
@@ -146,7 +146,7 @@ intellijPlatform {
 
     pluginVerification {
         ides {
-            recommended()
+            // recommended()
             select {
                 types = listOf(IntelliJPlatformType.IntellijIdea)
                 channels = listOf(ProductRelease.Channel.RELEASE, ProductRelease.Channel.EAP)

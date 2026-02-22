@@ -8,38 +8,28 @@ class KtlintLogger : PrintingLogger(System.out) {
         throwable: Throwable? = null,
         message: () -> String?,
     ) {
-        logToStdOut(message = message(), throwable = throwable) ?: super.debug(message(), throwable)
+        super.debug("[DEBUG] ${message()}", throwable)
     }
 
     fun info(
         throwable: Throwable? = null,
         message: () -> String?,
     ) {
-        logToStdOut(message = message(), throwable = throwable) ?: super.info(message(), throwable)
+        super.debug("[INFO ] ${message()}", throwable)
     }
 
     fun warn(
         throwable: Throwable? = null,
         message: () -> String?,
     ) {
-        logToStdOut(message = message(), throwable = throwable) ?: super.warn(message(), throwable)
+        super.debug("[WARN ] ${message()}", throwable)
     }
 
     fun error(
         throwable: Throwable? = null,
         message: () -> String?,
     ) {
-        logToStdOut(message = message(), throwable = throwable) ?: super.error(message(), throwable)
-    }
-
-    private fun logToStdOut(
-        message: String? = null,
-        throwable: Throwable? = null,
-    ) = if (System.getenv(KTLINT_PLUGIN_LOG_TO_STDOUT).equals("true", ignoreCase = true)) {
-        message?.let { println(message) }
-        throwable?.let { println(throwable) }
-    } else {
-        null
+        super.debug("[ERROR] ${message()}", throwable)
     }
 
     companion object {
