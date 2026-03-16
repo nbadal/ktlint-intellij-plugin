@@ -4,7 +4,7 @@ assertj = "3.27.7"
 junit = "4.13.2"
 # plugins
 changelog = "2.5.0"
-intelliJPlatform = "2.13.0"
+intelliJPlatform = "2.13.1"
 kotlin = "2.3.10"
 kover = "0.9.7"
 ktlint = "1.8.0"
