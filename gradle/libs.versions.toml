@@ -11,7 +11,7 @@ ktlint = "1.8.0"
 mockk = "1.14.11"
 qodana = "2026.1.0"
 shadow = "8.3.9"
-slf4j="2.0.17"
+slf4j="2.0.18"
 
 [libraries]
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
