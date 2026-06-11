@@ -5,7 +5,7 @@ junit = "4.13.2"
 # plugins
 changelog = "2.5.0"
 intelliJPlatform = "2.16.0"
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 kover = "0.9.8"
 ktlint = "1.8.0"
 mockk = "1.14.11"
