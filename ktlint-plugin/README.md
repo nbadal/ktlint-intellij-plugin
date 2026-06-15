@@ -11,11 +11,11 @@
 ## Plugin description
 
 <!-- Plugin description start -->
-Formats code with [KtLint](https://pinterest.github.io/ktlint/) after IntelliJ IDEA formatting or on save of file.
+Formats code with [KtLint](https://ktlint.github.io/ktlint/) after IntelliJ IDEA formatting or on save of file.
 
 Ktlint is an anti bikeshedding linter/formatter for Kotlin code based on the [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html), [Android Kotlin Style Guide](https://developer.android.com/kotlin/style-guide), and other best practices.
 
-Ktlint is configured in the `.editorconfig` file (see [KtLint configuration](https://pinterest.github.io/ktlint/latest/rules/configuration-ktlint/)). Next to this, the plugin itself has a few configuration options. The plugin can run in distinct modes. 
+Ktlint is configured in the `.editorconfig` file (see [KtLint configuration](https://ktlint.github.io/ktlint/latest/rules/configuration-ktlint/)). Next to this, the plugin itself has a few configuration options. The plugin can run in distinct modes. 
 
 In the recommended 'distract free' mode, lint violations are automatically corrected when possible. Combined with formatting on save, ktlint enhances your developer experience greatly. Violations that can not be autocorrected are displayed as error.
 
