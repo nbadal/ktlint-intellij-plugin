@@ -1,7 +1,5 @@
 package com.nbadal.ktlint
 
-import com.intellij.ide.plugins.PluginManager
-import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
@@ -89,23 +87,14 @@ class KtlintPluginsPropertiesReader {
                     if (showErrorOnUnsupportedKtlintVersion) {
                         // Prevent the error from being shown too many times
                         showErrorOnUnsupportedKtlintVersion = false
-
-                        val ktlintPluginVersion =
-                            PluginManager
-                                .getInstance()
-                                .findEnabledPlugin(PluginId.findId("com.nbadal.ktlint")!!)
-                                ?.version
-
                         KtlintNotifier
                             .notifyError(
                                 notificationGroup = CONFIGURATION,
                                 project = project!!,
                                 title = "Unsupported Ktlint version",
                                 message =
-                                    """
-                                    Ktlint version <strong>$ktlintVersionLabel</strong> is not supported by current version 
-                                    (<strong>$ktlintPluginVersion</strong>) of Ktlint Intelli Plugin.
-                                    """.trimIndent(),
+                                    " Ktlint version <strong>$ktlintVersionLabel</strong> is not supported by this version of the " +
+                                        "Ktlint Intelli Plugin. "
                             )
                     }
                 }
