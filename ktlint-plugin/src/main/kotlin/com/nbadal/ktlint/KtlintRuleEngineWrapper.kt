@@ -40,8 +40,6 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
 import org.ec4j.core.parser.ParseException
-import java.io.File
-import java.lang.IllegalStateException
 import java.nio.file.Path
 
 private val logger = KtlintLogger()
@@ -364,7 +362,7 @@ private class KtlintRuleWrapperConfig {
         // Ktlint has a static cache which is shared across all instances of the KtlintRuleEngine. Creates a new KtlintRuleEngine to load
         // changes in the editorconfig is therefore not sufficient. The memory needs to be cleared explicitly.
         if (::_ktlintRuleEngineProvider.isInitialized) {
-            _ktlintRuleEngineProvider.ktlintRuleEngine.trimMemory()
+            _ktlintRuleEngineProvider.trimMemoryKtlintRuleEngine()
         }
 
         _ktlintRuleEngineProvider = KtlintRuleEngineProvider()
@@ -444,6 +442,12 @@ private class KtlintRuleEngineProvider {
     }
 
     fun errorLoadingExternalRulesetJar(): String? = ruleSetProviders.errorLoadingExternalRulesetJar
+
+    fun trimMemoryKtlintRuleEngine() {
+        if (::_ktlintRuleEngine.isInitialized) {
+            ktlintRuleEngine.trimMemory()
+        }
+    }
 }
 
 private data class RuleSetProviders(
