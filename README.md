@@ -8,7 +8,7 @@
 [![GitHub license](https://img.shields.io/github/license/nbadal/ktlint-intellij-plugin.svg)](LICENSE)
 [![Slack](https://img.shields.io/badge/slack-@kotlinlang/ktlint-yellow.svg?logo=slack)](https://kotlinlang.slack.com/messages/CKS3XG0LS)
 
-Formats code with [ktlint](https://pinterest.github.io/ktlint/) after IntelliJ IDEA formatting or on save of file.
+Formats code with [ktlint](https://ktlint.github.io/ktlint/) after IntelliJ IDEA formatting or on save of file.
 
 Ktlint is an anti-bikeshedding linter/formatter for Kotlin code based on the [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html), [Android Kotlin Style Guide](https://developer.android.com/kotlin/style-guide), and other best practices.
 
@@ -23,7 +23,7 @@ Ktlint is an anti-bikeshedding linter/formatter for Kotlin code based on the [Ko
 ## Usage
 
 - Configure in <kbd>Preferences</kbd> > <kbd>Tools</kbd> > <kbd>KtLint</kbd>.
-- Ktlint is configured via `.editorconfig` (see [Ktlint configuration](https://pinterest.github.io/ktlint/latest/rules/configuration-ktlint/)).
+- Ktlint is configured via `.editorconfig` (see [Ktlint configuration](https://ktlint.github.io/ktlint/latest/rules/configuration-ktlint/)).
 
 ## Compatibility
 
