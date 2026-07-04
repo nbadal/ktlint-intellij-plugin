@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           # Work-around for failing runs (remote: Duplicate header: "Authorization") after upgrade actions/checkout to v6
           # https://github.com/gradle-update/update-gradle-wrapper-action/pull/994
