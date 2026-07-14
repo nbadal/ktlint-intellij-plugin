@@ -20,11 +20,6 @@ plugins {
     alias(libs.plugins.kover) // Gradle Kover Plugin
 }
 
-// `pluginName_` variable ends with `_` because of the collision with Kotlin magic getter in the `intellij` closure.
-// Read more about the issue: https://github.com/JetBrains/intellij-platform-plugin-template/issues/29
-@Suppress("PropertyName")
-val pluginName_: String by project
-
 group = providers.gradleProperty("pluginGroup").get()
 // The publishPluginVersion contains the build timestamp in case the version is targeting a non-default channel
 val publishPluginVersion =
@@ -91,7 +86,7 @@ dependencies {
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
 intellijPlatform {
-    projectName.set("ktlint")
+    projectName = providers.gradleProperty("pluginName")
 
     pluginConfiguration {
         // Use publishPluginVersion which contains the build timestamp for release to non-default channel
