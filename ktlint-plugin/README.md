@@ -33,11 +33,11 @@ Enable and configure in `Preferences` > `Tools` > `KtLint`.
 <!-- Plugin change-notes start -->
 # Noteworthy changes
 
-* Fix loading of custom rulesets by @haysmike.
+* Prevent exception from being thrown after opening a project
 
 # Requirements
 
-* IntelliJ IDEA Platform 2024.1 - 2026.1 (EAP)
+* IntelliJ IDEA Platform 2025.1 - 2026.2
 <!-- Plugin change-notes end -->
 
 ## Feature set
