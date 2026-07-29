@@ -4,6 +4,32 @@
 
 ## [Unreleased]
 
+## [0.30.5] - 2026-07-17
+
+- Update max IDE build to 262.* (262) by @github-actions[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/832
+- Fix tests by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/807
+- Consolidate and reorganize README/doc files by @nbadal in https://github.com/nbadal/ktlint-intellij-plugin/pull/788
+- Remove plugin version number from error message by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/841
+- Trim memory of Ktlint Rule Engine only when it is initialized. by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/842
+- Update KtLint links to ktlint.github.io by @Yqloss in https://github.com/nbadal/ktlint-intellij-plugin/pull/843
+- Remove workaround with property "pluginName_" by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/863
+- Bump actions/upload-artifact to 7 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/809
+- Bump jtalk/url-health-check-action to 5 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/821
+- Bump gradle/actions to 6 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/822
+- Bump org.jetbrains.kotlinx.kover to 0.9.8 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/823
+- Bump io.mockk:mockk to 1.14.11 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/836
+- Bump org.slf4j:slf4j-api to 2.0.18 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/838
+- Bump gradle-wrapper to 9.5.1 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/837
+- Bump codecov/codecov-action to 7 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/839
+- Bump org.jetbrains.kotlin.jvm to 2.4.0 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/840
+- Bump org.jetbrains.qodana from to 2026.1.3 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/844
+- Update Gradle Wrapper to 9.6.1 by @github-actions[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/850
+- Bump actions/checkout to 7 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/845
+- Bump actions/cache to 6 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/848
+- Update platformVersion to 2025.1.7.1 and pluginSinceBuild to 251 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/861
+- Bump org.jetbrains.intellij.platform to 2.18.1 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/857
+- @Yqloss made their first contribution in https://github.com/nbadal/ktlint-intellij-plugin/pull/843
+
 ## [0.30.4] - 2026-02-04
 
 - Add RelocatingClassLoader to fix custom ruleset JARs by @haysmike in https://github.com/nbadal/ktlint-intellij-plugin/pull/799
@@ -532,7 +558,8 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.4...HEAD
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.5...HEAD
+[0.30.5]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.4...v0.30.5
 [0.30.4]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.2-beta.2025-12-17...v0.30.4
 [0.30.2-beta.2025-12-17]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.1...v0.30.2-beta.2025-12-17
 [0.30.1]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.0...v0.30.1
