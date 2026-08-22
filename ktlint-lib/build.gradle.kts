@@ -117,6 +117,9 @@ tasks {
         relocate("org.jetbrains.concurrency", "shadow.org.jetbrains.concurrency")
         relocate("org.jetbrains.kotlin", "shadow.org.jetbrains.kotlin")
 
+        @Suppress("DEPRECATION") // Will be removed in Shadow 10.
+        enableKotlinModuleRemapping.set(false)
+
         // Ktlint-lib itself may not be minimized as this would result in exceptions when loading custom rulesets as the RulesetProviderV3
         // cannot be found
     }

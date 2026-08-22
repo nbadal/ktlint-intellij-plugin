@@ -1,13 +1,20 @@
 package com.nbadal.ktlint
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-// With update of the "platformVersion" to "2025.1.x" all tests broke due to a failure in setting up the TestLogger class. With this upgrade
-// the internal working of the test engine in the platform has changed considerably. As testing was still in a very early phase there is not
-// too much lost by removing the tests.
 class KtlintTest {
     @Test
-    fun `Dummy test`() {
-        // At least one successful test is needed for the GitHub build pipeline to succeed.
+    fun `test Case sensitive relocated fastutil classes can be loaded correctly`() {
+        val classLoader = KtlintTest::class.java.classLoader
+
+        val lowerClass = classLoader.loadClass("shadow.org.jetbrains.kotlin.it.unimi.dsi.fastutil.ints.o")
+        val upperClass = classLoader.loadClass("shadow.org.jetbrains.kotlin.it.unimi.dsi.fastutil.ints.O")
+        val annotationRuleClass = Class.forName("com.pinterest.ktlint.ruleset.standard.V1_8_0.rules.AnnotationRule")
+
+        assertThat(lowerClass.name).isEqualTo("shadow.org.jetbrains.kotlin.it.unimi.dsi.fastutil.ints.o")
+        assertThat(upperClass.name).isEqualTo("shadow.org.jetbrains.kotlin.it.unimi.dsi.fastutil.ints.O")
+        assertThat(annotationRuleClass).isNotNull()
     }
 }
+
