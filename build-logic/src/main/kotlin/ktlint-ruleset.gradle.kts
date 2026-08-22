@@ -62,6 +62,9 @@ afterEvaluate {
             "com.pinterest.ktlint.ruleset.standard.$relocateSuffix",
         )
 
+        @Suppress("DEPRECATION") // Will be removed in Shadow 10.
+        enableKotlinModuleRemapping.set(false)
+
         minimize {
             exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:$ktlintVersion"))
         }
