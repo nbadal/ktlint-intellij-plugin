@@ -9,13 +9,11 @@ import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION
 import com.nbadal.ktlint.KtlintFileAutocorrectHandler
 import com.nbadal.ktlint.KtlintRuleEngineWrapper
-import com.nbadal.ktlint.config
 import com.nbadal.ktlint.findElementAt
 import com.nbadal.ktlint.isEnabled
 import io.github.ktlint.core.rule.engine.api.Code
 import io.github.ktlint.core.rule.engine.api.KtlintSuppressionAtOffset
 import io.github.ktlint.core.rule.engine.api.LintError
-import io.github.ktlint.core.rule.engine.api.insertSuppression
 
 class KtlintRuleSuppressIntention(
     private val lintError: LintError,

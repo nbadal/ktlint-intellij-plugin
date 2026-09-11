@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintRuleEngineWrapper
 import com.nbadal.ktlint.KtlintViolationAutocorrectHandler
-import com.nbadal.ktlint.config
 import com.nbadal.ktlint.findElementAt
 import io.github.ktlint.core.rule.engine.api.LintError
 
