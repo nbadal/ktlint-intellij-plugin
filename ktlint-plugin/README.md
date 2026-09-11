@@ -33,11 +33,11 @@ Enable and configure in `Preferences` > `Tools` > `KtLint`.
 <!-- Plugin change-notes start -->
 # Noteworthy changes
 
-* Prevent exception from being thrown after opening a project
+* Set max IDEA version to 2026.3
 
 # Requirements
 
-* IntelliJ IDEA Platform 2025.1 - 2026.2
+* IntelliJ IDEA Platform 2025.2 - 2026.3
 <!-- Plugin change-notes end -->
 
 ## Feature set
