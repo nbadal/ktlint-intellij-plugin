@@ -3,7 +3,7 @@ package com.nbadal.ktlint
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
-import com.pinterest.ktlint.rule.engine.api.LintError
+import io.github.ktlint.core.rule.engine.api.LintError
 
 internal fun PsiFile.findElementAt(lintError: LintError): PsiElement? =
     with(viewProvider.document) {

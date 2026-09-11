@@ -1,8 +1,8 @@
 package com.nbadal.ktlint
 
 import com.intellij.openapi.project.Project
-import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import io.github.ktlint.core.rule.engine.core.api.RuleId
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfigProperty
 import org.ec4j.core.model.PropertyType
 import org.editorconfig.language.extensions.EditorConfigOptionDescriptorProvider
 import org.editorconfig.language.schema.descriptors.EditorConfigDescriptor
@@ -13,6 +13,8 @@ import org.editorconfig.language.schema.descriptors.impl.EditorConfigStringDescr
 import org.editorconfig.language.schema.descriptors.impl.EditorConfigUnionDescriptor
 
 class KtlintEditorConfigOptionDescriptorProvider : EditorConfigOptionDescriptorProvider {
+    private val logger = KtlintLogger()
+
     private lateinit var ktlintRuleIds: List<RuleId>
     private lateinit var ktlintEditorConfigProperties: List<EditorConfigProperty<*>>
 
@@ -22,11 +24,17 @@ class KtlintEditorConfigOptionDescriptorProvider : EditorConfigOptionDescriptorP
             .ruleProviders(project)
             .let { ruleProviders ->
                 ktlintRuleIds = ruleProviders.map { it.ruleId }
-                ktlintEditorConfigProperties =
-                    ruleProviders
-                        .map { it.createNewRuleInstance().usesEditorConfigProperties }
-                        .flatten()
-                        .distinct()
+                try {
+                    ktlintEditorConfigProperties =
+                        ruleProviders
+                            .map { it.createNewRuleInstance().usesEditorConfigProperties }
+                            .flatten()
+                            .distinct()
+                } catch (e: ClassCastException) {
+                    // Drop support for editorconfig properties for rulesets that are not migrated to RuleV2. Full backward compatibility
+                    // for this feature is just too much work for now.
+                    logger.warn { "EditorConfig support is not available for rulesets based on Ktlint 1.x or older" }
+                }
             }
     }
 

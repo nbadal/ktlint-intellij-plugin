@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.CONFIGURATION
-import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
+import io.github.ktlint.intellij.ruleset.standard.KtlintRulesetVersion
 import java.nio.file.Path
 
 const val KTLINT_PLUGINS_PROPERTIES_FILE_NAME = "ktlint-plugins.properties"
@@ -94,7 +94,7 @@ class KtlintPluginsPropertiesReader {
                                 title = "Unsupported Ktlint version",
                                 message =
                                     " Ktlint version <strong>$ktlintVersionLabel</strong> is not supported by this version of the " +
-                                        "Ktlint Intelli Plugin. "
+                                        "Ktlint Intelli Plugin. ",
                             )
                     }
                 }

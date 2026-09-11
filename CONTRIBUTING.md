@@ -54,7 +54,7 @@ implementation(project(":ktlint-lib:ruleset-X-Y-Z", "shadow"))
 - Add the import:
 
 ```kotlin
-import com.pinterest.ktlint.ruleset.standard.VX_Y_Z.StandardRuleSetProvider as StandardRuleSetProviderVX_Y_Z
+import io.github.ktlint.core.ruleset.standard.VX_Y_Z.StandardRuleSetProvider as StandardRuleSetProviderVX_Y_Z
 ```
 
 - Add the enum entry (ordered by most recent after DEFAULT):

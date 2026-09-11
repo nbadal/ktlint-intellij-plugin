@@ -9,7 +9,7 @@ import com.nbadal.ktlint.KtlintRuleEngineWrapper
 import com.nbadal.ktlint.KtlintViolationAutocorrectHandler
 import com.nbadal.ktlint.config
 import com.nbadal.ktlint.findElementAt
-import com.pinterest.ktlint.rule.engine.api.LintError
+import io.github.ktlint.core.rule.engine.api.LintError
 
 class KtlintAutocorrectIntention(
     private val lintError: LintError,

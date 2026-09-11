@@ -40,12 +40,19 @@ afterEvaluate {
     val ktlintVersion =
         rulesetExtension.version.orNull
             ?: error("ktlintRuleset.version is required")
+    val ktlintArtifactGroup =
+        if (ktlintVersion.startsWith("1.")) {
+            "com.pinterest.ktlint"
+        } else {
+            "io.github.ktlint.core"
+        }
     val includeKotlinxExcludes = rulesetExtension.includeKotlinxExcludes.getOrElse(true)
     val addEc4jCoreConstraint = rulesetExtension.addEc4jCoreConstraint.getOrElse(false)
-    val relocateSuffix = "V" + ktlintVersion.replace('.', '_')
+    // For example, rename "2.0.0-SNAPSHOT" to "2_0_0_SNAPSHOT"
+    val relocateSuffix = "V" + ktlintVersion.replace('.', '_').replace('-', '_')
 
     dependencies {
-        implementation("com.pinterest.ktlint:ktlint-ruleset-standard:$ktlintVersion")
+        implementation("$ktlintArtifactGroup:ktlint-ruleset-standard:$ktlintVersion")
 
         if (addEc4jCoreConstraint) {
             constraints {
@@ -58,20 +65,16 @@ afterEvaluate {
 
     tasks.withType<ShadowJar>().configureEach {
         relocate(
-            "com.pinterest.ktlint.ruleset.standard",
-            "com.pinterest.ktlint.ruleset.standard.$relocateSuffix",
+            "$ktlintArtifactGroup.ruleset.standard",
+            "io.github.ktlint.intellij.ruleset.standard.$relocateSuffix",
         )
-
-        minimize {
-            exclude(dependency("com.pinterest.ktlint:ktlint-ruleset-standard:$ktlintVersion"))
-        }
 
         // Cannot use the minimize-block as that would build a fat jar. The GitHub runner has too little diskspace to build the project if a
         // fat jar is built for each version of the ktlint rulesets. Also, the non-ktlint dependencies will not be used in the final ktlint-lib
         // jar as the files of the latest ruleset will be used instead.
         exclude("dev/**")
         exclude("gnu/**")
-        exclude("io/**")
+        exclude("io/github/oshai/**")
         exclude("javaslang/**")
         exclude("kotlin/**")
         if (includeKotlinxExcludes) {

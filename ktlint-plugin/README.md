@@ -33,7 +33,8 @@ Enable and configure in `Preferences` > `Tools` > `KtLint`.
 <!-- Plugin change-notes start -->
 # Noteworthy changes
 
-* Prevent exception from being thrown after opening a project
+* Drop support for standard rulesets up until ktlint version 1.2.x. 
+* Rules provided by a custom ruleset can only run when they implement the RuleV2 interface provided by Ktlint 2.x. For a limited time the plugin provides backward compatibility but this support will be ended a future version without further prior notice. Please contact the maintainer of the custom ruleset to get it migrated soon.
 
 # Requirements
 

@@ -23,22 +23,22 @@ import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.NOT_STARTED
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.SUCCESS
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintVersion.Source.NATIVE_PLUGIN_CONFIGURATION
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintVersion.Source.SHARED_PLUGIN_PROPERTIES
-import com.pinterest.ktlint.cli.reporter.baseline.BaselineErrorHandling
-import com.pinterest.ktlint.cli.reporter.baseline.BaselineLoaderException
-import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
-import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
-import com.pinterest.ktlint.rule.engine.api.Code
-import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
-import com.pinterest.ktlint.rule.engine.api.KtLintParseException
-import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
-import com.pinterest.ktlint.rule.engine.api.KtlintSuppressionAtOffset
-import com.pinterest.ktlint.rule.engine.api.LintError
-import com.pinterest.ktlint.rule.engine.api.insertSuppression
-import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
-import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
+import io.github.ktlint.core.cli.reporter.baseline.BaselineErrorHandling
+import io.github.ktlint.core.cli.reporter.baseline.BaselineLoaderException
+import io.github.ktlint.core.cli.reporter.baseline.loadBaseline
+import io.github.ktlint.core.cli.reporter.core.api.KtlintCliError
+import io.github.ktlint.core.rule.engine.api.Code
+import io.github.ktlint.core.rule.engine.api.EditorConfigOverride
+import io.github.ktlint.core.rule.engine.api.KtLintParseException
+import io.github.ktlint.core.rule.engine.api.KtLintRuleEngine
+import io.github.ktlint.core.rule.engine.api.KtLintRuleException
+import io.github.ktlint.core.rule.engine.api.KtlintSuppressionAtOffset
+import io.github.ktlint.core.rule.engine.api.LintError
+import io.github.ktlint.core.rule.engine.api.insertSuppression
+import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
+import io.github.ktlint.core.rule.engine.core.api.RuleId
+import io.github.ktlint.intellij.ruleset.standard.KtlintRulesetVersion
 import org.ec4j.core.parser.ParseException
 import java.nio.file.Path
 
@@ -47,6 +47,9 @@ private val logger = KtlintLogger()
 internal class KtlintRuleEngineWrapper internal constructor() {
     private val ktlintRuleWrapperConfig = KtlintRuleWrapperConfig()
 
+    // The standard rulesets provided by Ktlint Core do implement the RuleAutocorrectApproveHandler starting from version 1.3. Older ruleset
+    // version are not included. However, it cannot be guaranteed that a user uploads an external ruleset JAR (maybe even a Standard Ktlint
+    // ruleset prior to version 1.3) that does not implement this interface.
     fun ruleIdsWithAutocorrectApproveHandler(psiFile: PsiFile): Set<RuleId> =
         ruleProviders(psiFile.project)
             .map { it.createNewRuleInstance() }

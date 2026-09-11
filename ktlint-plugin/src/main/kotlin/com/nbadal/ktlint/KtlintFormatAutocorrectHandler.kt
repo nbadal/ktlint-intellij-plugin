@@ -1,6 +1,6 @@
 package com.nbadal.ktlint
 
-import com.pinterest.ktlint.rule.engine.api.LintError
+import io.github.ktlint.core.rule.engine.api.LintError
 
 internal sealed interface KtlintFormatAutocorrectHandler
 

@@ -17,9 +17,9 @@ import com.nbadal.ktlint.actions.KtlintAutocorrectIntention
 import com.nbadal.ktlint.actions.KtlintFormatIntention
 import com.nbadal.ktlint.actions.KtlintRuleSuppressIntention
 import com.nbadal.ktlint.actions.ShowAllKtlintViolationsIntention
-import com.pinterest.ktlint.rule.engine.api.LintError
-import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
+import io.github.ktlint.core.rule.engine.api.LintError
+import io.github.ktlint.core.rule.engine.core.api.RuleId
+import io.github.ktlint.core.rule.engine.core.api.RuleSetId
 
 internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
     private val logger = KtlintLogger()

@@ -7,7 +7,7 @@ changelog = "2.5.0"
 intelliJPlatform = "2.18.1"
 kotlin = "2.4.0"
 kover = "0.9.8"
-ktlint = "1.8.0"
+ktlint = "2.0.0-ALPHA-4"
 mockk = "1.14.11"
 qodana = "2026.1.3"
 shadow = "8.3.9"
@@ -16,11 +16,12 @@ slf4j="2.0.18"
 [libraries]
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
-ktlintRuleEngine = {  group = "com.pinterest.ktlint", name = "ktlint-rule-engine", version.ref = "ktlint" }
-ktlintCliRulesetCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-ruleset-core", version.ref = "ktlint" }
-ktlintCliReporterCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-reporter-core", version.ref = "ktlint" }
-ktlintCliReporterBaselineCore = {  group = "com.pinterest.ktlint", name = "ktlint-cli-reporter-baseline", version.ref = "ktlint" }
-ktlintRulesetStandard = {  group = "com.pinterest.ktlint", name = "ktlint-ruleset-standard", version.ref = "ktlint" }
+ktlintRuleEngine = {  group = "io.github.ktlint.core", name = "ktlint-rule-engine", version.ref = "ktlint" }
+ktlintCliRulesetCore = {  group = "io.github.ktlint.core", name = "ktlint-cli-ruleset-core", version.ref = "ktlint" }
+ktlintCliReporterCore = {  group = "io.github.ktlint.core", name = "ktlint-cli-reporter-core", version.ref = "ktlint" }
+ktlintCliReporterBaselineCore = {  group = "io.github.ktlint.core", name = "ktlint-cli-reporter-baseline", version.ref = "ktlint" }
+ktlintComPinterestBackwardCompatibility = {  group = "io.github.ktlint.core", name = "ktlint-com-pinterest-backward-compatibility", version.ref = "ktlint" }
+ktlintRulesetStandard = {  group = "io.github.ktlint.core", name = "ktlint-ruleset-standard", version.ref = "ktlint" }
 mockk = {  group = "io.mockk", name = "mockk", version.ref = "mockk" }
 slf4j-api = {  group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 

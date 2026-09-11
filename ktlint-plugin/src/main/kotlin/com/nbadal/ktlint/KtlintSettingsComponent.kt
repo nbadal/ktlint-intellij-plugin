@@ -17,7 +17,7 @@ import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintMode.MANUAL
 import com.nbadal.ktlint.KtlintMode.NOT_INITIALIZED
 import com.nbadal.ktlint.MessageBundle.message
-import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
+import io.github.ktlint.intellij.ruleset.standard.KtlintRulesetVersion
 import java.awt.Cursor
 import java.awt.Desktop
 import java.awt.event.MouseAdapter

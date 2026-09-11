@@ -12,10 +12,10 @@ import com.nbadal.ktlint.KtlintRuleEngineWrapper
 import com.nbadal.ktlint.config
 import com.nbadal.ktlint.findElementAt
 import com.nbadal.ktlint.isEnabled
-import com.pinterest.ktlint.rule.engine.api.Code
-import com.pinterest.ktlint.rule.engine.api.KtlintSuppressionAtOffset
-import com.pinterest.ktlint.rule.engine.api.LintError
-import com.pinterest.ktlint.rule.engine.api.insertSuppression
+import io.github.ktlint.core.rule.engine.api.Code
+import io.github.ktlint.core.rule.engine.api.KtlintSuppressionAtOffset
+import io.github.ktlint.core.rule.engine.api.LintError
+import io.github.ktlint.core.rule.engine.api.insertSuppression
 
 class KtlintRuleSuppressIntention(
     private val lintError: LintError,

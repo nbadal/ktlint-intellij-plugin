@@ -12,7 +12,7 @@ allprojects {
         // Comment-out next line before publish on the default channel. It is okay to keep it when publishing to beta or dev channels
         // maven("https://central.sonatype.com/repository/maven-snapshots/")
         // Comment out next line before publishing to any channel
-        // mavenLocal()
+        mavenLocal()
     }
 }
 // repositories {
@@ -33,6 +33,8 @@ dependencies {
     api(libs.ktlintCliRulesetCore)
     api(libs.ktlintCliReporterCore)
     api(libs.ktlintCliReporterBaselineCore)
+    // Support loading of rulesets created with Ktlint 1.x ("com.pinterest.ktlint" packages)
+    api(libs.ktlintComPinterestBackwardCompatibility)
 
     // Add the latest version of ktlintRulesetStandard so that custom rulesets can be loaded. With this implementation dependency, a runtime
     // exception is thrown when loading a custom ruleset.
@@ -43,6 +45,9 @@ dependencies {
     // Potentially add the SNAPSHOT version of the next release
     // compileOnly(project(":ktlint-lib:ruleset-X-Y-X-SNAPSHOT")) // Required for IDE
     // implementation(project(":ktlint-lib:ruleset-X-Y-Z", "shadow"))
+
+    compileOnly(project(":ktlint-lib:ruleset-2-0-0-SNAPSHOT")) // Required for IDE
+    implementation(project(":ktlint-lib:ruleset-2-0-0-SNAPSHOT", "shadow"))
 
     compileOnly(project(":ktlint-lib:ruleset-1-8-0")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-8-0", "shadow"))
@@ -64,18 +69,6 @@ dependencies {
 
     compileOnly(project(":ktlint-lib:ruleset-1-3-0")) // Required for IDE
     implementation(project(":ktlint-lib:ruleset-1-3-0", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-1-2-1")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-2-1", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-1-2-0")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-2-0", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-1-1-1")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-1-1", "shadow"))
-
-    compileOnly(project(":ktlint-lib:ruleset-1-0-1")) // Required for IDE
-    implementation(project(":ktlint-lib:ruleset-1-0-1", "shadow"))
 }
 
 kotlin {

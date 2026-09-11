@@ -1,0 +1,7 @@
+plugins {
+    id("ktlint-ruleset")
+}
+
+ktlintRuleset {
+    version = "2.0.0-SNAPSHOT"
+}
