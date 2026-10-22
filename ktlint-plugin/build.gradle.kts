@@ -79,7 +79,9 @@ dependencies {
     }
 
     compileOnly(project(":ktlint-lib")) // Required for IDE
-    implementation(project(":ktlint-lib", "shadow")) {
+//    implementation(project(":ktlint-lib").tasks.named("shadowJar"))
+//    implementation(files(project(":ktlint-lib").tasks.named("shadowJar")))
+    implementation(project(":ktlint-lib")) {
         exclude(group = "org.jetbrains.kotlin")
     }
 }
