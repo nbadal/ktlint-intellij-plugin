@@ -5,13 +5,13 @@ junit = "4.13.2"
 # plugins
 changelog = "2.5.0"
 intelliJPlatform = "2.19.0"
-kotlin = "2.4.20"
-kover = "0.9.9"
+kotlin = "2.4.21"
+kover = "0.9.10"
 ktlint = "1.8.0"
 mockk = "1.14.11"
 qodana = "2026.2.1"
 shadow = "8.3.11"
-slf4j="2.0.19"
+slf4j="2.0.20"
 
 [libraries]
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
