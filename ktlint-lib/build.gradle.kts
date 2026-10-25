@@ -78,6 +78,12 @@ dependencies {
     implementation(project(":ktlint-lib:ruleset-1-0-1", "shadow"))
 }
 
+// Allow 'ktlint-plugin/build.gradle.kts' to depend on `ktlint-lib` without reference the "shadow" configuration
+configurations.runtimeElements {
+    outgoing.artifacts.clear()
+    outgoing.artifact(tasks.shadowJar)
+}
+
 kotlin {
     jvmToolchain(17)
     compilerOptions {
