@@ -1,6 +1,7 @@
 package com.nbadal.ktlint
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.components.service
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
@@ -394,14 +395,10 @@ class KtlintSettingsComponent(
         ktlintProjectSettings.externalJarPaths = externalRulesetJarPaths
         ktlintProjectSettings.baselinePath = baselinePath
 
-        with(KtlintRuleEngineWrapper.instance) {
-            reset(project)
-            formatAllOpenFiles(
-                project = project,
-                ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
-                triggeredBy = "KtlintSettingsComponent",
-            )
-        }
+        KtlintRuleEngineWrapper.instance.reset(project)
+        project
+            .service<KtlintFormatService>()
+            .formatAllOpenFilesInBackground(triggeredBy = "KtlintSettingsComponent")
     }
 
     fun reset() {
