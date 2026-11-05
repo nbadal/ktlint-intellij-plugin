@@ -118,7 +118,7 @@ internal class KtlintFormatService(
     }
 
     private suspend fun formatFiles(
-        files: List<VirtualFile>,
+        files: Collection<VirtualFile>,
         triggeredBy: String,
         forceFormat: Boolean,
     ): List<KtlintResult> =
@@ -132,7 +132,11 @@ internal class KtlintFormatService(
             }
         }
 
-    private fun kotlinFilesIn(roots: List<VirtualFile>): List<VirtualFile> =
+    /**
+     * Each file is returned once, also when the [roots] overlap. For example, when both a directory and a file inside that directory are
+     * selected.
+     */
+    private fun kotlinFilesIn(roots: List<VirtualFile>): Set<VirtualFile> =
         buildSet {
             for (root in roots) {
                 VfsUtilCore.iterateChildrenRecursively(root, null) { file ->
@@ -142,7 +146,7 @@ internal class KtlintFormatService(
                     true
                 }
             }
-        }.toList()
+        }
 
     /**
      * The document has to be changed via [writeCommandAction] from the calling coroutine. An action on save is otherwise canceled by the
