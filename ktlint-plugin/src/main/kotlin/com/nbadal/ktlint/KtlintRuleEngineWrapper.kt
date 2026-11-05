@@ -5,6 +5,7 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.options.ShowSettingsUtil
@@ -39,6 +40,7 @@ import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
+import kotlinx.coroutines.CancellationException
 import org.ec4j.core.parser.ParseException
 import java.nio.file.Path
 
@@ -50,11 +52,15 @@ internal class KtlintRuleEngineWrapper internal constructor() {
     fun ruleIdsWithAutocorrectApproveHandler(psiFile: PsiFile): Set<RuleId> =
         ktlintRuleWrapperConfig.ruleIdsWithAutocorrectApproveHandler(psiFile.project)
 
+    /**
+     * Runs ktlint lint on the [snapshot]. Should not be called while holding a read lock, as ktlint can run for a long time and does not
+     * respond to cancellation. This blocks any write action, and thereby the EDT.
+     */
     fun lint(
-        psiFile: PsiFile,
+        snapshot: KtlintFileSnapshot,
         triggeredBy: String,
-    ) = if (psiFile.virtualFile.isKotlinFile()) {
-        executeKtlint(LINT, psiFile, KtlintFileAutocorrectHandler, triggeredBy)
+    ) = if (snapshot.psiFile.virtualFile.isKotlinFile()) {
+        executeKtlint(LINT, snapshot, KtlintFileAutocorrectHandler, triggeredBy)
     } else {
         KtlintResult(NOT_STARTED)
     }
@@ -75,7 +81,9 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                 .getInstance(project)
                 .doPostponedOperationsAndUnblockDocument(document)
             WriteCommandAction.runWriteCommandAction(project) {
-                ktlintResult = executeKtlint(FORMAT, psiFile, ktlintFormatAutoCorrectHandler, triggeredBy)
+                KtlintFileSnapshot.from(psiFile)?.let { snapshot ->
+                    ktlintResult = executeKtlint(FORMAT, snapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
+                }
             }
             FileDocumentManager.getInstance().saveDocument(document)
             DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
@@ -111,10 +119,11 @@ internal class KtlintRuleEngineWrapper internal constructor() {
 
     private fun executeKtlint(
         ktlintExecutionType: KtlintExecutionType,
-        psiFile: PsiFile,
+        snapshot: KtlintFileSnapshot,
         ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
         triggeredBy: String,
     ): KtlintResult {
+        val psiFile = snapshot.psiFile
         logger.debug { "Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'" }
 
         ktlintRuleWrapperConfig
@@ -140,13 +149,10 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                 .baselineErrors(psiFile)
         val lintErrors = mutableListOf<LintError>()
         var fileChangedByFormat = false
-        // The psiFile may contain unsaved changes. Get the content via the PsiDocumentManager instead of from "psiFile.text" directly. In case
-        // the content of an active editor window is changed via a global find and replace, the document text is updated but the Psi (and
-        // PsiFile) have not yet been changed. Add the virtual path based on path of the psiFile so that the correct '.editorconfig' is picked
-        // up by ktlint.
+        // Add the virtual path based on path of the psiFile so that the correct '.editorconfig' is picked up by ktlint.
         val code =
             Code.fromSnippetWithPath(
-                content = PsiDocumentManager.getInstance(psiFile.project).getDocument(psiFile)!!.text,
+                content = snapshot.content,
                 // For compatibility with unit tests the NioPath cannot be directly determined via the virtual file
                 virtualPath = Path.of(psiFile.virtualFile.path),
             )
@@ -174,7 +180,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                                 if (baselineErrors.contains(lintError)) {
                                     AutocorrectDecision.NO_AUTOCORRECT
                                 } else {
-                                    val offset = psiFile.getLineStartOffset(lintError)
+                                    val offset = snapshot.document.getLineStartOffset(lintError)
                                     if (ktlintFormatAutoCorrectHandler.isRangeContainingOffset(offset)) {
                                         // Do not add the lint error to the list of lint errors as it will be autocorrected
                                         AutocorrectDecision.ALLOW_AUTOCORRECT
@@ -197,7 +203,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                         }
                     }
                 if (formattedCode != code.content) {
-                    psiFile.viewProvider.document.setText(formattedCode)
+                    snapshot.document.setText(formattedCode)
                     fileChangedByFormat = true
                 }
             }
@@ -207,6 +213,10 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                 lintErrors.filterNot { baselineErrors.contains(it) },
                 fileChangedByFormat,
             )
+        } catch (cancellationException: CancellationException) {
+            // Covers both the ProcessCanceledException of the platform and the cancellation of a coroutine. Cancellation is not an error,
+            // and has to be propagated so that the caller stops.
+            throw cancellationException
         } catch (_: KtLintParseException) {
             // ParseException occur very frequently while typing code, and a save operation is executed while code cannot be compiled at
             // that moment. Display a notification is distracting, and not helpful.
@@ -321,6 +331,33 @@ internal class KtlintRuleEngineWrapper internal constructor() {
 
     companion object {
         val instance = KtlintRuleEngineWrapper()
+    }
+}
+
+/**
+ * The content of a document at a given moment. The document may be changed while ktlint is running without holding a lock.
+ */
+internal class KtlintFileSnapshot(
+    val psiFile: PsiFile,
+    val document: Document,
+    val content: String,
+    val modificationStamp: Long,
+) {
+    val isStale get() = document.modificationStamp != modificationStamp
+
+    companion object {
+        /**
+         * Must be called with read access.
+         *
+         * The psiFile may contain unsaved changes. Get the content via the PsiDocumentManager instead of from "psiFile.text" directly. In
+         * case the content of an active editor window is changed via a global find and replace, the document text is updated but the Psi
+         * (and PsiFile) have not yet been changed.
+         */
+        fun from(psiFile: PsiFile): KtlintFileSnapshot? =
+            psiFile
+                .takeIf { it.isValid }
+                ?.let { PsiDocumentManager.getInstance(it.project).getDocument(it) }
+                ?.let { document -> KtlintFileSnapshot(psiFile, document, document.text, document.modificationStamp) }
     }
 }
 
