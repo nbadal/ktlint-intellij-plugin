@@ -2,9 +2,11 @@ package com.nbadal.ktlint.actions
 
 import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
+import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import com.nbadal.ktlint.KtlintFormatService
 import com.nbadal.ktlint.KtlintRuleEngineWrapper
 import com.nbadal.ktlint.KtlintViolationAutocorrectHandler
 import com.nbadal.ktlint.config
@@ -34,14 +36,16 @@ class KtlintAutocorrectIntention(
         return psiFile.findElementAt(lintError) != null
     }
 
+    override fun startInWriteAction() = false
+
     override fun invoke(
         project: Project,
         editor: Editor?,
         psiFile: PsiFile,
     ) {
-        KtlintRuleEngineWrapper
-            .instance
-            .format(
+        project
+            .service<KtlintFormatService>()
+            .formatInBackground(
                 psiFile,
                 KtlintViolationAutocorrectHandler(lintError),
                 "KtlintAutocorrectIntention",

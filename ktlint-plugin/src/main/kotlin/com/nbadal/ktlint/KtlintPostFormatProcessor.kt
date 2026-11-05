@@ -22,7 +22,7 @@ class KtlintPostFormatProcessor : PostFormatProcessor {
         ) {
             KtlintRuleEngineWrapper
                 .instance
-                .format(
+                .formatBlocking(
                     psiFile,
                     ktlintFormatAutoCorrectHandler =
                         KtlintBlockAutocorrectHandler(
@@ -30,7 +30,6 @@ class KtlintPostFormatProcessor : PostFormatProcessor {
                             rangeToReformat.endOffset + 1,
                         ),
                     triggeredBy = "KtlintPostFormatProcessor",
-                    forceFormat = true,
                 )
         }
         return rangeToReformat

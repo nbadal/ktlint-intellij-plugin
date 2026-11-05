@@ -3,12 +3,13 @@ package com.nbadal.ktlint.actions
 import com.intellij.codeInsight.intention.FileModifier
 import com.intellij.codeInsight.intention.LowPriorityAction
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
+import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintFeature
 import com.nbadal.ktlint.KtlintFileAutocorrectHandler
-import com.nbadal.ktlint.KtlintRuleEngineWrapper
+import com.nbadal.ktlint.KtlintFormatService
 import com.nbadal.ktlint.isEnabled
 
 /**
@@ -34,14 +35,16 @@ class KtlintFormatIntention :
      */
     override fun getFileModifierForPreview(target: PsiFile): FileModifier? = null
 
+    override fun startInWriteAction() = false
+
     override fun invoke(
         project: Project,
         editor: Editor?,
         psiFile: PsiFile,
     ) {
-        KtlintRuleEngineWrapper
-            .instance
-            .format(
+        project
+            .service<KtlintFormatService>()
+            .formatInBackground(
                 psiFile,
                 ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
                 triggeredBy = "KtlintFormatIntention",
