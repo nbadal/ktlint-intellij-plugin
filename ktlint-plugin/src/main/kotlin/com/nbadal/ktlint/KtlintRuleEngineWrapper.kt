@@ -48,11 +48,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
     private val ktlintRuleWrapperConfig = KtlintRuleWrapperConfig()
 
     fun ruleIdsWithAutocorrectApproveHandler(psiFile: PsiFile): Set<RuleId> =
-        ruleProviders(psiFile.project)
-            .map { it.createNewRuleInstance() }
-            .filter { it is RuleAutocorrectApproveHandler }
-            .map { it.ruleId }
-            .toSet()
+        ktlintRuleWrapperConfig.ruleIdsWithAutocorrectApproveHandler(psiFile.project)
 
     fun lint(
         psiFile: PsiFile,
@@ -122,9 +118,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         logger.debug { "Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'" }
 
         ktlintRuleWrapperConfig
-            .configure(psiFile.project)
-            .ktlintRuleEngineProvider
-            .errorLoadingExternalRulesetJar()
+            .errorLoadingExternalRulesetJar(psiFile.project)
             ?.let { error ->
                 // Report the external ruleset that was not loaded successfully. But continue with format of file with the rule providers
                 // that have been loaded successfully.
@@ -158,11 +152,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             )
 
         try {
-            val ktlintRuleEngine =
-                ktlintRuleWrapperConfig
-                    .configure(psiFile.project)
-                    .ktlintRuleEngineProvider
-                    .ktlintRuleEngine
+            val ktlintRuleEngine = ktlintRuleWrapperConfig.ruleEngine(psiFile.project)
             if (ktlintExecutionType == LINT) {
                 ktlintRuleEngine.lint(code) { lintError -> lintErrors.add(lintError) }
             } else {
@@ -275,19 +265,9 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         psiFile: PsiFile,
         code: Code,
         ktlintSuppressionAtOffset: KtlintSuppressionAtOffset,
-    ): String =
-        ktlintRuleWrapperConfig
-            .configure(psiFile.project)
-            .ktlintRuleEngineProvider
-            .ktlintRuleEngine
-            .insertSuppression(code, ktlintSuppressionAtOffset)
+    ): String = ktlintRuleWrapperConfig.ruleEngine(psiFile.project).insertSuppression(code, ktlintSuppressionAtOffset)
 
-    fun ruleProviders(project: Project) =
-        ktlintRuleWrapperConfig
-            .configure(project)
-            .ktlintRuleEngineProvider
-            .ktlintRuleEngine
-            .ruleProviders
+    fun ruleProviders(project: Project) = ktlintRuleWrapperConfig.ruleEngine(project).ruleProviders
 
     fun ktlintVersion(project: Project) =
         ktlintRuleWrapperConfig
@@ -344,11 +324,11 @@ internal class KtlintRuleEngineWrapper internal constructor() {
     }
 }
 
+/**
+ * Accessed from the EDT and from background threads. The lock is only held while configuring, and not while ktlint is running.
+ */
 private class KtlintRuleWrapperConfig {
-    private lateinit var _ktlintRuleEngineProvider: KtlintRuleEngineProvider
-
-    val ktlintRuleEngineProvider: KtlintRuleEngineProvider
-        get() = _ktlintRuleEngineProvider
+    private lateinit var ktlintRuleEngineProvider: KtlintRuleEngineProvider
 
     private lateinit var baselineProvider: BaselineProvider
 
@@ -358,14 +338,15 @@ private class KtlintRuleWrapperConfig {
         reset(null)
     }
 
+    @Synchronized
     fun reset(project: Project?) {
         // Ktlint has a static cache which is shared across all instances of the KtlintRuleEngine. Creates a new KtlintRuleEngine to load
         // changes in the editorconfig is therefore not sufficient. The memory needs to be cleared explicitly.
-        if (::_ktlintRuleEngineProvider.isInitialized) {
-            _ktlintRuleEngineProvider.trimMemoryKtlintRuleEngine()
+        if (::ktlintRuleEngineProvider.isInitialized) {
+            ktlintRuleEngineProvider.trimMemoryKtlintRuleEngine()
         }
 
-        _ktlintRuleEngineProvider = KtlintRuleEngineProvider()
+        ktlintRuleEngineProvider = KtlintRuleEngineProvider()
         baselineProvider = BaselineProvider()
         ktlintPluginsPropertiesReader = KtlintPluginsPropertiesReader()
         if (project != null) {
@@ -373,12 +354,24 @@ private class KtlintRuleWrapperConfig {
         }
     }
 
+    @Synchronized
+    fun ruleEngine(project: Project): KtLintRuleEngine = configure(project).ktlintRuleEngineProvider.ktlintRuleEngine
+
+    @Synchronized
+    fun errorLoadingExternalRulesetJar(project: Project): String? =
+        configure(project).ktlintRuleEngineProvider.errorLoadingExternalRulesetJar
+
+    @Synchronized
+    fun ruleIdsWithAutocorrectApproveHandler(project: Project): Set<RuleId> =
+        configure(project).ktlintRuleEngineProvider.ruleIdsWithAutocorrectApproveHandler
+
+    @Synchronized
     fun configure(project: Project): KtlintRuleWrapperConfig =
         apply {
             with(project.config()) {
                 baselineProvider.configure(baselinePath)
                 ktlintPluginsPropertiesReader.configure(project)
-                _ktlintRuleEngineProvider.configure(ktlintRulesetVersion(), externalJarPaths)
+                ktlintRuleEngineProvider.configure(ktlintRulesetVersion(), externalJarPaths)
             }
         }
 
@@ -401,11 +394,13 @@ private class KtlintRuleWrapperConfig {
             .DEFAULT
             .also { logger.debug { "Use default Ktlint version $it as ktlint-intellij-plugin configuration is not found" } }
 
+    @Synchronized
     fun ktlintPluginsPropertiesReader(project: Project): KtlintPluginsPropertiesReader {
         configure(project)
         return ktlintPluginsPropertiesReader
     }
 
+    @Synchronized
     fun baselineProvider(project: Project): BaselineProvider {
         configure(project)
         return baselineProvider
@@ -418,10 +413,8 @@ private class KtlintRuleEngineProvider {
      */
     private lateinit var ruleSetProviders: RuleSetProviders
 
-    private lateinit var _ktlintRuleEngine: KtLintRuleEngine
-
-    val ktlintRuleEngine: KtLintRuleEngine
-        get() = _ktlintRuleEngine
+    lateinit var ktlintRuleEngine: KtLintRuleEngine
+        private set
 
     fun configure(
         ktlintRulesetVersion: KtlintRulesetVersion,
@@ -433,7 +426,7 @@ private class KtlintRuleEngineProvider {
         ) {
             logger.info("Configure KtlintRuleEngineWrapper $ktlintRulesetVersion, $externalJarPaths")
             ruleSetProviders = RuleSetProviders(ktlintRulesetVersion, externalJarPaths)
-            _ktlintRuleEngine =
+            ktlintRuleEngine =
                 KtLintRuleEngine(
                     editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
                     ruleProviders = ruleSetProviders.ruleProviders,
@@ -441,10 +434,14 @@ private class KtlintRuleEngineProvider {
         }
     }
 
-    fun errorLoadingExternalRulesetJar(): String? = ruleSetProviders.errorLoadingExternalRulesetJar
+    val errorLoadingExternalRulesetJar: String?
+        get() = ruleSetProviders.errorLoadingExternalRulesetJar
+
+    val ruleIdsWithAutocorrectApproveHandler: Set<RuleId>
+        get() = ruleSetProviders.ruleIdsWithAutocorrectApproveHandler
 
     fun trimMemoryKtlintRuleEngine() {
-        if (::_ktlintRuleEngine.isInitialized) {
+        if (::ktlintRuleEngine.isInitialized) {
             ktlintRuleEngine.trimMemory()
         }
     }
@@ -454,16 +451,25 @@ private data class RuleSetProviders(
     val ktlintRulesetVersion: KtlintRulesetVersion,
     val externalJarPaths: List<String>,
 ) {
-    private var _errorLoadingExternalRulesetJar: String? = null
-
-    val errorLoadingExternalRulesetJar: String?
-        get() = _errorLoadingExternalRulesetJar
+    var errorLoadingExternalRulesetJar: String? = null
+        private set
 
     val ruleProviders =
         externalJarPaths
             .flatMap { externalJarRuleProviders(it) }
-            .plus(standardKtlintRuleProviders())
+            .plus(standardKtlintRuleProviders)
             .toSet()
+
+    /**
+     * Requires an instance of each rule to be created. It is requested for each violation and each time the intentions are being updated.
+     */
+    val ruleIdsWithAutocorrectApproveHandler: Set<RuleId> by lazy {
+        ruleProviders
+            .map { it.createNewRuleInstance() }
+            .filter { it is RuleAutocorrectApproveHandler }
+            .map { it.ruleId }
+            .toSet()
+    }
 
     private fun externalJarRuleProviders(path: String) =
         try {
@@ -472,19 +478,20 @@ private data class RuleSetProviders(
             logger.error(throwable) { "Cannot load external ruleset jar '$path" }
             // It is not possible to direct call KtlintNotifier to display a notification. This results in endless loop while trying to load
             // the settings dialog
-            _errorLoadingExternalRulesetJar =
+            errorLoadingExternalRulesetJar =
                 "An error occurred while reading external ruleset file '$path'. No ktlint ruleset can be loaded from this file."
             emptyList()
         }
 
-    private fun standardKtlintRuleProviders() =
-        ktlintRulesetVersion
-            .ruleProviders()
-            .also {
-                logger.info {
-                    "Loaded ${ktlintRulesetVersion.ruleProviders().size} rules from default ktlint ruleset version '${ktlintRulesetVersion.label()}'"
+    private val standardKtlintRuleProviders
+        get() =
+            ktlintRulesetVersion
+                .ruleProviders()
+                .also {
+                    logger.info {
+                        "Loaded ${ktlintRulesetVersion.ruleProviders().size} rules from default ktlint ruleset version '${ktlintRulesetVersion.label()}'"
+                    }
                 }
-            }
 }
 
 /**
