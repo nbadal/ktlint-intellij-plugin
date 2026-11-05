@@ -482,7 +482,7 @@ private data class RuleSetProviders(
     val ruleProviders =
         externalJarPaths
             .flatMap { externalJarRuleProviders(it) }
-            .plus(standardKtlintRuleProviders)
+            .plus(standardKtlintRuleProviders())
             .toSet()
 
     /**
@@ -508,15 +508,10 @@ private data class RuleSetProviders(
             emptyList()
         }
 
-    private val standardKtlintRuleProviders
-        get() =
-            ktlintRulesetVersion
-                .ruleProviders()
-                .also {
-                    logger.info {
-                        "Loaded ${ktlintRulesetVersion.ruleProviders().size} rules from default ktlint ruleset version '${ktlintRulesetVersion.label()}'"
-                    }
-                }
+    private fun standardKtlintRuleProviders() =
+        ktlintRulesetVersion
+            .ruleProviders()
+            .also { logger.info { "Loaded ${it.size} rules from default ktlint ruleset version '${ktlintRulesetVersion.label()}'" } }
 }
 
 /**
