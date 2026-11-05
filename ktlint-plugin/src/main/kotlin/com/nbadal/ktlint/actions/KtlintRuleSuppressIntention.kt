@@ -2,12 +2,14 @@ package com.nbadal.ktlint.actions
 
 import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
+import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION
 import com.nbadal.ktlint.KtlintFileAutocorrectHandler
+import com.nbadal.ktlint.KtlintFormatService
 import com.nbadal.ktlint.KtlintRuleEngineWrapper
 import com.nbadal.ktlint.config
 import com.nbadal.ktlint.findElementAt
@@ -59,13 +61,16 @@ class KtlintRuleSuppressIntention(
                     .let { updatedCode ->
                         if (updatedCode != code.content) {
                             document.setText(updatedCode)
-                            KtlintRuleEngineWrapper
-                                .instance
-                                .format(
-                                    psiFile,
-                                    ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
-                                    triggeredBy = "KtlintSuppressIntention",
-                                )
+                            // The intention preview invokes this function on a non-physical copy of the file
+                            if (psiFile.isPhysical) {
+                                project
+                                    .service<KtlintFormatService>()
+                                    .formatInBackground(
+                                        psiFile,
+                                        ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
+                                        triggeredBy = "KtlintSuppressIntention",
+                                    )
+                            }
                         }
                     }
             }
