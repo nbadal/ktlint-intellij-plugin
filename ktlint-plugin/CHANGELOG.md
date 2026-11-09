@@ -4,7 +4,26 @@
 
 ## [Unreleased]
 
-## [0.31.0-beta-1.2026-09-16_11-58-38] - 2026-09-16
+## [0.31.0] - 2026-11-09
+
+- Update max IDE build to 263.* (263) by @github-actions[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/880
+- Bump com.gradleup.shadow to 8.3.11 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/855
+- Bump actions/setup-java to 6 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/878
+- Bump org.slf4j:slf4j-api to 2.0.20 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/888
+- Bump org.jetbrains.kotlin.jvm to 2.4.21 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/895
+- Bump org.jetbrains.intellij.platform to 2.19.0 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/886
+- Bump org.jetbrains.qodana to 2026.2.2 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/896
+- Bump org.jetbrains.kotlinx.kover to 0.9.11 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/898
+- Bump gradle-wrapper to 9.8.2 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/899
+- Bump gradle/actions to 6.4.1 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/902
+- Bump org.jetbrains.kotlinx.kover to 0.9.9 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/868
+- Bump gradle/actions to 6.3.0 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/872
+- Bump gradle-wrapper to 9.7.1 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/877
+- Bump org.jetbrains.qodana to 2026.2.1 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/881
+- Bump org.slf4j:slf4j-api to 2.0.19 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/882
+- Bump org.jetbrains.kotlin.jvm to 2.4.20 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/883
+
+## [[0.31.0-beta-1.2026-09-16]_11-58-38] - 2026-09-16
 
 - Update max IDE build to 263.* (263) by @github-actions[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/880
 - Bump com.gradleup.shadow to 8.3.11 by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/855
@@ -570,7 +589,8 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.31.0-beta-1.2026-09-16_11-58-38...HEAD
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.31.0...HEAD
+[0.31.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.31.0-beta-1.2026-09-16...v0.31.0
 [0.31.0-beta-1.2026-09-16]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.5...v0.31.0-beta-1.2026-09-16
 [0.30.5]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.4...v0.30.5
 [0.30.4]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.2-beta.2025-12-17...v0.30.4
