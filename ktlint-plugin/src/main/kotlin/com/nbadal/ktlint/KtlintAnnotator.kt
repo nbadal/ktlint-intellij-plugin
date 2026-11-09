@@ -118,57 +118,12 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
             ?.forEach { lintError ->
                 errorTextRange(psiFile, lintError)
                     ?.let { errorTextRange ->
-                        if (lintError.canBeAutoCorrected) {
-                            annotationHolder.createAutocorrectIntention(psiFile, lintError, errorTextRange)
-                        }
-                        annotationHolder.createSuppressIntention(psiFile, lintError, errorTextRange)
+                        annotationHolder.createIntentions(psiFile, lintError, errorTextRange)
                     }
             }
     }
 
-    private fun AnnotationHolder.createAutocorrectIntention(
-        psiFile: PsiFile,
-        lintError: LintError,
-        errorTextRange: TextRange,
-    ) {
-        when {
-            lintError.ruleId in KtlintRuleEngineWrapper.instance.ruleIdsWithAutocorrectApproveHandler(psiFile) -> {
-                // Fixing of individual lint errors is supported for this rule. No tooltip needed.
-                newAnnotation(WARNING, lintError.errorMessage())
-                    .range(errorTextRange)
-                    .withFix(KtlintAutocorrectIntention(lintError))
-                    .create()
-            }
-
-            lintError.ruleId.ruleSetId == RuleSetId.STANDARD -> {
-                // Rules provided by Ktlint 1.3.0+ all support manual fixing of individual lint errors and as of that are already
-                // handled by previous when-condition.
-                newSilentAnnotation(WARNING)
-                    .range(errorTextRange)
-                    .tooltip(
-                        "<i>${lintError.errorMessage()}</i><p>" +
-                            "Manual fixing of individual Ktlint violations is not supported by version " +
-                            "'${psiFile.project.ktlintRulesetVersion().label()}' of the ruleset. <strong>Upgrade the ruleset in the " +
-                            "Ktlint Plugin Settings to at least 1.3.0.</strong>",
-                    ).create()
-            }
-
-            else -> {
-                // Custom rules that provide support for fixing individual violations are already handled in a when-condition above.
-                newSilentAnnotation(WARNING)
-                    .range(errorTextRange)
-                    .tooltip(
-                        "<i>${lintError.errorMessage()}</i><p>" +
-                            "Manual fixing of individual Ktlint violations is not supported for rule '${lintError.ruleId.value}'. " +
-                            "<strong>Upgrade to a later version of this ruleset if possible.</strong> This rule is provided via a custom" +
-                            " ruleset.<strong>Contact the maintainer of the '${lintError.ruleId.ruleSetId.value}' ruleset to provide a " +
-                            "compatible ruleset.</strong>",
-                    ).create()
-            }
-        }
-    }
-
-    private fun AnnotationHolder.createSuppressIntention(
+    private fun AnnotationHolder.createIntentions(
         psiFile: PsiFile,
         lintError: LintError,
         errorTextRange: TextRange,
@@ -179,11 +134,43 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 psiFile.project.isEnabled(DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR) -> ERROR
                 else -> WARNING
             }
-        // A violation can always be suppressed. So no tooltip is needed.
-        newAnnotation(severity, lintError.errorMessage())
-            .range(errorTextRange)
-            .withFix(KtlintRuleSuppressIntention(lintError))
-            .create()
+
+        when {
+            lintError.ruleId in KtlintRuleEngineWrapper.instance.ruleIdsWithAutocorrectApproveHandler(psiFile) -> {
+                // Fixing of individual lint errors is supported for this rule. No tooltip needed.
+                newAnnotation(severity, lintError.errorMessage())
+                    .withFix(KtlintAutocorrectIntention(lintError))
+            }
+
+            lintError.ruleId.ruleSetId == RuleSetId.STANDARD -> {
+                // Rules provided by Ktlint 1.3.0+ all support manual fixing of individual lint errors and as of that are already
+                // handled by previous when-condition.
+                newSilentAnnotation(severity)
+                    .tooltip(
+                        "<i>${lintError.errorMessage()}</i><p>" +
+                            "Manual fixing of individual Ktlint violations is not supported by version " +
+                            "'${psiFile.project.ktlintRulesetVersion().label()}' of the ruleset. <strong>Upgrade the ruleset in the " +
+                            "Ktlint Plugin Settings to at least 1.3.0.</strong>",
+                    )
+            }
+
+            else -> {
+                // Custom rules that provide support for fixing individual violations are already handled in a when-condition above.
+                newSilentAnnotation(severity)
+                    .tooltip(
+                        "<i>${lintError.errorMessage()}</i><p>" +
+                            "Manual fixing of individual Ktlint violations is not supported for rule '${lintError.ruleId.value}'. " +
+                            "<strong>Upgrade to a later version of this ruleset if possible.</strong> This rule is provided via a custom" +
+                            " ruleset.<strong>Contact the maintainer of the '${lintError.ruleId.ruleSetId.value}' ruleset to provide a " +
+                            "compatible ruleset.</strong>",
+                    )
+            }
+        }.apply {
+            range(errorTextRange)
+            if (lintError.canBeAutoCorrected) {
+                withFix(KtlintRuleSuppressIntention(lintError))
+            }
+        }.create()
     }
 
     private fun createAnnotationSummaryForIgnoredViolations(
