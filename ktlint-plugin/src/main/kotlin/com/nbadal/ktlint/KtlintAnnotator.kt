@@ -21,14 +21,31 @@ import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 
-internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintError>>() {
+/**
+ * The information which is collected while holding the read lock.
+ */
+internal sealed interface KtlintAnnotatorInfo {
+    @JvmInline
+    value class KnownLintErrors(
+        val lintErrors: List<LintError>,
+    ) : KtlintAnnotatorInfo {
+        constructor(vararg lintErrors: LintError) : this(lintErrors.toList())
+    }
+
+    @JvmInline
+    value class LintRequired(
+        val snapshot: KtlintFileSnapshot,
+    ) : KtlintAnnotatorInfo
+}
+
+internal class KtlintAnnotator : ExternalAnnotator<KtlintAnnotatorInfo, List<LintError>>() {
     private val logger = KtlintLogger()
 
     override fun collectInformation(
         psiFile: PsiFile,
         editor: Editor,
         hasErrors: Boolean,
-    ): List<LintError>? =
+    ): KtlintAnnotatorInfo? =
         when {
             hasErrors -> {
                 // Ignore ktlint when other errors (for example compilation errors) are found. It is very distracting to see multiple ktlint
@@ -36,7 +53,7 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                 if (psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) ||
                     editor.document.ktlintAnnotatorUserData?.displayAllKtlintViolations == true
                 ) {
-                    listOf(
+                    KtlintAnnotatorInfo.KnownLintErrors(
                         LintError(
                             line = 1,
                             col = 1,
@@ -62,13 +79,11 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
                     // Document is unchanged since last time ktlint has run. Reuse lint errors from user data. It also has the advantage that
                     // a notification from the lint/format process in case on error is not displayed again.
                     logger.debug { "Do not run ktlint as ktlintAnnotatorUserData has not changed on document ${psiFile.virtualFile.name}" }
-                    editor.document.ktlintAnnotatorUserData?.lintErrors
+                    editor.document.ktlintAnnotatorUserData
+                        ?.lintErrors
+                        ?.let { KtlintAnnotatorInfo.KnownLintErrors(it) }
                 } else {
-                    KtlintRuleEngineWrapper
-                        .instance
-                        .lint(psiFile, "KtlintAnnotator")
-                        .also { ktlintResult -> editor.document.setKtlintResult(ktlintResult) }
-                        .lintErrors
+                    KtlintFileSnapshot.from(psiFile)?.let { KtlintAnnotatorInfo.LintRequired(it) }
                 }
             }
 
@@ -77,15 +92,41 @@ internal class KtlintAnnotator : ExternalAnnotator<List<LintError>, List<LintErr
             }
         }
 
-    override fun doAnnotate(collectedInfo: List<LintError>?): List<LintError>? =
-        collectedInfo?.sortedWith(compareBy(LintError::line).thenComparingInt(LintError::col))
+    /**
+     * Runs ktlint when needed. This function is called without holding the read lock. A long-running ktlint process would otherwise block
+     * each write action, and as of that the EDT, as ktlint can not be canceled.
+     */
+    override fun doAnnotate(collectedInfo: KtlintAnnotatorInfo?): List<LintError>? =
+        when (collectedInfo) {
+            null -> {
+                null
+            }
+
+            is KtlintAnnotatorInfo.KnownLintErrors -> {
+                collectedInfo.lintErrors
+            }
+
+            is KtlintAnnotatorInfo.LintRequired -> {
+                val snapshot = collectedInfo.snapshot
+                KtlintRuleEngineWrapper
+                    .instance
+                    .lint(snapshot, "KtlintAnnotator")
+                    .also { ktlintResult ->
+                        snapshot.document.setKtlintResult(
+                            ktlintResult,
+                            snapshot.modificationStamp,
+                        )
+                    }.lintErrors
+            }
+        }?.sortedWith(compareBy({ it.line }, { it.col }))
 
     override fun apply(
         psiFile: PsiFile,
         errors: List<LintError>?,
         annotationHolder: AnnotationHolder,
     ) {
-        val displayAllKtlintViolations = psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) || psiFile.displayAllKtlintViolations
+        val displayAllKtlintViolations =
+            psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) || psiFile.displayAllKtlintViolations
         val ignoreViolationsPredicate: (LintError) -> Boolean =
             if (psiFile.project.isEnabled(SHOW_PROBLEM_WITH_NUMBER_OF_KTLINT_VIOLATIONS_THAT_CAN_BE_AUTOCORRECTED) ||
                 (

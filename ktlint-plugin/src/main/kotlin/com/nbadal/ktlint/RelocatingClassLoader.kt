@@ -51,6 +51,7 @@ class RelocatingClassLoader(
                         "org/jetbrains/kotlin",
                         "org/jetbrains/org",
                         "org/jetbrains/concurrency",
+                        "kotlinx/coroutines",
                     )
             }
     }

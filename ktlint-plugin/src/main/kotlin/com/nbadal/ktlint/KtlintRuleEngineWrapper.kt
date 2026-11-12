@@ -5,13 +5,12 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiManager
 import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.CONFIGURATION
 import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.DEFAULT
@@ -39,6 +38,7 @@ import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
+import kotlinx.coroutines.CancellationException
 import org.ec4j.core.parser.ParseException
 import java.nio.file.Path
 
@@ -48,83 +48,76 @@ internal class KtlintRuleEngineWrapper internal constructor() {
     private val ktlintRuleWrapperConfig = KtlintRuleWrapperConfig()
 
     fun ruleIdsWithAutocorrectApproveHandler(psiFile: PsiFile): Set<RuleId> =
-        ruleProviders(psiFile.project)
-            .map { it.createNewRuleInstance() }
-            .filter { it is RuleAutocorrectApproveHandler }
-            .map { it.ruleId }
-            .toSet()
+        ktlintRuleWrapperConfig.ruleIdsWithAutocorrectApproveHandler(psiFile.project)
 
+    /**
+     * Runs ktlint lint on the [snapshot]. Should not be called while holding a read lock, as ktlint can run for a long time and does not
+     * respond to cancellation. This blocks any write action, and thereby the EDT.
+     */
     fun lint(
-        psiFile: PsiFile,
+        snapshot: KtlintFileSnapshot,
         triggeredBy: String,
-    ) = if (psiFile.virtualFile.isKotlinFile()) {
-        executeKtlint(LINT, psiFile, KtlintFileAutocorrectHandler, triggeredBy)
+    ) = if (snapshot.psiFile.virtualFile.isKotlinFile()) {
+        executeKtlint(LINT, snapshot, KtlintFileAutocorrectHandler, triggeredBy).ktlintResult
     } else {
         KtlintResult(NOT_STARTED)
     }
 
+    fun isFormatAllowed(
+        psiFile: PsiFile,
+        forceFormat: Boolean,
+    ) = psiFile.virtualFile.isKotlinFile() && (psiFile.project.config().ktlintMode == DISTRACT_FREE || forceFormat)
+
+    /**
+     * Runs ktlint format on the [snapshot] without changing the document. The caller is responsible for applying the formatted code to the
+     * document. Should not be called while holding a lock, unless the platform leaves no alternative. See [formatBlocking].
+     */
     fun format(
+        snapshot: KtlintFileSnapshot,
+        ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
+        triggeredBy: String,
+    ): KtlintFormatOutput = executeKtlint(FORMAT, snapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
+
+    /**
+     * Only for [KtlintPostFormatProcessor], as the file has to be formatted when the processor returns to the platform. In all other cases
+     * use the [KtlintFormatService] as this function blocks the calling thread for as long as ktlint is running. The platform calls the
+     * [KtlintPostFormatProcessor] inside a write action, which also grants read access.
+     */
+    fun formatBlocking(
         psiFile: PsiFile,
         ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
         triggeredBy: String,
-        forceFormat: Boolean = false,
     ): KtlintResult {
-        var ktlintResult = KtlintResult(NOT_STARTED)
-        if (psiFile.virtualFile.isKotlinFile() &&
-            (psiFile.project.config().ktlintMode == DISTRACT_FREE || forceFormat)
-        ) {
-            val project = psiFile.project
-            val document = psiFile.viewProvider.document
-            PsiDocumentManager
-                .getInstance(project)
-                .doPostponedOperationsAndUnblockDocument(document)
-            WriteCommandAction.runWriteCommandAction(project) {
-                ktlintResult = executeKtlint(FORMAT, psiFile, ktlintFormatAutoCorrectHandler, triggeredBy)
-            }
-            FileDocumentManager.getInstance().saveDocument(document)
-            DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
-            PsiDocumentManager
-                .getInstance(project)
-                .doPostponedOperationsAndUnblockDocument(document)
+        if (!isFormatAllowed(psiFile, forceFormat = true)) {
+            return KtlintResult(NOT_STARTED)
         }
-        return ktlintResult
-    }
 
-    fun formatAllOpenFiles(
-        project: Project,
-        ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
-        triggeredBy: String,
-    ) {
-        FileEditorManager
-            .getInstance(project)
-            .openFiles
-            .filter { it.isKotlinFile() }
-            .forEach { virtualFile ->
-                PsiManager
-                    .getInstance(project)
-                    .findFile(virtualFile)
-                    ?.let { psiFile ->
-                        format(
-                            psiFile = psiFile,
-                            ktlintFormatAutoCorrectHandler = ktlintFormatAutoCorrectHandler,
-                            triggeredBy = triggeredBy,
-                        )
-                    }
-            }
+        val project = psiFile.project
+        val document = psiFile.viewProvider.document
+        val psiDocumentManager = PsiDocumentManager.getInstance(project)
+        psiDocumentManager.doPostponedOperationsAndUnblockDocument(document)
+        val snapshot = KtlintFileSnapshot.from(psiFile) ?: return KtlintResult(NOT_STARTED)
+        val ktlintFormatOutput = format(snapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
+        ktlintFormatOutput.formattedCode?.let { formattedCode ->
+            WriteCommandAction.runWriteCommandAction(project) { document.setText(formattedCode) }
+        }
+        FileDocumentManager.getInstance().saveDocument(document)
+        DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
+        psiDocumentManager.doPostponedOperationsAndUnblockDocument(document)
+        return ktlintFormatOutput.appliedKtlintResult()
     }
 
     private fun executeKtlint(
         ktlintExecutionType: KtlintExecutionType,
-        psiFile: PsiFile,
+        snapshot: KtlintFileSnapshot,
         ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
         triggeredBy: String,
-    ): KtlintResult {
+    ): KtlintFormatOutput {
+        val psiFile = snapshot.psiFile
         logger.debug { "Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'" }
 
         ktlintRuleWrapperConfig
-            .configure(psiFile.project)
-            .ktlintRuleEngineProvider
-            .errorLoadingExternalRulesetJar()
+            .errorLoadingExternalRulesetJar(psiFile.project)
             ?.let { error ->
                 // Report the external ruleset that was not loaded successfully. But continue with format of file with the rule providers
                 // that have been loaded successfully.
@@ -145,24 +138,17 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                 .baselineProvider(psiFile.project)
                 .baselineErrors(psiFile)
         val lintErrors = mutableListOf<LintError>()
-        var fileChangedByFormat = false
-        // The psiFile may contain unsaved changes. Get the content via the PsiDocumentManager instead of from "psiFile.text" directly. In case
-        // the content of an active editor window is changed via a global find and replace, the document text is updated but the Psi (and
-        // PsiFile) have not yet been changed. Add the virtual path based on path of the psiFile so that the correct '.editorconfig' is picked
-        // up by ktlint.
+        var changedCode: String? = null
+        // Add the virtual path based on path of the psiFile so that the correct '.editorconfig' is picked up by ktlint.
         val code =
             Code.fromSnippetWithPath(
-                content = PsiDocumentManager.getInstance(psiFile.project).getDocument(psiFile)!!.text,
+                content = snapshot.content,
                 // For compatibility with unit tests the NioPath cannot be directly determined via the virtual file
                 virtualPath = Path.of(psiFile.virtualFile.path),
             )
 
         try {
-            val ktlintRuleEngine =
-                ktlintRuleWrapperConfig
-                    .configure(psiFile.project)
-                    .ktlintRuleEngineProvider
-                    .ktlintRuleEngine
+            val ktlintRuleEngine = ktlintRuleWrapperConfig.ruleEngine(psiFile.project)
             if (ktlintExecutionType == LINT) {
                 ktlintRuleEngine.lint(code) { lintError -> lintErrors.add(lintError) }
             } else {
@@ -184,7 +170,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                                 if (baselineErrors.contains(lintError)) {
                                     AutocorrectDecision.NO_AUTOCORRECT
                                 } else {
-                                    val offset = psiFile.getLineStartOffset(lintError)
+                                    val offset = snapshot.document.getLineStartOffset(lintError)
                                     if (ktlintFormatAutoCorrectHandler.isRangeContainingOffset(offset)) {
                                         // Do not add the lint error to the list of lint errors as it will be autocorrected
                                         AutocorrectDecision.ALLOW_AUTOCORRECT
@@ -207,20 +193,22 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                         }
                     }
                 if (formattedCode != code.content) {
-                    psiFile.viewProvider.document.setText(formattedCode)
-                    fileChangedByFormat = true
+                    changedCode = formattedCode
                 }
             }
             logger.debug { "Finished ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy' successfully" }
-            return KtlintResult(
-                SUCCESS,
-                lintErrors.filterNot { baselineErrors.contains(it) },
-                fileChangedByFormat,
+            return KtlintFormatOutput(
+                KtlintResult(SUCCESS, lintErrors.filterNot { baselineErrors.contains(it) }),
+                changedCode,
             )
+        } catch (cancellationException: CancellationException) {
+            // Covers both the ProcessCanceledException of the platform and the cancellation of a coroutine. Cancellation is not an error,
+            // and has to be propagated so that the caller stops.
+            throw cancellationException
         } catch (_: KtLintParseException) {
             // ParseException occur very frequently while typing code, and a save operation is executed while code cannot be compiled at
             // that moment. Display a notification is distracting, and not helpful.
-            return KtlintResult(FILE_RELATED_ERROR)
+            return KtlintFormatOutput(KtlintResult(FILE_RELATED_ERROR))
         } catch (ktLintRuleException: KtLintRuleException) {
             KtlintNotifier.notifyError(
                 notificationGroup = RULE,
@@ -233,7 +221,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                     ${ktLintRuleException.stackTraceToString()}
                     """.trimIndent(),
             )
-            return KtlintResult(FILE_RELATED_ERROR)
+            return KtlintFormatOutput(KtlintResult(FILE_RELATED_ERROR))
         } catch (parseException: ParseException) {
             KtlintNotifier.notifyError(
                 notificationGroup = DEFAULT,
@@ -246,7 +234,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                     ${parseException.message}
                     """.trimIndent(),
             )
-            return KtlintResult(FILE_RELATED_ERROR)
+            return KtlintFormatOutput(KtlintResult(FILE_RELATED_ERROR))
         } catch (exception: Exception) {
             if (exception is IllegalStateException && exception.message?.startsWith("Skipping rule(s)") == true) {
                 KtlintNotifier.notifyError(
@@ -267,7 +255,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                         """.trimIndent(),
                 )
             }
-            return KtlintResult(FILE_RELATED_ERROR)
+            return KtlintFormatOutput(KtlintResult(FILE_RELATED_ERROR))
         }
     }
 
@@ -275,19 +263,9 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         psiFile: PsiFile,
         code: Code,
         ktlintSuppressionAtOffset: KtlintSuppressionAtOffset,
-    ): String =
-        ktlintRuleWrapperConfig
-            .configure(psiFile.project)
-            .ktlintRuleEngineProvider
-            .ktlintRuleEngine
-            .insertSuppression(code, ktlintSuppressionAtOffset)
+    ): String = ktlintRuleWrapperConfig.ruleEngine(psiFile.project).insertSuppression(code, ktlintSuppressionAtOffset)
 
-    fun ruleProviders(project: Project) =
-        ktlintRuleWrapperConfig
-            .configure(project)
-            .ktlintRuleEngineProvider
-            .ktlintRuleEngine
-            .ruleProviders
+    fun ruleProviders(project: Project) = ktlintRuleWrapperConfig.ruleEngine(project).ruleProviders
 
     fun ktlintVersion(project: Project) =
         ktlintRuleWrapperConfig
@@ -344,11 +322,38 @@ internal class KtlintRuleEngineWrapper internal constructor() {
     }
 }
 
-private class KtlintRuleWrapperConfig {
-    private lateinit var _ktlintRuleEngineProvider: KtlintRuleEngineProvider
+/**
+ * The content of a document at a given moment. The document may be changed while ktlint is running without holding a lock.
+ */
+internal class KtlintFileSnapshot(
+    val psiFile: PsiFile,
+    val document: Document,
+    val content: String,
+    val modificationStamp: Long,
+) {
+    val isStale get() = document.modificationStamp != modificationStamp
 
-    val ktlintRuleEngineProvider: KtlintRuleEngineProvider
-        get() = _ktlintRuleEngineProvider
+    companion object {
+        /**
+         * Must be called with read access.
+         *
+         * The psiFile may contain unsaved changes. Get the content via the PsiDocumentManager instead of from "psiFile.text" directly. In
+         * case the content of an active editor window is changed via a global find and replace, the document text is updated but the Psi
+         * (and PsiFile) have not yet been changed.
+         */
+        fun from(psiFile: PsiFile): KtlintFileSnapshot? =
+            psiFile
+                .takeIf { it.isValid }
+                ?.let { PsiDocumentManager.getInstance(it.project).getDocument(it) }
+                ?.let { document -> KtlintFileSnapshot(psiFile, document, document.text, document.modificationStamp) }
+    }
+}
+
+/**
+ * Accessed from the EDT and from background threads. The lock is only held while configuring, and not while ktlint is running.
+ */
+private class KtlintRuleWrapperConfig {
+    private lateinit var ktlintRuleEngineProvider: KtlintRuleEngineProvider
 
     private lateinit var baselineProvider: BaselineProvider
 
@@ -358,14 +363,15 @@ private class KtlintRuleWrapperConfig {
         reset(null)
     }
 
+    @Synchronized
     fun reset(project: Project?) {
         // Ktlint has a static cache which is shared across all instances of the KtlintRuleEngine. Creates a new KtlintRuleEngine to load
         // changes in the editorconfig is therefore not sufficient. The memory needs to be cleared explicitly.
-        if (::_ktlintRuleEngineProvider.isInitialized) {
-            _ktlintRuleEngineProvider.trimMemoryKtlintRuleEngine()
+        if (::ktlintRuleEngineProvider.isInitialized) {
+            ktlintRuleEngineProvider.trimMemoryKtlintRuleEngine()
         }
 
-        _ktlintRuleEngineProvider = KtlintRuleEngineProvider()
+        ktlintRuleEngineProvider = KtlintRuleEngineProvider()
         baselineProvider = BaselineProvider()
         ktlintPluginsPropertiesReader = KtlintPluginsPropertiesReader()
         if (project != null) {
@@ -373,12 +379,24 @@ private class KtlintRuleWrapperConfig {
         }
     }
 
+    @Synchronized
+    fun ruleEngine(project: Project): KtLintRuleEngine = configure(project).ktlintRuleEngineProvider.ktlintRuleEngine
+
+    @Synchronized
+    fun errorLoadingExternalRulesetJar(project: Project): String? =
+        configure(project).ktlintRuleEngineProvider.errorLoadingExternalRulesetJar
+
+    @Synchronized
+    fun ruleIdsWithAutocorrectApproveHandler(project: Project): Set<RuleId> =
+        configure(project).ktlintRuleEngineProvider.ruleIdsWithAutocorrectApproveHandler
+
+    @Synchronized
     fun configure(project: Project): KtlintRuleWrapperConfig =
         apply {
             with(project.config()) {
                 baselineProvider.configure(baselinePath)
                 ktlintPluginsPropertiesReader.configure(project)
-                _ktlintRuleEngineProvider.configure(ktlintRulesetVersion(), externalJarPaths)
+                ktlintRuleEngineProvider.configure(ktlintRulesetVersion(), externalJarPaths)
             }
         }
 
@@ -401,11 +419,13 @@ private class KtlintRuleWrapperConfig {
             .DEFAULT
             .also { logger.debug { "Use default Ktlint version $it as ktlint-intellij-plugin configuration is not found" } }
 
+    @Synchronized
     fun ktlintPluginsPropertiesReader(project: Project): KtlintPluginsPropertiesReader {
         configure(project)
         return ktlintPluginsPropertiesReader
     }
 
+    @Synchronized
     fun baselineProvider(project: Project): BaselineProvider {
         configure(project)
         return baselineProvider
@@ -418,10 +438,8 @@ private class KtlintRuleEngineProvider {
      */
     private lateinit var ruleSetProviders: RuleSetProviders
 
-    private lateinit var _ktlintRuleEngine: KtLintRuleEngine
-
-    val ktlintRuleEngine: KtLintRuleEngine
-        get() = _ktlintRuleEngine
+    lateinit var ktlintRuleEngine: KtLintRuleEngine
+        private set
 
     fun configure(
         ktlintRulesetVersion: KtlintRulesetVersion,
@@ -433,7 +451,7 @@ private class KtlintRuleEngineProvider {
         ) {
             logger.info("Configure KtlintRuleEngineWrapper $ktlintRulesetVersion, $externalJarPaths")
             ruleSetProviders = RuleSetProviders(ktlintRulesetVersion, externalJarPaths)
-            _ktlintRuleEngine =
+            ktlintRuleEngine =
                 KtLintRuleEngine(
                     editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
                     ruleProviders = ruleSetProviders.ruleProviders,
@@ -441,10 +459,14 @@ private class KtlintRuleEngineProvider {
         }
     }
 
-    fun errorLoadingExternalRulesetJar(): String? = ruleSetProviders.errorLoadingExternalRulesetJar
+    val errorLoadingExternalRulesetJar: String?
+        get() = ruleSetProviders.errorLoadingExternalRulesetJar
+
+    val ruleIdsWithAutocorrectApproveHandler: Set<RuleId>
+        get() = ruleSetProviders.ruleIdsWithAutocorrectApproveHandler
 
     fun trimMemoryKtlintRuleEngine() {
-        if (::_ktlintRuleEngine.isInitialized) {
+        if (::ktlintRuleEngine.isInitialized) {
             ktlintRuleEngine.trimMemory()
         }
     }
@@ -454,16 +476,25 @@ private data class RuleSetProviders(
     val ktlintRulesetVersion: KtlintRulesetVersion,
     val externalJarPaths: List<String>,
 ) {
-    private var _errorLoadingExternalRulesetJar: String? = null
-
-    val errorLoadingExternalRulesetJar: String?
-        get() = _errorLoadingExternalRulesetJar
+    var errorLoadingExternalRulesetJar: String? = null
+        private set
 
     val ruleProviders =
         externalJarPaths
             .flatMap { externalJarRuleProviders(it) }
             .plus(standardKtlintRuleProviders())
             .toSet()
+
+    /**
+     * Requires an instance of each rule to be created. It is requested for each violation and each time the intentions are being updated.
+     */
+    val ruleIdsWithAutocorrectApproveHandler: Set<RuleId> by lazy {
+        ruleProviders
+            .map { it.createNewRuleInstance() }
+            .filter { it is RuleAutocorrectApproveHandler }
+            .map { it.ruleId }
+            .toSet()
+    }
 
     private fun externalJarRuleProviders(path: String) =
         try {
@@ -472,7 +503,7 @@ private data class RuleSetProviders(
             logger.error(throwable) { "Cannot load external ruleset jar '$path" }
             // It is not possible to direct call KtlintNotifier to display a notification. This results in endless loop while trying to load
             // the settings dialog
-            _errorLoadingExternalRulesetJar =
+            errorLoadingExternalRulesetJar =
                 "An error occurred while reading external ruleset file '$path'. No ktlint ruleset can be loaded from this file."
             emptyList()
         }
@@ -480,11 +511,7 @@ private data class RuleSetProviders(
     private fun standardKtlintRuleProviders() =
         ktlintRulesetVersion
             .ruleProviders()
-            .also {
-                logger.info {
-                    "Loaded ${ktlintRulesetVersion.ruleProviders().size} rules from default ktlint ruleset version '${ktlintRulesetVersion.label()}'"
-                }
-            }
+            .also { logger.info { "Loaded ${it.size} rules from default ktlint ruleset version '${ktlintRulesetVersion.label()}'" } }
 }
 
 /**

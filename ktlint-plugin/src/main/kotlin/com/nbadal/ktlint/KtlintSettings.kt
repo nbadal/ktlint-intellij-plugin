@@ -1,10 +1,10 @@
 package com.nbadal.ktlint
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
+import com.intellij.openapi.components.service
 import com.intellij.util.xmlb.annotations.Tag
 import com.nbadal.ktlint.KtlintMode.NOT_INITIALIZED
 import com.pinterest.ktlint.ruleset.standard.KtlintRulesetVersion
@@ -36,7 +36,7 @@ class KtlintApplicationSettings : PersistentStateComponent<KtlintApplicationSett
     }
 
     companion object {
-        fun getInstance(): KtlintApplicationSettings = ApplicationManager.getApplication().getService(KtlintApplicationSettings::class.java)
+        fun getInstance(): KtlintApplicationSettings = service()
     }
 }
 
