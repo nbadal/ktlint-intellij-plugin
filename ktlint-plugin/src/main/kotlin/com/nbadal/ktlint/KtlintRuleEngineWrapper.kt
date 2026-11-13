@@ -10,15 +10,13 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
+import com.nbadal.ktlint.KtlintExecutionResult.*
 import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.CONFIGURATION
 import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.DEFAULT
 import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.RULE
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintExecutionType.FORMAT
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintExecutionType.LINT
-import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.FILE_RELATED_ERROR
-import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.NOT_STARTED
-import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.SUCCESS
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintVersion.Source.NATIVE_PLUGIN_CONFIGURATION
 import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintVersion.Source.SHARED_PLUGIN_PROPERTIES
 import com.pinterest.ktlint.cli.reporter.baseline.BaselineErrorHandling
@@ -56,11 +54,10 @@ internal class KtlintRuleEngineWrapper internal constructor() {
     fun lint(
         ktlintDocumentSnapshot: KtlintDocumentSnapshot,
         triggeredBy: String,
-    ) = if (ktlintDocumentSnapshot.psiFile.virtualFile.isKotlinFile()) {
-        executeKtlint(LINT, ktlintDocumentSnapshot, KtlintFileAutocorrectHandler, triggeredBy).ktlintResult
-    } else {
-        KtlintResult(NOT_STARTED)
-    }
+    ) = ktlintDocumentSnapshot
+        .takeIf { ktlintDocumentSnapshot.psiFile.virtualFile.isKotlinFile() }
+        ?.let { executeKtlint(LINT, ktlintDocumentSnapshot, KtlintFileAutocorrectHandler, triggeredBy) }
+        ?: NotExecuted
 
     fun isFormatAllowed(
         psiFile: PsiFile,
@@ -76,7 +73,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         ktlintDocumentSnapshot: KtlintDocumentSnapshot,
         ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
         triggeredBy: String,
-    ): KtlintFormatOutput = executeKtlint(FORMAT, ktlintDocumentSnapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
+    ): KtlintExecutionResult = executeKtlint(FORMAT, ktlintDocumentSnapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
 
     /**
      * Only for [KtlintPostFormatProcessor], as the file has to be formatted when the processor returns to the platform. In all other cases
@@ -87,27 +84,27 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         psiFile: PsiFile,
         ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
         triggeredBy: String,
-    ): KtlintResult {
+    ): KtlintExecutionResult {
         if (!isFormatAllowed(psiFile, forceFormat = true)) {
-            return KtlintResult(NOT_STARTED)
+            return NotExecuted
         }
 
         val project = psiFile.project
         val document = psiFile.viewProvider.document
         val psiDocumentManager = PsiDocumentManager.getInstance(project)
         psiDocumentManager.doPostponedOperationsAndUnblockDocument(document)
-        val ktlintDocumentSnapshot = KtlintDocumentSnapshot.from(psiFile) ?: return KtlintResult(NOT_STARTED)
-        val ktlintFormatOutput = format(ktlintDocumentSnapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
-        ktlintFormatOutput.formattedCode?.let { formattedCode ->
+        val ktlintDocumentSnapshot = KtlintDocumentSnapshot.from(psiFile) ?: return NotExecuted
+        val ktlintFormatServiceResult = format(ktlintDocumentSnapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
+        if (ktlintFormatServiceResult is FormatResult && ktlintFormatServiceResult.contentChanged) {
             WriteCommandAction.runWriteCommandAction(project) {
                 @Suppress("UsePropertyAccessSyntax")
-                document.setText(formattedCode)
+                document.setText(ktlintFormatServiceResult.formattedCode)
+                FileDocumentManager.getInstance().saveDocument(document)
+                DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
+                psiDocumentManager.doPostponedOperationsAndUnblockDocument(document)
             }
         }
-        FileDocumentManager.getInstance().saveDocument(document)
-        DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
-        psiDocumentManager.doPostponedOperationsAndUnblockDocument(document)
-        return ktlintFormatOutput.appliedKtlintResult()
+        return ktlintFormatServiceResult
     }
 
     private fun executeKtlint(
@@ -115,7 +112,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         ktlintDocumentSnapshot: KtlintDocumentSnapshot,
         ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
         triggeredBy: String,
-    ): KtlintFormatOutput {
+    ): KtlintExecutionResult {
         val psiFile = ktlintDocumentSnapshot.psiFile
         logger.debug { "Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'" }
 
@@ -141,7 +138,6 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                 .baselineProvider(psiFile.project)
                 .baselineErrors(psiFile)
         val lintErrors = mutableListOf<LintError>()
-        var changedCode: String? = null
         // Add the virtual path based on path of the psiFile so that the correct '.editorconfig' is picked up by ktlint.
         val code =
             Code.fromSnippetWithPath(
@@ -152,8 +148,9 @@ internal class KtlintRuleEngineWrapper internal constructor() {
 
         try {
             val ktlintRuleEngine = ktlintRuleWrapperConfig.ruleEngine(psiFile.project)
-            if (ktlintExecutionType == LINT) {
+            return if (ktlintExecutionType == LINT) {
                 ktlintRuleEngine.lint(code) { lintError -> lintErrors.add(lintError) }
+                LintResult(lintErrors.filterNot { baselineErrors.contains(it) })
             } else {
                 val formattedCode =
                     when (ktlintFormatAutoCorrectHandler) {
@@ -195,15 +192,16 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                             }
                         }
                     }
-                if (formattedCode != code.content) {
-                    changedCode = formattedCode
+                FormatResult(
+                    lintErrors = lintErrors.filterNot { baselineErrors.contains(it) },
+                    formattedCode = formattedCode,
+                    contentChanged = formattedCode != code.content,
+                )
+            }.also {
+                logger.debug {
+                    "Finished ktlintFormat executeKtlint '$ktlintExecutionType' on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy' successfully"
                 }
             }
-            logger.debug { "Finished ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy' successfully" }
-            return KtlintFormatOutput(
-                KtlintResult(SUCCESS, lintErrors.filterNot { baselineErrors.contains(it) }),
-                changedCode,
-            )
         } catch (cancellationException: CancellationException) {
             // Covers both the ProcessCanceledException of the platform and the cancellation of a coroutine. Cancellation is not an error,
             // and has to be propagated so that the caller stops.
@@ -211,7 +209,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         } catch (_: KtLintParseException) {
             // ParseException occur very frequently while typing code, and a save operation is executed while code cannot be compiled at
             // that moment. Display a notification is distracting, and not helpful.
-            return KtlintFormatOutput(KtlintResult(FILE_RELATED_ERROR))
+            return FileRelatedError
         } catch (ktLintRuleException: KtLintRuleException) {
             KtlintNotifier.notifyError(
                 notificationGroup = RULE,
@@ -224,7 +222,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                     ${ktLintRuleException.stackTraceToString()}
                     """.trimIndent(),
             )
-            return KtlintFormatOutput(KtlintResult(FILE_RELATED_ERROR))
+            return FileRelatedError
         } catch (parseException: ParseException) {
             KtlintNotifier.notifyError(
                 notificationGroup = DEFAULT,
@@ -237,7 +235,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                     ${parseException.message}
                     """.trimIndent(),
             )
-            return KtlintFormatOutput(KtlintResult(FILE_RELATED_ERROR))
+            return FileRelatedError
         } catch (exception: Exception) {
             if (exception is IllegalStateException && exception.message?.startsWith("Skipping rule(s)") == true) {
                 KtlintNotifier.notifyError(
@@ -258,7 +256,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                         """.trimIndent(),
                 )
             }
-            return KtlintFormatOutput(KtlintResult(FILE_RELATED_ERROR))
+            return FileRelatedError
         }
     }
 
@@ -296,29 +294,6 @@ internal class KtlintRuleEngineWrapper internal constructor() {
     }
 
     private enum class KtlintExecutionType { LINT, FORMAT }
-
-    internal data class KtlintResult(
-        val status: Status,
-        val lintErrors: List<LintError> = emptyList(),
-        val fileChangedByFormat: Boolean = false,
-    ) {
-        enum class Status {
-            /**
-             * Ktlint was not (yet) executed
-             */
-            NOT_STARTED,
-
-            /**
-             * Ktlint ran successfully.
-             */
-            SUCCESS,
-
-            /**
-             * Ktlint can not run due to error related to the file.
-             */
-            FILE_RELATED_ERROR,
-        }
-    }
 
     companion object {
         val instance = KtlintRuleEngineWrapper()

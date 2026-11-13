@@ -6,15 +6,15 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
+import com.nbadal.ktlint.KtlintExecutionResult
+import com.nbadal.ktlint.KtlintExecutionResult.FileRelatedError
+import com.nbadal.ktlint.KtlintExecutionResult.FormatResult
 import com.nbadal.ktlint.KtlintFeature.SHOW_MENU_OPTION_FORMAT_WITH_KTLINT
 import com.nbadal.ktlint.KtlintFormatService
 import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.DEFAULT
 import com.nbadal.ktlint.KtlintNotifier.notifyInformation
 import com.nbadal.ktlint.KtlintNotifier.notifyWarning
-import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult
-import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.FILE_RELATED_ERROR
-import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.SUCCESS
 import com.nbadal.ktlint.isEnabled
 import com.nbadal.ktlint.isKotlinFile
 import com.nbadal.ktlint.ktlintMode
@@ -44,18 +44,25 @@ class FormatAction : AnAction() {
 
         project
             .service<KtlintFormatService>()
-            .formatFilesInBackground(files.toList(), triggeredBy = "FormatAction") { ktlintResults ->
-                notifyFormatCompleted(project, ktlintResults)
+            .formatFilesInBackground(files.toList(), triggeredBy = "FormatAction") { ktlintExecutionResults ->
+                notifyFormatCompleted(project, ktlintExecutionResults)
             }
     }
 
     private fun notifyFormatCompleted(
         project: Project,
-        ktlintResults: List<KtlintResult>,
+        ktlintExecutionResults: List<KtlintExecutionResult>,
     ) {
-        val filesNotProcessedDueToError = ktlintResults.count { it.status == FILE_RELATED_ERROR }
-        val filesChangedByFormat = ktlintResults.count { it.fileChangedByFormat }
-        val filesFormatted = ktlintResults.count { it.status == SUCCESS }
+        val filesNotProcessedDueToError = ktlintExecutionResults.count { it is FileRelatedError }
+        val filesChangedByFormat = ktlintExecutionResults.count { it is FormatResult && it.contentChanged }
+        val filesWithErrorsNotAutocorrected =
+            ktlintExecutionResults
+                .filterIsInstance<FormatResult>()
+                .count { ktlintExecutionResult -> ktlintExecutionResult.lintErrors.any { !it.canBeAutoCorrected } }
+        val hasViolationThatCanBeAutocorrected =
+            ktlintExecutionResults
+                .filterIsInstance<FormatResult>()
+                .any { ktlintExecutionResult -> ktlintExecutionResult.lintErrors.any { it.canBeAutoCorrected } }
         val message =
             listOfNotNull(
                 "Formatting is completed.",
@@ -63,10 +70,11 @@ class FormatAction : AnAction() {
                     .takeIf { filesNotProcessedDueToError > 0 },
                 "$filesChangedByFormat files have been formatted."
                     .takeIf { filesChangedByFormat > 0 },
-                "Files might still contain ktlint violations which can not be autocorrected."
-                    .takeIf { filesFormatted > 0 },
+                "$filesWithErrorsNotAutocorrected files contain ktlint violations which can not be autocorrected."
+                    .takeIf { filesWithErrorsNotAutocorrected > 0 },
                 "Get more value out of ktlint by enabling automatic formatting by using the 'distract free' mode."
-                    .takeUnless { project.ktlintMode() == DISTRACT_FREE },
+                    .takeUnless { project.ktlintMode() == DISTRACT_FREE }
+                    .takeIf { hasViolationThatCanBeAutocorrected },
             ).joinToString(separator = " ")
         if (filesNotProcessedDueToError > 0) {
             notifyWarning(

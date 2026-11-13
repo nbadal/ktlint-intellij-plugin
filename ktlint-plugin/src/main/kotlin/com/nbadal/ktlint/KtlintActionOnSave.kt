@@ -48,11 +48,10 @@ class KtlintActionOnSave : DocumentUpdatingActionOnSave() {
         } else if (psiFile.virtualFile.isKotlinFile()) {
             project
                 .service<KtlintFormatService>()
-                .format(
+                .formatOnSave(
                     psiFile,
                     ktlintFormatAutoCorrectHandler = KtlintFileAutocorrectHandler,
                     triggeredBy = "KtlintActionOnSave",
-                    saveDocument = false,
                 )
         }
     }

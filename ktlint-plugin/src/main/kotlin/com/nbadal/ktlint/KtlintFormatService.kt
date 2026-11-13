@@ -16,8 +16,8 @@ import com.intellij.platform.util.progress.reportSequentialProgress
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
-import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult
-import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.NOT_STARTED
+import com.nbadal.ktlint.KtlintExecutionResult.FormatResult
+import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,7 +40,7 @@ internal class KtlintFormatService(
         triggeredBy: String,
         forceFormat: Boolean = false,
     ) {
-        launchWithProgress { format(psiFile, ktlintFormatAutoCorrectHandler, triggeredBy, forceFormat) }
+        launchWithProgress { formatAndSaveDocument(psiFile, ktlintFormatAutoCorrectHandler, triggeredBy, forceFormat) }
     }
 
     fun formatAllOpenFilesInBackground(triggeredBy: String) {
@@ -60,7 +60,7 @@ internal class KtlintFormatService(
     fun formatFilesInBackground(
         roots: List<VirtualFile>,
         triggeredBy: String,
-        onCompleted: (List<KtlintResult>) -> Unit,
+        onCompleted: (List<KtlintExecutionResult>) -> Unit,
     ) {
         launchWithProgress {
             onCompleted(formatFiles(kotlinFilesIn(roots), triggeredBy, forceFormat = true))
@@ -68,37 +68,67 @@ internal class KtlintFormatService(
     }
 
     /**
-     * Formats the file in the calling coroutine. When called from an action on save, the [saveDocument] should be false as the platform
-     * saves the document afterwards.
+     * Formats the file and saves the document in the calling coroutine.
      */
-    suspend fun format(
+    private suspend fun formatAndSaveDocument(
         psiFile: PsiFile,
         ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
         triggeredBy: String,
         forceFormat: Boolean = false,
-        saveDocument: Boolean = true,
-    ): KtlintResult {
-        val ktlintRuleEngineWrapper = KtlintRuleEngineWrapper.instance
-        if (!ktlintRuleEngineWrapper.isFormatAllowed(psiFile, forceFormat)) {
-            return KtlintResult(NOT_STARTED)
-        }
+    ): KtlintExecutionResult =
+        ktlintDocumentSnapshot(psiFile, forceFormat)
+            ?.let { ktlintDocumentSnapshot ->
+                format(ktlintDocumentSnapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
+                    .also {
+                        if (it is FormatResult && it.contentChanged) {
+                            edtWriteAction { FileDocumentManager.getInstance().saveDocument(ktlintDocumentSnapshot.document) }
+                        }
+                    }
+            }
+            ?: KtlintExecutionResult.NotExecuted
 
-        val ktlintDocumentSnapshot = readAction { KtlintDocumentSnapshot.from(psiFile) } ?: return KtlintResult(NOT_STARTED)
-        val ktlintFormatOutput =
+    /**
+     * Formats the file in the calling coroutine. The file is not saved as the platform saves the document afterward.
+     */
+    suspend fun formatOnSave(
+        psiFile: PsiFile,
+        ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
+        triggeredBy: String,
+        forceFormat: Boolean = false,
+    ): KtlintExecutionResult =
+        ktlintDocumentSnapshot(psiFile, forceFormat)
+            ?.let { ktlintDocumentSnapshot -> format(ktlintDocumentSnapshot, ktlintFormatAutoCorrectHandler, triggeredBy) }
+            ?: KtlintExecutionResult.NotExecuted
+
+    private suspend fun ktlintDocumentSnapshot(
+        psiFile: PsiFile,
+        forceFormat: Boolean = false,
+    ): KtlintDocumentSnapshot? =
+        psiFile
+            .takeIf { it.virtualFile.isKotlinFile() }
+            ?.takeIf { KtlintRuleEngineWrapper.instance.isFormatAllowed(it, forceFormat) }
+            ?.let { readAction { KtlintDocumentSnapshot.from(it) } }
+
+    private suspend fun format(
+        ktlintDocumentSnapshot: KtlintDocumentSnapshot,
+        ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
+        triggeredBy: String,
+    ): KtlintExecutionResult {
+        val ktlintFormatServiceResult =
             // Ktlint blocks its thread while processing the given file. So limit parallel processing to a single thread.
             withContext(Dispatchers.IO.limitedParallelism(1)) {
-                ktlintRuleEngineWrapper.format(ktlintDocumentSnapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
+                KtlintRuleEngineWrapper.instance.format(ktlintDocumentSnapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
             }
-        val formattedCode = ktlintFormatOutput.formattedCode
-        if (formattedCode != null && !applyToDocument(ktlintDocumentSnapshot, formattedCode)) {
-            logger.debug { "Discard ktlint format result of '${psiFile.virtualFile.name}' as the document has been changed" }
-            return KtlintResult(NOT_STARTED)
-        }
-
-        if (saveDocument) {
-            edtWriteAction { FileDocumentManager.getInstance().saveDocument(ktlintDocumentSnapshot.document) }
-        }
-        return ktlintFormatOutput.appliedKtlintResult()
+        return ktlintFormatServiceResult
+            .safeAs<FormatResult>()
+            ?.let { formatResult ->
+                if (formatResult.contentChanged && !ktlintDocumentSnapshot.applyToDocument(formatResult.formattedCode)) {
+                    KtlintExecutionResult.NotExecuted
+                } else {
+                    formatResult
+                }
+            }
+            ?: ktlintFormatServiceResult
     }
 
     private fun launchWithProgress(action: suspend () -> Unit) {
@@ -111,13 +141,13 @@ internal class KtlintFormatService(
         files: Collection<VirtualFile>,
         triggeredBy: String,
         forceFormat: Boolean,
-    ): List<KtlintResult> =
+    ): List<KtlintExecutionResult> =
         reportSequentialProgress(files.size) { reporter ->
             files.map { file ->
                 reporter.itemStep(file.name) {
                     readAction { file.takeIf { it.isValid }?.let { PsiManager.getInstance(project).findFile(it) } }
-                        ?.let { psiFile -> format(psiFile, KtlintFileAutocorrectHandler, triggeredBy, forceFormat) }
-                        ?: KtlintResult(NOT_STARTED)
+                        ?.let { psiFile -> formatAndSaveDocument(psiFile, KtlintFileAutocorrectHandler, triggeredBy, forceFormat) }
+                        ?: KtlintExecutionResult.NotExecuted
                 }
             }
         }
@@ -142,20 +172,18 @@ internal class KtlintFormatService(
      * The document has to be changed via [writeCommandAction] from the calling coroutine. An action on save is otherwise canceled by the
      * platform as the change is regarded as an edit by the user.
      */
-    private suspend fun applyToDocument(
-        ktlintDocumentSnapshot: KtlintDocumentSnapshot,
-        formattedCode: String,
-    ): Boolean =
+    private suspend fun KtlintDocumentSnapshot.applyToDocument(formattedCode: String): Boolean =
         @Suppress("UnstableApiUsage")
         writeCommandAction(project, "Format with Ktlint") {
-            if (ktlintDocumentSnapshot.isStale) {
+            if (isStale) {
+                logger.debug { "Discard ktlint format result of '${psiFile.virtualFile.name}' as the document has been changed" }
                 false
             } else {
                 PsiDocumentManager
                     .getInstance(project)
-                    .doPostponedOperationsAndUnblockDocument(ktlintDocumentSnapshot.document)
+                    .doPostponedOperationsAndUnblockDocument(document)
                 @Suppress("UsePropertyAccessSyntax")
-                ktlintDocumentSnapshot.document.setText(formattedCode)
+                document.setText(formattedCode)
                 true
             }
         }

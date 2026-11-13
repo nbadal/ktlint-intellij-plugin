@@ -9,6 +9,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
+import com.nbadal.ktlint.KtlintExecutionResult.LintResult
 import com.nbadal.ktlint.KtlintFeature.AUTOMATICALLY_DISPLAY_BANNER_WITH_NUMBER_OF_VIOLATIONS_FOUND
 import com.nbadal.ktlint.KtlintFeature.DISPLAY_ALL_VIOLATIONS
 import com.nbadal.ktlint.KtlintFeature.DISPLAY_VIOLATION_WHICH_CAN_NOT_BE_AUTOCORRECTED_AS_ERROR
@@ -20,6 +21,7 @@ import com.nbadal.ktlint.actions.ShowAllKtlintViolationsIntention
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
+import com.pinterest.ktlint.rule.engine.core.util.safeAs
 
 /**
  * The information which is collected while holding the read lock.
@@ -111,12 +113,9 @@ internal class KtlintAnnotator : ExternalAnnotator<KtlintAnnotatorInfo, List<Lin
                 KtlintRuleEngineWrapper
                     .instance
                     .lint(ktlintDocumentSnapshot, "KtlintAnnotator")
-                    .also { ktlintResult ->
-                        ktlintDocumentSnapshot.document.setKtlintResult(
-                            ktlintResult,
-                            ktlintDocumentSnapshot.modificationStamp,
-                        )
-                    }.lintErrors
+                    .safeAs<LintResult>()
+                    ?.lintErrors
+                    ?.also { ktlintDocumentSnapshot.document.setKtlintResult(ktlintDocumentSnapshot.modificationStamp, it) }
             }
         }?.sortedWith(compareBy({ it.line }, { it.col }))
 
