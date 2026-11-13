@@ -45,8 +45,7 @@ class KtlintActionOnSave : DocumentUpdatingActionOnSave() {
             project
                 .service<KtlintFormatService>()
                 .formatAllOpenFilesInBackground(triggeredBy = "KtlintActionOnSave")
-        } else {
-            // Only format kotlin files which were modified
+        } else if (psiFile.virtualFile.isKotlinFile()) {
             project
                 .service<KtlintFormatService>()
                 .format(
