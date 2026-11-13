@@ -156,6 +156,7 @@ internal class KtlintFormatService(
         ktlintDocumentSnapshot: KtlintDocumentSnapshot,
         formattedCode: String,
     ): Boolean =
+        @Suppress("UnstableApiUsage")
         writeCommandAction(project, "Format with Ktlint") {
             if (ktlintDocumentSnapshot.isStale) {
                 false
