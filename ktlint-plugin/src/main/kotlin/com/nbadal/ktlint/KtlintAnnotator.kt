@@ -28,16 +28,16 @@ import com.pinterest.ktlint.rule.engine.core.util.safeAs
  */
 internal sealed interface KtlintAnnotatorInfo {
     @JvmInline
-    value class KnownLintErrors(
+    value class PreKtLintExecution(
+        val ktlintDocumentSnapshot: KtlintDocumentSnapshot,
+    ) : KtlintAnnotatorInfo
+
+    @JvmInline
+    value class PostKtLintExecution(
         val lintErrors: List<LintError>,
     ) : KtlintAnnotatorInfo {
         constructor(vararg lintErrors: LintError) : this(lintErrors.toList())
     }
-
-    @JvmInline
-    value class LintRequired(
-        val ktlintDocumentSnapshot: KtlintDocumentSnapshot,
-    ) : KtlintAnnotatorInfo
 }
 
 internal class KtlintAnnotator : ExternalAnnotator<KtlintAnnotatorInfo, List<LintError>>() {
@@ -55,7 +55,7 @@ internal class KtlintAnnotator : ExternalAnnotator<KtlintAnnotatorInfo, List<Lin
                 if (psiFile.project.isEnabled(DISPLAY_ALL_VIOLATIONS) ||
                     editor.document.ktlintAnnotatorUserData?.displayAllKtlintViolations == true
                 ) {
-                    KtlintAnnotatorInfo.KnownLintErrors(
+                    KtlintAnnotatorInfo.PostKtLintExecution(
                         LintError(
                             line = 1,
                             col = 1,
@@ -83,9 +83,9 @@ internal class KtlintAnnotator : ExternalAnnotator<KtlintAnnotatorInfo, List<Lin
                     logger.debug { "Do not run ktlint as ktlintAnnotatorUserData has not changed on document ${psiFile.virtualFile.name}" }
                     editor.document.ktlintAnnotatorUserData
                         ?.lintErrors
-                        ?.let { KtlintAnnotatorInfo.KnownLintErrors(it) }
+                        ?.let { KtlintAnnotatorInfo.PostKtLintExecution(it) }
                 } else {
-                    KtlintDocumentSnapshot.from(psiFile)?.let { KtlintAnnotatorInfo.LintRequired(it) }
+                    KtlintDocumentSnapshot.from(psiFile)?.let { KtlintAnnotatorInfo.PreKtLintExecution(it) }
                 }
             }
 
@@ -98,24 +98,28 @@ internal class KtlintAnnotator : ExternalAnnotator<KtlintAnnotatorInfo, List<Lin
      * Runs ktlint when needed. This function is called without holding the read lock. A long-running ktlint process would otherwise block
      * each write action, and as of that the EDT, as ktlint can not be canceled.
      */
-    override fun doAnnotate(collectedInfo: KtlintAnnotatorInfo?): List<LintError>? =
-        when (collectedInfo) {
+    override fun doAnnotate(ktlintAnnotatorInfo: KtlintAnnotatorInfo?): List<LintError>? =
+        when (ktlintAnnotatorInfo) {
             null -> {
                 null
             }
 
-            is KtlintAnnotatorInfo.KnownLintErrors -> {
-                collectedInfo.lintErrors
+            is KtlintAnnotatorInfo.PostKtLintExecution -> {
+                ktlintAnnotatorInfo.lintErrors
             }
 
-            is KtlintAnnotatorInfo.LintRequired -> {
-                val ktlintDocumentSnapshot = collectedInfo.ktlintDocumentSnapshot
-                KtlintRuleEngineWrapper
-                    .instance
-                    .lint(ktlintDocumentSnapshot, "KtlintAnnotator")
-                    .safeAs<LintResult>()
-                    ?.lintErrors
-                    ?.also { ktlintDocumentSnapshot.document.setKtlintResult(ktlintDocumentSnapshot.modificationStamp, it) }
+            is KtlintAnnotatorInfo.PreKtLintExecution -> {
+                // Run KtLint on a snapshot of the document in a background thread so that the EDT is not blocked
+                ktlintAnnotatorInfo
+                    .ktlintDocumentSnapshot
+                    .let { ktlintDocumentSnapshot ->
+                        KtlintRuleEngineWrapper
+                            .instance
+                            .lint(ktlintDocumentSnapshot, "KtlintAnnotator")
+                            .safeAs<LintResult>()
+                            ?.lintErrors
+                            ?.also { ktlintDocumentSnapshot.document.setKtlintResult(ktlintDocumentSnapshot.modificationStamp, it) }
+                    }
             }
         }?.sortedWith(compareBy({ it.line }, { it.col }))
 
