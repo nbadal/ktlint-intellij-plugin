@@ -21,8 +21,6 @@ import com.nbadal.ktlint.KtlintRuleEngineWrapper.KtlintResult.Status.NOT_STARTED
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 private val logger = KtlintLogger()
@@ -36,13 +34,6 @@ internal class KtlintFormatService(
     private val project: Project,
     private val coroutineScope: CoroutineScope,
 ) {
-    /**
-     * Ktlint blocks its thread, and at most one file per project is processed at a time. A [Mutex] is used instead of
-     * `Dispatchers.IO.limitedParallelism(1)`, as the signature of the latter differs between the coroutines libraries which are bundled
-     * with the supported IDE versions.
-     */
-    private val ktlintMutex = Mutex()
-
     fun formatInBackground(
         psiFile: PsiFile,
         ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
@@ -94,10 +85,9 @@ internal class KtlintFormatService(
 
         val ktlintDocumentSnapshot = readAction { KtlintDocumentSnapshot.from(psiFile) } ?: return KtlintResult(NOT_STARTED)
         val ktlintFormatOutput =
-            ktlintMutex.withLock {
-                withContext(Dispatchers.IO) {
-                    ktlintRuleEngineWrapper.format(ktlintDocumentSnapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
-                }
+            // Ktlint blocks its thread while processing the given file. So limit parallel processing to a single thread.
+            withContext(Dispatchers.IO.limitedParallelism(1)) {
+                ktlintRuleEngineWrapper.format(ktlintDocumentSnapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
             }
         val formattedCode = ktlintFormatOutput.formattedCode
         if (formattedCode != null && !applyToDocument(ktlintDocumentSnapshot, formattedCode)) {
