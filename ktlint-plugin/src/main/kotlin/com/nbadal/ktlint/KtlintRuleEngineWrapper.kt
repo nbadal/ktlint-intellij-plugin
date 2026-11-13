@@ -147,7 +147,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
             )
 
         try {
-            val ktlintRuleEngine = ktlintRuleWrapperConfig.ruleEngine(psiFile.project)
+            val ktlintRuleEngine = ktlintRuleWrapperConfig.ktLintRuleEngine(psiFile.project)
             return if (ktlintExecutionType == LINT) {
                 ktlintRuleEngine.lint(code) { lintError -> lintErrors.add(lintError) }
                 LintResult(lintErrors.filterNot { baselineErrors.contains(it) })
@@ -264,9 +264,9 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         psiFile: PsiFile,
         code: Code,
         ktlintSuppressionAtOffset: KtlintSuppressionAtOffset,
-    ): String = ktlintRuleWrapperConfig.ruleEngine(psiFile.project).insertSuppression(code, ktlintSuppressionAtOffset)
+    ): String = ktlintRuleWrapperConfig.ktLintRuleEngine(psiFile.project).insertSuppression(code, ktlintSuppressionAtOffset)
 
-    fun ruleProviders(project: Project) = ktlintRuleWrapperConfig.ruleEngine(project).ruleProviders
+    fun ruleProviders(project: Project) = ktlintRuleWrapperConfig.ktLintRuleEngine(project).ruleProviders
 
     fun ktlintVersion(project: Project) =
         ktlintRuleWrapperConfig
@@ -331,7 +331,7 @@ private class KtlintRuleWrapperConfig {
     }
 
     @Synchronized
-    fun ruleEngine(project: Project): KtLintRuleEngine = configure(project).ktlintRuleEngineProvider.ktlintRuleEngine
+    fun ktLintRuleEngine(project: Project): KtLintRuleEngine = configure(project).ktlintRuleEngineProvider.ktlintRuleEngine
 
     @Synchronized
     fun errorLoadingExternalRulesetJar(project: Project): String? =
