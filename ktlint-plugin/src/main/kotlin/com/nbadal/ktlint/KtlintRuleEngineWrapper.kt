@@ -485,10 +485,9 @@ private data class RuleSetProviders(
             .plus(standardKtlintRuleProviders())
             .toSet()
 
-    /**
-     * Requires an instance of each rule to be created. It is requested for each violation and each time the intentions are being updated.
-     */
     val ruleIdsWithAutocorrectApproveHandler: Set<RuleId> by lazy {
+        // Need to instantiate each rule in order to check whether it has an RuleAutocorrectHandler. It only needs to be determined when
+        // changing the ruleset version, or when adding/removing additional external rulesets.
         ruleProviders
             .map { it.createNewRuleInstance() }
             .filter { it is RuleAutocorrectApproveHandler }
