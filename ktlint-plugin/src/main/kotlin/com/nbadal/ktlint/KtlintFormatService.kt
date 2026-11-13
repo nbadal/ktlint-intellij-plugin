@@ -92,21 +92,21 @@ internal class KtlintFormatService(
             return KtlintResult(NOT_STARTED)
         }
 
-        val snapshot = readAction { KtlintFileSnapshot.from(psiFile) } ?: return KtlintResult(NOT_STARTED)
+        val ktlintDocumentSnapshot = readAction { KtlintDocumentSnapshot.from(psiFile) } ?: return KtlintResult(NOT_STARTED)
         val ktlintFormatOutput =
             ktlintMutex.withLock {
                 withContext(Dispatchers.IO) {
-                    ktlintRuleEngineWrapper.format(snapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
+                    ktlintRuleEngineWrapper.format(ktlintDocumentSnapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
                 }
             }
         val formattedCode = ktlintFormatOutput.formattedCode
-        if (formattedCode != null && !applyToDocument(snapshot, formattedCode)) {
+        if (formattedCode != null && !applyToDocument(ktlintDocumentSnapshot, formattedCode)) {
             logger.debug { "Discard ktlint format result of '${psiFile.virtualFile.name}' as the document has been changed" }
             return KtlintResult(NOT_STARTED)
         }
 
         if (saveDocument) {
-            edtWriteAction { FileDocumentManager.getInstance().saveDocument(snapshot.document) }
+            edtWriteAction { FileDocumentManager.getInstance().saveDocument(ktlintDocumentSnapshot.document) }
         }
         return ktlintFormatOutput.appliedKtlintResult()
     }
@@ -153,17 +153,17 @@ internal class KtlintFormatService(
      * platform as the change is regarded as an edit by the user.
      */
     private suspend fun applyToDocument(
-        snapshot: KtlintFileSnapshot,
+        ktlintDocumentSnapshot: KtlintDocumentSnapshot,
         formattedCode: String,
     ): Boolean =
         writeCommandAction(project, "Format with Ktlint") {
-            if (snapshot.isStale) {
+            if (ktlintDocumentSnapshot.isStale) {
                 false
             } else {
                 PsiDocumentManager
                     .getInstance(project)
-                    .doPostponedOperationsAndUnblockDocument(snapshot.document)
-                snapshot.document.setText(formattedCode)
+                    .doPostponedOperationsAndUnblockDocument(ktlintDocumentSnapshot.document)
+                ktlintDocumentSnapshot.document.setText(formattedCode)
                 true
             }
         }

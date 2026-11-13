@@ -34,7 +34,7 @@ internal sealed interface KtlintAnnotatorInfo {
 
     @JvmInline
     value class LintRequired(
-        val snapshot: KtlintFileSnapshot,
+        val ktlintDocumentSnapshot: KtlintDocumentSnapshot,
     ) : KtlintAnnotatorInfo
 }
 
@@ -83,7 +83,7 @@ internal class KtlintAnnotator : ExternalAnnotator<KtlintAnnotatorInfo, List<Lin
                         ?.lintErrors
                         ?.let { KtlintAnnotatorInfo.KnownLintErrors(it) }
                 } else {
-                    KtlintFileSnapshot.from(psiFile)?.let { KtlintAnnotatorInfo.LintRequired(it) }
+                    KtlintDocumentSnapshot.from(psiFile)?.let { KtlintAnnotatorInfo.LintRequired(it) }
                 }
             }
 
@@ -107,14 +107,14 @@ internal class KtlintAnnotator : ExternalAnnotator<KtlintAnnotatorInfo, List<Lin
             }
 
             is KtlintAnnotatorInfo.LintRequired -> {
-                val snapshot = collectedInfo.snapshot
+                val ktlintDocumentSnapshot = collectedInfo.ktlintDocumentSnapshot
                 KtlintRuleEngineWrapper
                     .instance
-                    .lint(snapshot, "KtlintAnnotator")
+                    .lint(ktlintDocumentSnapshot, "KtlintAnnotator")
                     .also { ktlintResult ->
-                        snapshot.document.setKtlintResult(
+                        ktlintDocumentSnapshot.document.setKtlintResult(
                             ktlintResult,
-                            snapshot.modificationStamp,
+                            ktlintDocumentSnapshot.modificationStamp,
                         )
                     }.lintErrors
             }

@@ -7,24 +7,22 @@ import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-class KtlintFileSnapshotTest {
+class KtlintDocumentSnapshotTest {
     @Test
     fun `test Given a document which is not changed after creating the snapshot then the snapshot is not stale`() {
         val document = mockk<Document> { every { modificationStamp } returns 1L }
-        val snapshot = KtlintFileSnapshot(mockk<PsiFile>(), document, "val foo = 1", modificationStamp = 1L)
 
-        val isStale = snapshot.isStale
+        val actual = KtlintDocumentSnapshot(document, mockk<PsiFile>(), "val foo = 1", modificationStamp = 1L).isStale
 
-        assertThat(isStale).isFalse()
+        assertThat(actual).isFalse()
     }
 
     @Test
     fun `test Given a document which is changed after creating the snapshot then the snapshot is stale`() {
         val document = mockk<Document> { every { modificationStamp } returns 2L }
-        val snapshot = KtlintFileSnapshot(mockk<PsiFile>(), document, "val foo = 1", modificationStamp = 1L)
 
-        val isStale = snapshot.isStale
+        val actual = KtlintDocumentSnapshot(document, mockk<PsiFile>(), "val foo = 1", modificationStamp = 1L).isStale
 
-        assertThat(isStale).isTrue()
+        assertThat(actual).isTrue()
     }
 }

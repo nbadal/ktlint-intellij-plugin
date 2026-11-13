@@ -5,7 +5,6 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
@@ -51,14 +50,14 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         ktlintRuleWrapperConfig.ruleIdsWithAutocorrectApproveHandler(psiFile.project)
 
     /**
-     * Runs ktlint lint on the [snapshot]. Should not be called while holding a read lock, as ktlint can run for a long time and does not
-     * respond to cancellation. This blocks any write action, and thereby the EDT.
+     * Runs ktlint lint on the [ktlintDocumentSnapshot]. Should not be called while holding a read lock, as ktlint can run for a long time
+     * and does not respond to cancellation. This blocks any write action, and thereby the EDT.
      */
     fun lint(
-        snapshot: KtlintFileSnapshot,
+        ktlintDocumentSnapshot: KtlintDocumentSnapshot,
         triggeredBy: String,
-    ) = if (snapshot.psiFile.virtualFile.isKotlinFile()) {
-        executeKtlint(LINT, snapshot, KtlintFileAutocorrectHandler, triggeredBy).ktlintResult
+    ) = if (ktlintDocumentSnapshot.psiFile.virtualFile.isKotlinFile()) {
+        executeKtlint(LINT, ktlintDocumentSnapshot, KtlintFileAutocorrectHandler, triggeredBy).ktlintResult
     } else {
         KtlintResult(NOT_STARTED)
     }
@@ -69,14 +68,15 @@ internal class KtlintRuleEngineWrapper internal constructor() {
     ) = psiFile.virtualFile.isKotlinFile() && (psiFile.project.config().ktlintMode == DISTRACT_FREE || forceFormat)
 
     /**
-     * Runs ktlint format on the [snapshot] without changing the document. The caller is responsible for applying the formatted code to the
-     * document. Should not be called while holding a lock, unless the platform leaves no alternative. See [formatBlocking].
+     * Runs ktlint format on the [ktlintDocumentSnapshot] without changing the document. The caller is responsible for applying the
+     * formatted code to the document. Should not be called while holding a lock, unless the platform leaves no alternative. See
+     * [formatBlocking].
      */
     fun format(
-        snapshot: KtlintFileSnapshot,
+        ktlintDocumentSnapshot: KtlintDocumentSnapshot,
         ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
         triggeredBy: String,
-    ): KtlintFormatOutput = executeKtlint(FORMAT, snapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
+    ): KtlintFormatOutput = executeKtlint(FORMAT, ktlintDocumentSnapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
 
     /**
      * Only for [KtlintPostFormatProcessor], as the file has to be formatted when the processor returns to the platform. In all other cases
@@ -96,8 +96,8 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         val document = psiFile.viewProvider.document
         val psiDocumentManager = PsiDocumentManager.getInstance(project)
         psiDocumentManager.doPostponedOperationsAndUnblockDocument(document)
-        val snapshot = KtlintFileSnapshot.from(psiFile) ?: return KtlintResult(NOT_STARTED)
-        val ktlintFormatOutput = format(snapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
+        val ktlintDocumentSnapshot = KtlintDocumentSnapshot.from(psiFile) ?: return KtlintResult(NOT_STARTED)
+        val ktlintFormatOutput = format(ktlintDocumentSnapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
         ktlintFormatOutput.formattedCode?.let { formattedCode ->
             WriteCommandAction.runWriteCommandAction(project) { document.setText(formattedCode) }
         }
@@ -109,11 +109,11 @@ internal class KtlintRuleEngineWrapper internal constructor() {
 
     private fun executeKtlint(
         ktlintExecutionType: KtlintExecutionType,
-        snapshot: KtlintFileSnapshot,
+        ktlintDocumentSnapshot: KtlintDocumentSnapshot,
         ktlintFormatAutoCorrectHandler: KtlintFormatAutocorrectHandler,
         triggeredBy: String,
     ): KtlintFormatOutput {
-        val psiFile = snapshot.psiFile
+        val psiFile = ktlintDocumentSnapshot.psiFile
         logger.debug { "Start ktlintFormat on file '${psiFile.virtualFile.name}' triggered by '$triggeredBy'" }
 
         ktlintRuleWrapperConfig
@@ -142,7 +142,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         // Add the virtual path based on path of the psiFile so that the correct '.editorconfig' is picked up by ktlint.
         val code =
             Code.fromSnippetWithPath(
-                content = snapshot.content,
+                content = ktlintDocumentSnapshot.content,
                 // For compatibility with unit tests the NioPath cannot be directly determined via the virtual file
                 virtualPath = Path.of(psiFile.virtualFile.path),
             )
@@ -170,7 +170,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                                 if (baselineErrors.contains(lintError)) {
                                     AutocorrectDecision.NO_AUTOCORRECT
                                 } else {
-                                    val offset = snapshot.document.getLineStartOffset(lintError)
+                                    val offset = ktlintDocumentSnapshot.document.getLineStartOffset(lintError)
                                     if (ktlintFormatAutoCorrectHandler.isRangeContainingOffset(offset)) {
                                         // Do not add the lint error to the list of lint errors as it will be autocorrected
                                         AutocorrectDecision.ALLOW_AUTOCORRECT
@@ -319,33 +319,6 @@ internal class KtlintRuleEngineWrapper internal constructor() {
 
     companion object {
         val instance = KtlintRuleEngineWrapper()
-    }
-}
-
-/**
- * The content of a document at a given moment. The document may be changed while ktlint is running without holding a lock.
- */
-internal class KtlintFileSnapshot(
-    val psiFile: PsiFile,
-    val document: Document,
-    val content: String,
-    val modificationStamp: Long,
-) {
-    val isStale get() = document.modificationStamp != modificationStamp
-
-    companion object {
-        /**
-         * Must be called with read access.
-         *
-         * The psiFile may contain unsaved changes. Get the content via the PsiDocumentManager instead of from "psiFile.text" directly. In
-         * case the content of an active editor window is changed via a global find and replace, the document text is updated but the Psi
-         * (and PsiFile) have not yet been changed.
-         */
-        fun from(psiFile: PsiFile): KtlintFileSnapshot? =
-            psiFile
-                .takeIf { it.isValid }
-                ?.let { PsiDocumentManager.getInstance(it.project).getDocument(it) }
-                ?.let { document -> KtlintFileSnapshot(psiFile, document, document.text, document.modificationStamp) }
     }
 }
 
