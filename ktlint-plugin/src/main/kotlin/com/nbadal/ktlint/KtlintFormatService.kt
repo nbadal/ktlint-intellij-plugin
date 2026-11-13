@@ -164,6 +164,7 @@ internal class KtlintFormatService(
                 PsiDocumentManager
                     .getInstance(project)
                     .doPostponedOperationsAndUnblockDocument(ktlintDocumentSnapshot.document)
+                @Suppress("UsePropertyAccessSyntax")
                 ktlintDocumentSnapshot.document.setText(formattedCode)
                 true
             }

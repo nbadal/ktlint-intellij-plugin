@@ -99,7 +99,10 @@ internal class KtlintRuleEngineWrapper internal constructor() {
         val ktlintDocumentSnapshot = KtlintDocumentSnapshot.from(psiFile) ?: return KtlintResult(NOT_STARTED)
         val ktlintFormatOutput = format(ktlintDocumentSnapshot, ktlintFormatAutoCorrectHandler, triggeredBy)
         ktlintFormatOutput.formattedCode?.let { formattedCode ->
-            WriteCommandAction.runWriteCommandAction(project) { document.setText(formattedCode) }
+            WriteCommandAction.runWriteCommandAction(project) {
+                @Suppress("UsePropertyAccessSyntax")
+                document.setText(formattedCode)
+            }
         }
         FileDocumentManager.getInstance().saveDocument(document)
         DaemonCodeAnalyzer.getInstance(project).restart(psiFile)

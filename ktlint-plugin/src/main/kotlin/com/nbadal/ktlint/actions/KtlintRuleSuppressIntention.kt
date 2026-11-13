@@ -11,13 +11,11 @@ import com.nbadal.ktlint.KtlintFeature.SHOW_INTENTION_TO_SUPPRESS_VIOLATION
 import com.nbadal.ktlint.KtlintFileAutocorrectHandler
 import com.nbadal.ktlint.KtlintFormatService
 import com.nbadal.ktlint.KtlintRuleEngineWrapper
-import com.nbadal.ktlint.config
 import com.nbadal.ktlint.findElementAt
 import com.nbadal.ktlint.isEnabled
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtlintSuppressionAtOffset
 import com.pinterest.ktlint.rule.engine.api.LintError
-import com.pinterest.ktlint.rule.engine.api.insertSuppression
 
 class KtlintRuleSuppressIntention(
     private val lintError: LintError,
@@ -60,6 +58,7 @@ class KtlintRuleSuppressIntention(
                     .insertSuppression(psiFile, code, lintError.toKtlintSuppressionAtOffset())
                     .let { updatedCode ->
                         if (updatedCode != code.content) {
+                            @Suppress("UsePropertyAccessSyntax")
                             document.setText(updatedCode)
                             // The intention preview invokes this function on a non-physical copy of the file
                             if (psiFile.isPhysical) {
