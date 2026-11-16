@@ -22,12 +22,14 @@ class KtlintPluginsPropertiesReader {
     fun configure(project: Project?) {
         if (this.project != project || this.project?.basePath != projectBasepath) {
             this.project = project
-            projectBasepath = project?.basePath
-            showErrorOnUnsupportedKtlintVersion = true
-            properties =
-                ktlintPluginsPropertiesVirtualFile(project?.basePath)
-                    ?.readProperties()
-                    ?: emptyMap()
+            if (this.project?.basePath != projectBasepath) {
+                projectBasepath = project?.basePath
+                showErrorOnUnsupportedKtlintVersion = true
+                properties =
+                    ktlintPluginsPropertiesVirtualFile(project?.basePath)
+                        ?.readProperties()
+                        ?: emptyMap()
+            }
         }
     }
 
@@ -37,7 +39,7 @@ class KtlintPluginsPropertiesReader {
             .findFileByNioPath(Path.of("$projectBasePath/${KTLINT_PLUGINS_PROPERTIES_FILE_NAME}"))
             .also {
                 if (it == null) {
-                    logger.debug("File '$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' not found in $projectBasePath")
+                    logger.debug { "File '$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' not found in $projectBasePath" }
                     readFromKtlintPluginPropertiesFile = false
                 } else {
                     readFromKtlintPluginPropertiesFile = true
@@ -59,7 +61,7 @@ class KtlintPluginsPropertiesReader {
 
     fun ktlintRulesetVersion(): KtlintRulesetVersion? {
         if (!readFromKtlintPluginPropertiesFile) {
-            logger.debug { "File '$KTLINT_PLUGINS_PROPERTIES_FILE_NAME' not found in ${project?.basePath}" }
+            // Properties file does not exist. Log message was already printed.
             return null
         }
 
@@ -93,8 +95,7 @@ class KtlintPluginsPropertiesReader {
                                 project = project!!,
                                 title = "Unsupported Ktlint version",
                                 message =
-                                    " Ktlint version <strong>$ktlintVersionLabel</strong> is not supported by this version of the " +
-                                        "Ktlint Intelli Plugin. "
+                                    "Ktlint version <strong>$ktlintVersionLabel</strong> is not supported by this version of the Ktlint Intelli Plugin. ",
                             )
                     }
                 }
