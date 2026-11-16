@@ -24,7 +24,7 @@ import java.awt.Desktop
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.net.URI
-import java.util.*
+import java.util.Objects
 import javax.swing.ButtonGroup
 import javax.swing.JComponent
 import javax.swing.JLabel

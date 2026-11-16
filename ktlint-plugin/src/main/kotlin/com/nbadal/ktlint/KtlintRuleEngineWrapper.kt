@@ -10,7 +10,10 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import com.nbadal.ktlint.KtlintExecutionResult.*
+import com.nbadal.ktlint.KtlintExecutionResult.FileRelatedError
+import com.nbadal.ktlint.KtlintExecutionResult.FormatResult
+import com.nbadal.ktlint.KtlintExecutionResult.LintResult
+import com.nbadal.ktlint.KtlintExecutionResult.NotExecuted
 import com.nbadal.ktlint.KtlintMode.DISTRACT_FREE
 import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.CONFIGURATION
 import com.nbadal.ktlint.KtlintNotifier.KtlintNotificationGroup.DEFAULT
