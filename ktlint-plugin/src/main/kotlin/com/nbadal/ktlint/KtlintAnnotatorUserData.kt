@@ -40,13 +40,16 @@ internal fun Project.resetKtlintAnnotatorUserData() {
 
 internal fun Document.removeKtlintAnnotatorUserData() = putUserData(ktlintAnnotatorUserDataKey, null)
 
-internal fun Document.setKtlintResult(ktlintResult: KtlintRuleEngineWrapper.KtlintResult) {
+internal fun Document.setKtlintResult(
+    lintModificationTimestamp: Long,
+    lintErrors: List<LintError>,
+) {
     val currentUserData = getUserData(ktlintAnnotatorUserDataKey)
     putUserData(
         ktlintAnnotatorUserDataKey,
         KtlintAnnotatorUserData(
-            modificationTimestamp = modificationStamp,
-            lintErrors = ktlintResult.lintErrors,
+            modificationTimestamp = lintModificationTimestamp,
+            lintErrors = lintErrors,
             displayAllKtlintViolations = currentUserData?.displayAllKtlintViolations ?: false,
         ),
     )
