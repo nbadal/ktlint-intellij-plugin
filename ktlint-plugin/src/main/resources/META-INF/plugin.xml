@@ -15,6 +15,7 @@
         <actionOnSaveInfoProvider implementation="com.nbadal.ktlint.KtlintActionOnSaveInfoProvider"
                                   order="after FormatOnSaveInfoProvider"/>
         <actionOnSave implementation="com.nbadal.ktlint.KtlintActionOnSave" order="after FormatOnSaveAction"/>
+        <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
 
         <!-- Keep ids of the notificationGroups in sync with KtlintNotifier enum -->
         <notificationGroup id="Ktlint Configuration" displayType="STICKY_BALLOON"/>
