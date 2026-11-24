@@ -33,11 +33,11 @@ Enable and configure in `Preferences` > `Tools` > `KtLint`.
 <!-- Plugin change-notes start -->
 # Noteworthy changes
 
-* Set max IDEA version to 2026.3
+* Performance improvements by running Ktlint on background thread by [halotukozak](https://github.com/halotukozak) in [#904](https://github.com/nbadal/ktlint-intellij-plugin/pull/904)
 
 # Requirements
 
-* IntelliJ IDEA Platform 2025.2 - 2026.3
+* IntelliJ IDEA Platform 2026.1 - 2026.3
 <!-- Plugin change-notes end -->
 
 ## Feature set
