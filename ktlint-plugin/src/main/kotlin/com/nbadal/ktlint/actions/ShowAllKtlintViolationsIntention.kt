@@ -39,6 +39,6 @@ class ShowAllKtlintViolationsIntention :
         psiFile: PsiFile,
     ) {
         editor?.document?.setDisplayAllKtlintViolations()
-        DaemonCodeAnalyzer.getInstance(project).restart()
+        DaemonCodeAnalyzer.getInstance(project).restart(psiFile, "Show all Ktlint violations in file")
     }
 }

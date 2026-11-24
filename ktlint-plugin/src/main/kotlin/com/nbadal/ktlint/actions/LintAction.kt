@@ -35,6 +35,6 @@ class LintAction : AnAction() {
         val editor = event.getData(CommonDataKeys.EDITOR) ?: return
 
         editor.document.setDisplayAllKtlintViolations()
-        DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
+        DaemonCodeAnalyzer.getInstance(project).restart(psiFile, "Show all Ktlint violations in file")
     }
 }

@@ -34,7 +34,9 @@ class KtlintOpenSettingsDoNotShowAgainIntention :
     ) {
         KtlintApplicationSettings.getInstance().state.showBanner = false
         // Re-inspect to get the banner removed
-        DaemonCodeAnalyzer.getInstance(project).restart()
+        DaemonCodeAnalyzer
+            .getInstance(project)
+            .restart("Ktlint settings have been updated as banner for initializing ktlint for this project should not be shown anymore")
     }
 
     override fun startInWriteAction() = false

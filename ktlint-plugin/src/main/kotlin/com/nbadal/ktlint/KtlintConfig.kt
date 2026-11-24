@@ -21,7 +21,7 @@ class KtlintConfig(
     override fun apply() {
         ktlintSettingsComponent.apply()
         // Re-inspect:
-        DaemonCodeAnalyzer.getInstance(project).restart()
+        DaemonCodeAnalyzer.getInstance(project).restart("Ktlint settings have been updated")
     }
 
     override fun reset() = ktlintSettingsComponent.reset()
