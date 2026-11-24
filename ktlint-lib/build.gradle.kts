@@ -122,6 +122,9 @@ tasks {
         relocate("org.jetbrains.org", "shadow.org.jetbrains.org")
         relocate("org.jetbrains.concurrency", "shadow.org.jetbrains.concurrency")
         relocate("org.jetbrains.kotlin", "shadow.org.jetbrains.kotlin")
+        // The embeddable Kotlin compiler depends on kotlinx-coroutines. Without relocation, the plugin classloader loads these classes
+        // instead of the coroutines provided by the IDE. The platform then can not inject its `CoroutineScope` into services.
+        relocate("kotlinx.coroutines", "shadow.kotlinx.coroutines")
 
         // Ktlint-lib itself may not be minimized as this would result in exceptions when loading custom rulesets as the RulesetProviderV3
         // cannot be found
