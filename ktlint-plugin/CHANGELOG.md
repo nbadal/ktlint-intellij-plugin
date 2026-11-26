@@ -4,6 +4,32 @@
 
 ## [Unreleased]
 
+## [0.32.0-beta-1.2026-11-24_15-41-41] - 2026-11-24
+
+- Performance improvements by @halotukozak in https://github.com/nbadal/ktlint-intellij-plugin/pull/904
+- Violations not shown in "manual" mode on IDEA 2025.3 and before by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/908
+- Create combined intention when multiple quick fixes are possible by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/910
+- Remove github workflow 'update-gradle-wrapper` as dependabot also takes care of this by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/915
+- Enable JetBrains Marketplace error report submitter by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/918
+- Bump io.mockk:mockk to 1.14.12 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/911
+- Bump org.jetbrains.intellij.platform to 2.20.1 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/912
+- Bump org.jetbrains.qodana to 2026.3.1 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/916
+- Bump gradle-wrapper to 9.9.2 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/917
+- @halotukozak made their first contribution in https://github.com/nbadal/ktlint-intellij-plugin/pull/904
+
+## [[0.32.0-beta-1.2026-11-24]_15-41-36] - 2026-11-24
+
+- Performance improvements by @halotukozak in https://github.com/nbadal/ktlint-intellij-plugin/pull/904
+- Violations not shown in "manual" mode on IDEA 2025.3 and before by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/908
+- Create combined intention when multiple quick fixes are possible by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/910
+- Remove github workflow 'update-gradle-wrapper` as dependabot also takes care of this by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/915
+- Enable JetBrains Marketplace error report submitter by @paul-dingemans in https://github.com/nbadal/ktlint-intellij-plugin/pull/918
+- Bump io.mockk:mockk to 1.14.12 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/911
+- Bump org.jetbrains.intellij.platform to 2.20.1 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/912
+- Bump org.jetbrains.qodana to 2026.3.1 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/916
+- Bump gradle-wrapper to 9.9.2 by @dependabot[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/917
+- @halotukozak made their first contribution in https://github.com/nbadal/ktlint-intellij-plugin/pull/904
+
 ## [0.31.0] - 2026-11-09
 
 - Update max IDE build to 263.* (263) by @github-actions[bot] in https://github.com/nbadal/ktlint-intellij-plugin/pull/880
@@ -589,7 +615,8 @@
 - MVP: plugin that runs ktlint scanner and provides annotations. Lots more to do!
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
-[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.31.0...HEAD
+[Unreleased]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.32.0-beta-1.2026-11-24_15-41-41...HEAD
+[0.32.0-beta-1.2026-11-24]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.31.0...v0.32.0-beta-1.2026-11-24
 [0.31.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.31.0-beta-1.2026-09-16...v0.31.0
 [0.31.0-beta-1.2026-09-16]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.5...v0.31.0-beta-1.2026-09-16
 [0.30.5]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.30.4...v0.30.5
@@ -640,3 +667,5 @@
 [0.2.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.0.2...v0.1.0
 [0.0.2]: https://github.com/nbadal/ktlint-intellij-plugin/commits/v0.0.2
+[0.32.0-beta-1.2026-11-24_15-41-41]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.32.0-beta-1.2026-11-24...v0.32.0-beta-1.2026-11-24_15-41-41
+[0.32.0-beta-1.2026-11-24_15-41-36]: https://github.com/nbadal/ktlint-intellij-plugin/compare/v0.31.0...v0.32.0-beta-1.2026-11-24_15-41-36
