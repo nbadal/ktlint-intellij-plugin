@@ -35,7 +35,7 @@ internal fun Project.resetKtlintAnnotatorUserData() {
         }
 
     // Restart code analyzer so that open files are scanned again
-    DaemonCodeAnalyzer.getInstance(this).restart()
+    DaemonCodeAnalyzer.getInstance(this).restart("Reset Ktlint Annotator UserData in all open documents")
 }
 
 internal fun Document.removeKtlintAnnotatorUserData() = putUserData(ktlintAnnotatorUserDataKey, null)

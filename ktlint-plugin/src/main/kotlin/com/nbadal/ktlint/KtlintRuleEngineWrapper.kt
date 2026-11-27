@@ -104,7 +104,7 @@ internal class KtlintRuleEngineWrapper internal constructor() {
                 @Suppress("UsePropertyAccessSyntax")
                 document.setText(ktlintFormatServiceResult.formattedCode)
                 FileDocumentManager.getInstance().saveDocument(document)
-                DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
+                DaemonCodeAnalyzer.getInstance(project).restart(psiFile, "Document has been formatted with Ktlint")
                 psiDocumentManager.doPostponedOperationsAndUnblockDocument(document)
             }
         }
