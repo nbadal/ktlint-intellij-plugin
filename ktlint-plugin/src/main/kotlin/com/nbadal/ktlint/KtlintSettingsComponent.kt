@@ -452,7 +452,7 @@ class KtlintSettingsComponent(
         val jetpackComposeUri =
             URI("https://mrmans0n.github.io/compose-rules/ktlint/#using-with-ktlint-cli-or-the-ktlint-unofficial-intellij-plugin")
         val ktlintPluginProjectUri = URI("https://github.com/nbadal/ktlint-intellij-plugin/issues")
-        val ktlintProjectUri = URI("https://github.com/pinterest/ktlint/issues")
+        val ktlintProjectUri = URI("https://github.com/ktlint/ktlint/issues")
     }
 }
 
